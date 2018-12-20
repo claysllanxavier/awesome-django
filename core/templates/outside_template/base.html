@@ -1,0 +1,171 @@
+{% load staticfiles %}{% load boilerplate_base %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}Prefeitura de Palmas{% endblock title %}</title>
+
+    <!-- Bootstrap 4 CSS -->
+{#    <link rel="stylesheet" href="{% static 'bootstrap4/css/bootstrap.min.css' %}">#}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    
+    <!-- Jasny Bootstrap -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/3.1.3/css/jasny-bootstrap.min.css">
+
+    <!-- Date Picker -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker3.min.css">
+
+    <!-- Importando base css -->
+    <link rel="stylesheet" href="{% static 'outside/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'outside/css/sb-admin.css' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'outside/images/favicon.ico' %}"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css" />
+    {% block extra_css %}{% endblock extra_css %}
+
+
+    <!-- jQuery -->
+{#    <!-- jquery ele dá problema nos inlines caso ele fique no final do body -->#}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+    {# pega os css e js dos plugins add #}
+    {{ form.media }}
+
+</head>
+
+<body class="fixed-nav sidenav-toggled" id="page-top">
+
+{% block body %}
+    <div id="div-content-menu">
+      <!-- Menu lateral -->
+        {% block navbar %}
+            {% include 'includes/menu-lateral.html' %}
+        {% endblock %}
+    </div>
+
+
+    <div class="content-wrapper py-3">
+    <!-- Conteúdo -->
+        <div class="container-fluid mt-50">
+            <div id="div-breacrumb">
+                {% block breadcrumb %}
+                    {% if breadcrumbs %}
+                        <ol class="breadcrumb">
+                            {% for breadcrumb in breadcrumbs %}
+                                <li class="breadcrumb-item">
+                                    {% if breadcrumb.url %}
+                                        <a href="{{ breadcrumb.url }}">{{ breadcrumb.slug }}</a>
+                                    {% else %}
+                                        {{ breadcrumb.slug }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ol>
+                    {% endif %}
+                {% endblock breadcrumb %}
+            </div>
+
+            <div id="conteudo">
+                {% block messages %}
+                    {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                                <div class="alert {% if message.extra_tags %}alert-{{ message.extra_tags }}{% elif message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
+                                     role="alert">
+                                  {{ message|safe }}
+                                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endblock messages %}
+                {% block content %}
+                    {% block related_fields %}
+                    <!-- Bloco para mostrar os campos com relacionamento na tela de Delete -->
+                    {% endblock related_fields %}
+                {% endblock content %}
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Sair do sistema?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Clique em "Logout" abaixo se você quer encerrar sua sessão.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <a   class="btn btn-danger" href="{% url 'core:logout' %}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+    <!-- Pooper -->
+    <script src="{% static 'outside/popper/popper.js' %}"></script>
+
+    <!-- Moments -->
+    <script src="{% static 'outside/datepicker/js/moments.js' %}"></script>
+
+    <!-- Moments -->
+    <script src="{% static 'outside/plugins/js/knob.js' %}"></script>
+
+    <!-- Bootstrap 4 core Javascript -->
+    <script src="{% static 'bootstrap4/js/bootstrap.min.js'%}"></script>
+
+    <!-- Jasny Bootstrap -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/3.1.3/js/jasny-bootstrap.min.js"></script>
+
+    <!-- DatePicker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+
+    <!-- DatePicker pt-BR language -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/locales/bootstrap-datepicker.pt-BR.min.js"></script>
+
+    <!-- DataTables -->
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+
+
+    <!-- JS -->
+    <script src="{% static 'outside/js/sb-admin.js' %}"></script>
+
+    <script src="{% static 'outside/js/base.js' %}"></script>
+
+{#    <!-- jquery.formset ele dá muito problema se colocado em outro lugar por isso ele sempre tem que ficar aqui, abaixo do admin e do base -->#}
+    <script src="{% static 'outside/js/jquery.formset.js' %}" ></script>
+
+    <!-- Js responsável pelas funções dos inlines -->
+    <script src="{% static 'outside/js/inline.js' %}" ></script>
+
+
+{% block extra_js %}{% endblock extra_js %}
+
+
+</body>
+
+
+</html>
+
+
+

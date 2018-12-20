@@ -1,0 +1,25 @@
+{% extends "outside_template/base_update.html" %}
+{% load boilerplate_base %}
+{% block tituloapp %}Atualizando $title$ {% endblock tituloapp %}
+{% block contentform %}
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    {% csrf_token %}
+
+    {% for hidden_field in form.hidden_fields %}
+        {{ hidden_field }}
+    {% endfor %}
+
+    <div class="form-row">
+    <!--REPLACE_PARSER_HTML-->
+    </div> 
+{% endblock contentform %}
+{% block contentmodal %}
+    <!--REPLACE_MODAL_HTML-->
+{% endblock contentmodal %}

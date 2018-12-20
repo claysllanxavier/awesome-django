@@ -1,0 +1,385 @@
+/*
+node-sass base/static/outside/css/base.scss base/static/outside/css/base.css
+Executando o comando no VSCode 
+Shift + Control/Command + P -> Run Task
+*/
+// body, .breadcrumb {
+//  background-color: #fafafa;
+// }
+
+.clear-margin{
+  margin:0;
+}
+.clear-padding{
+  padding:0;
+}
+.align-right{
+  text-align: right;
+}
+.clear-padding-margin{
+  margin: 0;
+  padding: 0;
+}
+#grid-content, .clear {
+  padding: 0;
+  margin: 0;
+}
+
+.obrigatorio {
+  /* Regra para campos obrigatórios */
+  border-color: #ef5350;
+}
+
+.erro {
+  border-color: #d50000;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+/* Nav Bar */
+#navbar-top {
+  margin-bottom: 35px;
+  img#brasao {
+    width: 40px;
+    margin-top: -10px;
+  }
+}
+
+span.badge.inverse {
+  background-color: transparent !important;
+  color: #000 !important;
+  margin-left: -15px;
+  margin-top: -25px;
+}
+
+/* Menu Lateral */
+
+#menu-left {
+  margin: -35px 0 0 10px;
+  padding: 35px 0 0 0;
+  color: #616161 !important;
+  div {
+    color: #616161 !important;
+    a {
+      color: #616161 !important;
+    }
+    border-radius: 0 !important;
+  }
+  > div > div {
+    border-bottom: solid 1px #e0e0e0 !important;
+    box-sizing: border-box;
+    list-style: none;
+    padding: 0 0 8px 0;
+    position: relative;
+  }
+}
+
+#div-content-content {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* Adicionando um padding as div row*/
+
+.row {
+  padding: 16px 0;
+}
+
+/* Adicionando um padding ao conteúdo das tabs*/
+
+.tab-content {
+  padding: 8px 16px;
+}
+
+table {
+  &.table td {
+    text-align: left;
+  }
+  &.sem-borda {
+    border: none !important;
+    th, td {
+      border: none !important;
+    }
+  }
+}
+
+/* Menu Sub Menu*/
+
+.menu-submenu {
+  border: none !important;
+  border-color: white !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  div {
+    border: none !important;
+    border-color: white !important;
+    border-radius: 0;
+    box-shadow: none !important;
+    &.panel {
+      border: none !important;
+      border-color: white !important;
+      border-radius: 0;
+      box-shadow: none !important;
+    }
+    &.panel-heading, &.panel {
+      background-color: transparent !important;
+    }
+    &.panel-body {
+      padding: 0 30px;
+    }
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 10px;
+    li {
+      padding: 6px 12px;
+    }
+  }
+  h4 > a {
+    font-weight: 500;
+    text-decoration: none;
+    &:hover {
+      font-weight: 500;
+      text-decoration: none;
+    }
+  }
+  ul li a {
+    &:hover {
+      text-decoration: none;
+      color: rgba(0, 0, 0, 0.7);
+      display: block;
+    }
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.7);
+    display: block;
+  }
+  div.panel-heading:hover, ul li:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+}
+
+#div-add-button-top{
+  padding-bottom: 9px;
+  margin: 40px 0 20px;
+  text-align: right;
+}
+#div-btn-search-filter{
+  padding-top: 25px;
+}
+#ul-pagination-item{
+  height: auto;
+  max-height: 200px;
+  overflow-x: hidden;
+}
+// Area para os formularios
+button.btn-inline-form{
+  margin: 0 !important;
+}
+div.input-group > button.btn{
+  margin-top: 0 !important;
+  margin-left: 5px !important;
+}
+// Fim da area para os formularios
+/* Modal */
+
+.modal-center {
+  text-align: center;
+  padding: 0 !important;
+  &:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -4px;
+  }
+}
+
+.modal-center-dialog {
+  display: inline-block;
+  text-align: left;
+  max-width: 90%;
+  vertical-align: middle;
+}
+
+.modal-bottom {
+  text-align: center;
+  padding: 0 !important;
+  padding-bottom: 15px !important;
+  &:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: bottom;
+    margin-right: -4px;
+  }
+}
+
+.modal-bottom-dialog {
+  display: inline-block;
+  text-align: left;
+  max-width: 90%;
+  vertical-align: middle;
+}
+
+.modal-success div.modal-body div.modal-icon, .modal-error div.modal-body div.modal-icon, .modal-warning div.modal-body div.modal-icon {
+  font-size: 2em;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.modal-success div.modal-body div.modal-icon {
+  color: #d6e9c6;
+}
+
+.modal-warning div.modal-body div.modal-icon {
+  color: #ffd54f;
+}
+
+.modal-error div.modal-body div.modal-icon {
+  color: #e64a19;
+}
+
+.modal-success div.modal-body, .modal-error div.modal-body, .modal-warning div.modal-body {
+  font-size: 1.8em;
+}
+
+.modal-error div.modal-body {
+  color: #dd2c00;
+}
+
+.modal-warning div.modal-body {
+  color: #ffb300;
+}
+
+.modal-success div {
+  &.modal-body {
+    color: #689f38;
+  }
+  &.modal-footer {
+    text-align: center;
+    border-top: none;
+  }
+}
+
+.modal-error div.modal-footer, .modal-warning div.modal-footer {
+  text-align: center;
+  border-top: none;
+}
+
+/* Aplicando regra CSS para os erros nos campos*/
+
+ul.errorlist {
+  li {
+    list-style: None;
+  }
+  background-color: rgb(242, 222, 222);
+  background-image: linear-gradient(rgb(242, 222, 222) 0px, rgb(231, 195, 195) 100%);
+  background-repeat: repeat-x;
+  border-bottom-color: rgb(220, 167, 167);
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-image-outset: 0;
+  border-image-repeat: stretch stretch;
+  border-image-slice: 100%;
+  border-image-source: none;
+  border-image-width: 1;
+  border-left-color: rgb(220, 167, 167);
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-right-color: rgb(220, 167, 167);
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-top-color: rgb(220, 167, 167);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  box-shadow: rgba(255, 255, 255, 0.25) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  box-sizing: border-box;
+  color: rgb(169, 68, 66);
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 15px;
+  text-shadow: rgba(255, 255, 255, 0.2) 0px 1px 0px;
+  -moz-border-bottom-colors: none;
+  -moz-border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-top-colors: none;
+}
+
+/* Card */
+
+.div-card {
+  padding: 16px;
+  background-attachment: scroll;
+  background-clip: border-box;
+  background-color: rgb(255, 255, 255);
+  background-image: none;
+  background-origin: padding-box;
+  background-position: 0% 0%;
+  background-position-x: 0%;
+  background-position-y: 0%;
+  background-repeat: repeat;
+  background-size: auto auto;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-collapse: collapse;
+  border-spacing: 0px 0px;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  box-shadow: rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px;
+  box-sizing: border-box;
+  color: rgb(117, 117, 117);
+  display: flex;
+  flex-direction: column;
+  font-family: "Roboto","Helvetica","Arial",sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  min-height: 200px;
+  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  position: relative;
+  text-align: left;
+  z-index: 1;
+  margin-bottom: 16px;
+  .card-title {
+    font-weight: bold;
+    padding-bottom: 16px;
+    width: 90%;
+  }
+  .card-content {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .card-toolbar {
+    text-align: right;
+    float: right;
+    margin: 16px 0 8px 0;
+  }
+}
+
+/* Footer */
+
+footer {
+  padding: 16px 8px;
+  position: relative;
+  bottom: 0;
+  max-height: 100px;
+  width: 100%;
+  color: #757575;
+  background-color: #e0e0e0;
+  text-align: center;
+}

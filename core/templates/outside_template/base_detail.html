@@ -1,0 +1,79 @@
+{% extends "outside_template/base.html" %}
+{% load staticfiles %}{% load boilerplate_base %}
+
+{% block content %}
+    {% if has_add_permission or  has_change_permission or  has_delete_permission %}
+
+            <div class="row">
+                <div class="col-md-10">
+                    <h2>{% block tituloapp %}Detalhe {{ model_name }}{% endblock tituloapp %}</h2>
+                </div>
+                <div class="col-md-2">
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-default btn-lg" data-toggle="tooltip" data-placement="bottom" title="Imprimir"><i class="fa fa-print" aria-hidden="true"></i></a>
+                        <a href="{% url url_update object.pk %}" class="btn btn-default btn-lg" data-toggle="tooltip" data-placement="bottom" title="Editar"><i class="fa fa-pencil" aria-hidden="true"></i> </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-deck">
+                {% for field in object_list %}
+                    {% if not forloop.first and forloop.counter0|divisibleby:2 %}
+                        </div>
+                        <div class="card-deck">
+                    {% endif %}
+                    <div class="card m-1">
+                        <div class="card-body">
+                            <strong>{{ field.0|capfirst }}: </strong>
+                            {% if not field.1 is None and  field.1 != '' %}
+                                <p class="card-text">
+                                    {{ field.1|safe }}
+                                </p>
+                            {% else %}
+                                 <p class="card-text" style="color: red">
+                                    Não contem o valor
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="card-deck">
+                <div class="card m-1">
+                    <div class="card-body">
+                        {% for field in many_fields  %}
+                               <strong>{{ field.0|capfirst }}</strong><br>
+                             <div class="card-deck">
+                                {% for obj in field.1.all %}
+                                    {% if not forloop.first and forloop.counter0|divisibleby:2 %}
+                                        </div>
+                                        <div class="card-deck">
+                                    {% endif %}
+                                    <div class="card m-1">
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                {{ obj|safe }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                             </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row justify-content-between">
+                {% block buttonbar %}
+                    <div class="col-md-12 text-right" >
+                        <a href="{% url url_list %}" class="btn btn-primary">Voltar</a>
+                    </div>
+                {% endblock buttonbar %}
+            </div>
+    {% else %}
+             <div class="alert alert-danger" role="alert">
+              <h4 class="alert-heading"> Voce não tem permisão para acessar essa pagina!</h4>
+            </div>
+    {% endif %}
+ {% endblock content %}

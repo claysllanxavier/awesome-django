@@ -1,0 +1,117 @@
+{% load static boilerplate_base %}
+{% if filters %}
+    <div class="form-group my-0 py-0">
+        {% comment %}Bloco filtro para subscrever os filtros que podem ser aplicados na listagem{% endcomment %}
+        <!-- Percorrendo todos os filtros -->
+        <div class="row my-0 py-0">
+            {% for filter in filters %}
+                <div class="col-sm">
+                    {% for key_filter, value_filter in filter.items %}
+                        <label for="{{ key_filter }}">{{ value_filter.label}}: &nbsp;</label>
+{#                       if trata apena os tipos de data#}
+                        {% if  value_filter.type_filter == 'DateField' or value_filter.type_filter == 'DateTimeField' %}
+                            <div class="btn-group date-filter w-100" role="group">
+                                <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="id-{{ key_filter }}-select-button">
+                                    <span class="sr-only">Selecione</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="id-{{ key_filter }}-select-list" >
+                                    {% set is_parametro_in_query = False %}
+                                    {% for item in value_filter.list %}
+{#                                        verifica se tem o elemento nos parametros que veio da query#}
+                                        {% if key_filter|add:item.choice_id|stringformat:"s"|in_list:query_params_filters.keys%}
+                                            {% set is_parametro_in_query = True %}
+                                            {% for key_param_filter, value_param_filter in query_params_filters.items %}
+                                                {% if key_param_filter|split:'__'|first == key_filter %}
+                                                    {% if item.choice_id|split:'__'|last|stringformat:"s" == key_param_filter|split:'__'|last|stringformat:"s" %}
+                                                        <div class="dropdown-item active"  data-id-input="id-{{ key_filter }}" data-prefix-filter="{{ item.choice_id }}" >{{ item.choice_label }}</div>
+                                                    {% else %}
+                                                        <div class="dropdown-item" data-id-input="id-{{ key_filter }}" data-prefix-filter="{{ item.choice_id }}" >{{ item.choice_label }}</div>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% empty %}
+                                                <div class="dropdown-item"  data-id-input="id-{{ key_filter }}" data-prefix-filter="{{ item.choice_id }}" >{{ item.choice_label }}</div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="dropdown-item" data-id-input="id-{{ key_filter }}" data-prefix-filter="{{ item.choice_id }}" >{{ item.choice_label }}</div>
+
+                                        {% endif %}
+                                    {% endfor %}
+
+                                </div>
+
+                                {% if is_parametro_in_query %}
+                                    {% for key_param_filter, value_param_filter in query_params_filters.items %}
+                                         {% if key_param_filter|split:'__'|first == key_filter %}
+                                            <input type="text" style="width: 150px!important;" class="form-control {{ value_filter.type_filter|lower  }}"
+                                               name="{{ key_param_filter|default:key_filter }}" id="id-{{ key_filter }}" value=" {{ value_param_filter.0}}">
+                                         {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <input type="text" style="width: 150px!important;" class="form-control {{ value_filter.type_filter|lower  }}"
+                                               name="{{ key_filter|add:value_filter.list.0.choice_id }}" id="id-{{ key_filter }}" >
+                                {% endif %}
+
+                                <div class="input-group-btn">
+                                    <button class="btn btn-outline-secondary" id="id-{{ key_filter }}-button" type="button" onclick="this.form.submit();">
+                                        Filtrar
+                                    </button>
+                                </div>
+                            </div>
+
+{#                       else trata apena os tipos que NÃO são data#}
+                        {% else %}
+                            <select class="form-control" name="{{ key_filter }}" id="id_{{ key_filter }}" onchange="this.form.submit();">
+                                <option value="None">Selecione</option>
+                                {% for item in value_filter.list %}
+                                    <!-- O Filtro é uma ForeingKey -->
+                                    {% if value_filter.type_filter == 'ForeignKey' and item.pk %}
+                                        {% for key_param_filter, value_param_filter in query_params_filters.items %}
+                                            {% if key_param_filter == key_filter %}
+                                                {% if item.pk|stringformat:"s" == value_param_filter.0 %}
+                                                    <option value="{{ item.pk }}" selected="selected">{{ item }}</option>
+                                                {% else %}
+                                                    <option value="{{ item.pk }}">{{ item }}</option>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% empty %}
+                                            <option value="{{ item.pk }}">{{ item }}</option>
+                                        {% endfor %}
+                                    <!-- O Filtro possui o atributo Choice -->
+                                    {% elif value_filter.type_filter == 'ChoiceField' and item.choice_id is not None%}
+                                        {% for key_param_filter, value_param_filter in query_params_filters.items %}
+                                            {% if key_param_filter == key_filter %}
+                                                {% if item.choice_id|stringformat:"s" == value_param_filter.0 %}
+                                                    <option value="{{ item.choice_id }}" selected="selected">{{ item.choice_label }}</option>
+                                                {% else %}
+                                                    <option value="{{ item.choice_id }}">{{ item.choice_label }}</option>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% empty %}
+                                            <option value="{{ item.choice_id }}">{{ item.choice_label }}</option>
+                                        {% endfor %}
+
+                                    {% else %}
+                                        <!-- O Filtro não é ForeingKey -->
+                                        {% for key_param_filter, value_param_filter in query_params_filters.items %}
+                                            <!-- Verificando se foi aplicado algum filtro para recuperar o valor dele e atruibuir ao campo -->
+                                            {% if key_param_filter == key_filter and item %}
+                                                {% if item|stringformat:"s" == value_param_filter.0 %}
+                                                    <option value="{{ item }}" selected="selected">{{ item }}</option>
+                                                {% else %}
+                                                    <option value="{{ item }}">{{ item }}</option>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% empty %}
+                                            <option value="{{ item }}">{{ item }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

@@ -1,0 +1,1 @@
+{% extends "outside_template/base_detail.html" %}

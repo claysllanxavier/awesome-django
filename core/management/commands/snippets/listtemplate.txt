@@ -1,0 +1,103 @@
+{% extends 'outside_template/base_list.html' %}
+{% block titulo_template %} Lista de $title$ {% endblock titulo_template %}
+{% block tableblock %}
+                            {% if object_list|length > 0 and display|length > 0 %}
+                                <table id="table-item" class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <!-- Percorrendo os list_display q serão exibidos para criar os títulos das colunas -->
+                                        {% for header in display %}
+                                            {% if header == 'pk' or header == 'id' %}
+                                                <th>Opções</th>
+                                            {% else %}
+                                                <th>{{ header|capfirst }}</th>
+                                            {% endif %}
+                                        {% empty %}
+
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for value in object_list %}
+                                        <tr>
+                                            {% for item_key, item_value in value.items %}
+                                                    {% if item_key == 'pk'   %}
+                                                         <td align="middle" style="width: 160px !important;">
+                                                            <a href="{% url url_detail value.pk %}" class="btn btn-info btn-sm"
+                                                               data-toggle="tooltip" data-placement="right" title="Visualizar Registro"><i class="fa fa-eye" ></i></a>
+                                                            {% if has_change_permission %}
+                                                                <a href="{% url url_update value.pk %}" class="btn btn-warning btn-sm"
+                                                                data-toggle="tooltip" data-placement="right" title="Editar Registro" ><i class="far fa-edit"></i></a>
+                                                            {% endif %}
+                                                            {% if has_delete_permission %}
+                                                                <a href="{% url url_delete value.pk %}" class="btn btn-danger btn-sm"
+                                                                data-toggle="tooltip" data-placement="right" title="Apagar Registro" ><i class="fas fa-trash"></i></a>
+                                                            {% endif %}
+                                                         </td>
+                                                    {% elif item_key == 'id'  %}
+                                                        <td align="middle" style="width: 160px !important;">
+                                                            <a href="{% url url_detail value.id %}" class="btn btn-info btn-sm"
+                                                               data-toggle="tooltip" data-placement="right" title="Visualizar Registro" ><i class="fa fa-eye" ></i></a>
+                                                            {% if has_change_permission %}
+                                                                <a href="{% url url_update value.id %}"  class="btn btn-warning btn-sm"
+                                                                data-toggle="tooltip" data-placement="right" title="Editar Registro" ><i class="far fa-edit"></i></a>
+                                                            {% endif %}
+                                                            {% if has_delete_permission %}
+                                                                <a href="{% url url_delete value.id %}" class="btn btn-danger btn-sm"
+                                                                data-toggle="tooltip" data-placement="right" title="Apagar Registro" ><i class="fas fa-trash"></i></a>
+                                                            {% endif %}
+                                                        </td>
+                                                    {% else %}
+                                                        <td>
+                                                            {{ item_value }}
+                                                        </td>
+                                                    {% endif %}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+
+                                    {% if is_paginated %}
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="{{ display|length }}">
+                                                    <ul class="pagination justify-content-center">
+                                                        {% if page_obj.has_previous %}
+                                                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ url_pagination }}">Anterior</a></li>
+                                                        {% endif %}
+                                                        {% for i  in paginator.page_range %}
+                                                            {% if page_obj.number != i and i < page_obj.number and i == 4 and page_obj.number|add:-2 > 4 or  page_obj.number != i and i > page_obj.number and i == page_obj.paginator.num_pages|add:-3  and page_obj.number|add:2 < page_obj.paginator.num_pages|add:-3 %}
+                                                                <li class="page-item disabled" ><a class="page-link">...</a></li>
+                                                            {% else %}
+                                                                {% if i >= page_obj.number|add:-2 and i <= page_obj.number|add:2 or i <= 3 or i >= page_obj.paginator.num_pages|add:-2%}
+                                                                    <li class="page-item {% if page_obj.number == i %} active {% endif %}">
+                                                                        <a class="page-link" href="?page={{ i }}&{{ url_pagination }}">{{ i }}</a>
+                                                                    </li>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if page_obj.has_next %}
+                                                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ url_pagination }}">Próximo</a></li>
+                                                        {% endif %}
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    {% endif %}
+                                </table>
+                            {% else %}
+                                <div class="alert alert-info" role="alert">
+                                    {% block mensagem_info %}
+                                        Nenhum item encontrado.
+                                    {% endblock %}
+                                </div>
+                            {% endif %}
+                             {% block buttonbar %}
+                                    <div class="col-md-12 text-right" >
+                                         {% if has_add_permission %}
+                                            <a href="{% url url_create %}" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Adicionar</a>
+                                         {% endif %}
+                                    </div>
+                             {% endblock %}
+{% endblock tableblock %}

@@ -1,0 +1,49 @@
+{% extends "outside_template/base.html" %}
+{% load boilerplate_base %}
+
+{% block content %}
+
+        {% if redirect_to %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {% if user.is_authenticated %}
+                <p> Sua conta não tem acesso a esta página. Para prosseguir, por favor faça o login com uma conta que tenha acesso.</p>
+                {% else %}
+                <p>Por favor, faça o login para ver esta página.</p>
+            {% endif %}
+                <button type="button" class="close" data-dismiss="alert"
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
+
+       <div class="card-deck">
+            {% for app in apps %}
+               {% if not app_name or app_name and app_name is app.name_app  %}
+                   {% if not forloop.first and forloop.counter0|divisibleby:2 %}
+                        </div>
+                        <div class="card-deck">
+                   {% endif %}
+                   <div class="card">
+                        <div class="card-header">
+                            {{ app.verbose_name_app }}
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for model in app.models_app %}
+                                <div class="col-6">
+                                    <a class="btn btn-outline-primary btn-block"
+                                       style="white-space:normal !important;"
+                                       href="{% url model.url_list_model %}">
+                                        {{ model.name_model }}
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+{% endblock content %}

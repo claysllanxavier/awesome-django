@@ -1,0 +1,246 @@
+{% extends "outside_template/base_create.html" %}
+{% load boilerplate_base %}
+{% block tituloapp %}Cadastrando $title$ {% endblock tituloapp %} 
+{% block contentform %}
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    {% csrf_token %}
+
+    {% for hidden_field in form.hidden_fields %}
+        {{ hidden_field }}
+    {% endfor %}
+    <div class="form-row">
+    <!--REPLACE_PARSER_HTML-->
+    </div> 
+
+{# ------------------------------------ inlines form -------------------------------------------#}
+{% block contentinline %}
+{% if list_inlines %}
+{% for formset in list_inlines %}
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>
+            {% if formset.model.get_meta.verbose_name_plural %}
+            {{ formset.model.get_meta.verbose_name_plural.title }}
+            {% elif formset.model.get_meta.verbose_name.title %}
+            {{ formset.model.get_meta.verbose_name.title }}
+            {% elif formset.prefix %}
+            {{ formset.prefix.title }}
+            {% endif %}
+        </strong>
+    </div>
+    <div class="card-body p-0">
+        {{ formset.management_form }}
+        {% if formset.non_form_errors %}
+        {% for erro in formset.non_form_errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ erro }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% for dict in formset.errors %}
+        {% for error in dict.values %}
+        <div class="alert alert-danger" role="alert">
+            {{ erro }}
+        </div>
+        {% endfor %}
+        {% endfor %}
+        <div id="result-{{ formset.prefix }}"></div>
+        <div id="error-{{ formset.prefix }}"></div>
+        <div {% if '__prefix__' in formset.empty_form.prefix %} class="p-3 mb-3 inline formset-custom-template {{ formset.prefix }}"
+            {% else %}class="p-3 mb-3 inline {{ formset.prefix }}" {% endif %}>
+            {% if forloop.first %}
+            <table class="table" id="table-{{ formset.prefix }}">
+                <thead>
+                    <th>Opções</th>
+                    {% for field_formset in formset.empty_form.visible_fields %}
+                    {% if field_formset.name != 'DELETE'%}
+                    <th>{{ field_formset.label }}</th>
+                    {% endif %}
+                    {% endfor%}
+                </thead>
+                <tfoot>
+                    <tr>
+                        <td colspan="{{formset.empty_form.visible_fields|length}}" id='total-{{ formset.prefix }}'>
+                        </td>
+                    </tr>
+                </tfoot>
+                <tbody>
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+        <!-- INLINES -->
+        <div class="modal fade" id="form-{{ formset.prefix }}-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="myLargeModalLabel">Modal
+                            {% if formset.model.get_meta.verbose_name_plural %}
+                            {{ formset.model.get_meta.verbose_name_plural.title }}
+                            {% elif formset.model.get_meta.verbose_name.title %}
+                            {{ formset.model.get_meta.verbose_name.title }}
+                            {% elif formset.prefix %}
+                            {{ formset.prefix.title }}
+                            {% endif %}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="needs-validation was-validated" enctype="multipart/form-data" novalidate id="form-{{ formset.prefix }}">
+                            {{ formset.empty_form }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="btn-gravar-{{ formset.prefix }}">Gravar</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" tabindex="-1" role="dialog" id="form-delete-{{ formset.prefix }}-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Excluir Item</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Você deseja realmente excluir este item?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" id="btn-remove-{{ formset.prefix }}">Sim, quero
+                            excluir</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(function () {
+                // Gera os campos que serão mostrados na tabela
+                var fields = []
+                '{% for field_formset in formset.empty_form.visible_fields %}'
+                '{% if field_formset.name != "DELETE"%}'
+                var str = '{{field_formset.html_name}}'.split('-')[2]
+                fields.push(str)
+                '{% endif %}'
+                '{% endfor%}'
+                //Pega a app do formulário
+                var app = '{{ url_create }}'.split(':')[0]
+                // Objeto de opções do formset
+                var object = {
+                    index: 0,
+                    table: '',
+                    table_name: 'tb{{ formset.prefix }}',
+                    prefix: '{{ formset.prefix }}',
+                    fields: fields,
+                    app: app
+                }
+                // Inicia a tabela vazia
+                $.init(object);
+                //Gera a tabela com os inlines
+                $.getDataTable(object)
+                // Evento do click do botão de adicionar um novo item
+                $('#table-{{ formset.prefix }} tfoot').on("click", '#btn-add-{{ formset.prefix }}', function (
+                    event) {
+                    var max = $.hasMaxForms(object)
+                    if (object.table.length < max) {
+                        $("#form-{{ formset.prefix }} input").val('');
+                        $('#form-{{ formset.prefix }}-modal').modal('show');
+                        $('#btn-gravar-{{ formset.prefix }}').off('click').on('click', {
+                            obj: object
+                        }, $.validateForm);
+                    } else {
+                        $("#error-" + object.prefix).append(
+                            '<div class="alert alert-danger alert-dismissible fade show" role="alert">\
+                            <strong>Error!</strong> Você já inseriu todos os dados possíveis para esse formulário.\
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>'
+                        );
+                        $("#error-" + object.prefix).fadeTo(2000, 500).slideUp(500, function () {
+                            $("#error-" + object.prefix).slideUp(700);
+                            $("#error-" + object.prefix).html('')
+                        });
+                    }
+                });
+                // Evento do click do botão de editar da tabela
+                $('#table-{{ formset.prefix }} tbody').on("click", '#btn-edit-{{ formset.prefix }}', function (
+                    event) {
+                    var id = $(this).data('id');
+                    $('#form-{{ formset.prefix }}-modal').modal('show');
+                    $.passDataModal(id, object)
+                    $('#btn-gravar-{{ formset.prefix }}').off('click').on('click', {
+                        id: id,
+                        obj: object
+                    }, $.validateForm);
+                });
+                // Evento do click do botão de excluir da tabela
+                $('#table-{{ formset.prefix }} tbody').on("click", '#btn-delete-{{ formset.prefix }}', function (
+                    event) {
+                    var id = $(this).data('id');
+                    $('#form-delete-{{ formset.prefix }}-modal').modal('show');
+                    $('#btn-remove-{{ formset.prefix }}').off('click').on('click', {
+                        id: id,
+                        obj: object
+                    }, $.delete);
+                });
+                //Remove o botão de deletar do form
+                $('#id_{{ formset.prefix }}-__prefix__-DELETE').remove();
+                $('label[for=id_{{ formset.prefix }}-__prefix__-DELETE]').remove();
+
+                // Se clicar me voltar, remove todo o localstorage
+                $("a .btn,.btn-danger").click(function () {
+                    localStorage.clear();
+                });
+                /**
+                 * Quando for submeter o formulário
+                 */
+                $("form").submit(function (event) {
+                    try {
+                        var items = $.getAll(); // Recupera os dados armazenados no localstorage
+                        // para cada inline
+                        items.forEach(function (item) {
+                            //transforma em JSON
+                            item = JSON.parse(item);
+                            // para cada objeto
+                            item.forEach(function (obj) {
+                                for (key in obj) {
+                                    // Cria um input para ir junto no formulário
+                                    // E obrigatório para funcionar o formset
+                                    $("<input type='hidden' />")
+                                        .attr("id", "id_" + key)
+                                        .attr("name", key)
+                                        .attr("value", obj[key])
+                                        .prependTo("form");
+                                }
+                            });
+                        });
+                        // Apaga o localstorage
+                        localStorage.clear();
+                        return true;
+                    } catch (e) {
+                        console.log(e);
+                        return false;
+                    }
+                });
+            });
+        </script>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock contentinline %} 
+{% endblock contentform %}
+{% block contentmodal %}
+    <!--REPLACE_MODAL_HTML-->
+{% endblock contentmodal %}

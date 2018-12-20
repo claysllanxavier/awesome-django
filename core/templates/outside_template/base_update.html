@@ -1,0 +1,300 @@
+{% extends "outside_template/base.html" %}
+{% load staticfiles %}
+{% load boilerplate_base %}
+
+{% block content %}
+    {% if has_change_permission %}
+        <div class="container-fluid">
+            <div class="container-margin">
+                <h3>{% block tituloapp %}Update {{ model_name }}{% endblock tituloapp %}</h3>
+                <form class="needs-validation was-validated" method="post" enctype="multipart/form-data" novalidate>
+                    {% block contentform %}
+                        {% csrf_token %}
+                        {% if form.non_field_errors  %}
+                            {% for erro in form.non_field_errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ erro }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="form-row">
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            {% for field in form.visible_fields %}
+                                <div class="form-group col-md-6">
+                                    {#  TRATANDO OS CAMPOS DO TIPO RADIO  #}
+                                    {#  Obs: tem validação, porem não tem a mensagem, pois a validação do bootstrap é bugada #}
+                                    {% if  field.field.widget.input_type == 'radio'%}
+                                        <div class="form-check form-check-inline">
+                                            <div>{{ field.label_tag  }}</div>
+                                        </div>
+                                        {% for radio in field.subwidgets %}
+                                             <div class="custom-control custom-{{ field.field.widget.input_type }} custom-control-inline " >
+                                                 <input type="radio"
+                                                       class="{{ field.field.widget.attrs.class }}"
+                                                       value="{{ radio.data.value }}"
+                                                        {% if radio.data.selected %} checked {% endif %}
+                                                       name="{{ field.html_name }}"
+                                                       id="{{ radio.id_for_label }}"
+                                                        {% if field.field.required %} required="required" {% endif %} />
+                                                <label class="custom-control-label"
+                                                       for="{{radio.id_for_label }}">{{ radio.choice_label }}</label>
+{#                                                     tirado pois os campos radios ou checkebox é bugado para validações #}
+{#                                                        {% if field.field.required %}#}
+{#                                                            <div class="invalid-feedback ">{{ field.field.error_messages.required }}</div>#}
+{#                                                        {% endif %}#}
+                                            </div>
+                                        {% endfor %}
+                                        {% if field.help_text %}
+                                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                                        {% endif %}
+                                    {#  TRATANDO OS CAMPOS DO TIPO CHECKBOX.#}
+                                    {#  Obs: não tem validação, pois a validação do checkbox do bootstrap é bugada #}
+                                    {% elif field.field.widget.input_type == 'checkbox' %}
+                                        <div class="form-check form-check-inline">
+                                            <div>{{ field.label_tag }}</div>
+                                        </div>
+                                        {% for radio in field.subwidgets %}
+                                            <div class="form-check form-check-inline">
+                                                {{ radio }}
+                                            </div>
+                                        {% endfor %}
+                                        {% if field.help_text %}
+                                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                                        {% endif %}
+                                    {# TRATANDO OS CAMPOS FILES E IMAGENS#}
+                                    {% elif field.field.widget.input_type == 'file' %}
+                                        {{ field.label_tag }}
+                                        <div class="custom-file">
+                                            {{ field }}
+{#                                        retirado pois voltou a versão antiga   #}
+{#                                            <label class="custom-file-label" for="{{ field.id_for_label }}">Escolha o arquivo...</label>#}
+                                            {% if field.help_text %}
+                                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                            {% endif %}
+                                            {% if field.field.required %}
+                                                <div class="invalid-feedback">Campo obrigatório</div>
+                                            {% endif %}
+                                        </div>
+                                    {# TRATANDO OS DEMAIS CAMPOS #}
+                                    {% else %}
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                        {% if field.help_text %}
+                                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                                        {% endif %}
+                                        {% if field.field.required %}
+                                            <div class="invalid-feedback">
+                                                Campo Obrigatorio.
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if field.errors  %}
+                                            {{ field.errors  }}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                     {# ------------------------------------  inlines form  -------------------------------------------#}
+                        {% block contentinline %}
+                            {% if list_inlines %}
+                                {% for formset in list_inlines %}
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <strong>
+                                                {% if formset.model.get_meta.verbose_name_plural %}
+                                                    {{ formset.model.get_meta.verbose_name_plural.title }}
+                                                {% elif formset.model.get_meta.verbose_name %}
+                                                    {{ formset.model.get_meta.verbose_name.title }}
+                                                {% elif formset.prefix %}
+                                                    {{ formset.prefix.title }}
+                                                {% endif %}
+                                            </strong>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            {{ formset.management_form }}
+                                            {% if formset.non_form_errors  %}
+                                                {% for erro in formset.non_form_errors  %}
+                                                    <div class="alert alert-danger" role="alert">
+                                                        {{ erro }}
+                                                    </div>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% for formset_form in formset|include_empty_form %}
+                                                <div style="background-color: #eee" {% if  '__prefix__' in formset_form.prefix %}
+                                                        class="p-3 mb-3 inline formset-custom-template {{ formset.prefix }}"
+                                                        {% else %}class="p-3 mb-3 inline {{ formset.prefix }}"{% endif %}>
+                                                    {% for hidden in formset_form.hidden_fields %}
+                                                        {{ hidden }}
+                                                    {% endfor %}
+                                                    <div class="form-row">
+                                                        {% for field_formset in formset_form.visible_fields %}
+{#                                                            retira o imput de DELETE do formulario base dos inlines( é add um botão via javascript) #}
+                                                            {% if not 'DELETE' in field_formset.name or not '__prefix__' in formset_form.prefix %}
+                                                                <div class="form-group col-md-6">
+                                                                 {% if  field_formset.field.widget.input_type == 'radio' and field_formset.name != 'DELETE'%}
+
+                                                                    <div class="form-check form-check-inline">
+                                                                        {{ field_formset.label_tag }}
+                                                                    </div>
+                                                                        {% for radio in field_formset.subwidgets %}
+                                                                            <div class="custom-control custom-{{ field_formset.field.widget.input_type }} custom-control-inline" style="padding-right:10px">
+                                                                                <input type="{{ field_formset.field.widget.input_type }}"
+                                                                                       class="{{ field_formset.field.widget.attrs.class }}"
+                                                                                       value="{{ radio.data.value }}"
+                                                                                        {% if radio.data.selected %} checked {% endif %}
+                                                                                       name="{{ field_formset.html_name }}"
+                                                                                       id="{{ radio.id_for_label }}"
+    {#                                                                                    {% if field_formset.field.required %} required="required" {% endif %}#}
+                                                                                />
+                                                                                <label class="custom-control-label"
+                                                                                       for="{{radio.id_for_label }}">{{ radio.choice_label }}</label>
+                            {#                                                     tirado pois os campos radios ou checkebox é bugado para validações #}
+                            {#                                                        {% if field_formset.field.required %}#}
+                            {#                                                                <div class="invalid-feedback ">{{ field_formset.field.error_messages.required }}</div>#}
+                            {#                                                        {% endif %}#}
+                                                                            </div>
+                                                                        {% endfor %}
+                                                                        {% if field_formset.help_text %}
+                                                                            <small class="form-text text-muted">{{ field_formset.help_text }}</small>
+                                                                        {% endif %}
+                                                                    {#  TRATANDO OS CAMPOS DO TIPO CHECKBOX.#}
+                                                                    {#  Obs: não tem validação, pois a validação do checkbox do bootstrap é bugada #}
+                                                                    {% elif field_formset.field.widget.input_type == 'checkbox' and field_formset.name != 'DELETE' %}
+                                                                        <div class="form-check form-check-inline">
+                                                                            <div>{{ field_formset.label_tag  }}</div>
+                                                                        </div>
+                                                                        {% for radio in field_formset.subwidgets %}
+                                                                            <div class="form-check form-check-inline">
+                                                                                {{ radio }}
+                                                                            </div>
+                                                                        {% endfor %}
+                                                                        {% if field_formset.help_text %}
+                                                                            <small class="form-text text-muted">{{ field_formset.help_text }}</small>
+                                                                        {% endif %}
+                                                                     {# TRATANDO OS CAMPOS FILES E IMAGENS#}
+                                                                    {% elif field_formset.field.widget.input_type == 'file' %}
+                                                                        {{ field_formset.label_tag }}
+    {#                                                                    <div class="custom-file">#}
+                                                                            {{ field_formset }}
+                                {#                                        retirado pois voltou a versão antiga   #}
+                                {#                                            <label class="custom-file-label" for="{{ field.id_for_label }}">Escolha o arquivo...</label>#}
+                                                                            {% if field_formset.help_text %}
+                                                                                <small class="form-text text-muted">{{ field_formset.help_text }}</small>
+                                                                            {% endif %}
+    {#                                                                    retirado devido a problemas no update dos inlines#}
+    {#                                                                        {% if field_formset.field.required %}#}
+    {#                                                                            <div class="invalid-feedback">Campo obrigatório</div>#}
+    {#                                                                        {% endif %}#}
+    {#                                                                    </div>#}
+                                                                    {# TRATANDO OS DEMAIS CAMPOS #}
+                                                                    {% else  %}
+                                                                        {{ field_formset.label_tag }}
+                                                                        {{ field_formset }}
+                                                                        {% if field_formset.help_text %}
+                                                                            <small class="form-text text-muted">{{ field_formset.help_text }}</small>
+                                                                        {% endif %}
+                                                                        {% if field_formset.field.required %}
+                                                                            <div class="invalid-feedback">
+                                                                                Campo Obrigatorio.
+                                                                            </div>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                    {% if field_formset.errors %}
+                                                                         {{ field_formset.errors }}
+                                                                    {% endif %}
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <script type="application/javascript" >
+                                            $(function () {
+                                                $('.formset-custom-template').hide();
+                                                $(".inline.{{ formset.prefix }}").formset({
+                                                    formTemplate: ".inline.{{ formset.prefix }}.formset-custom-template",
+                                                    prefix: "{{ formset.prefix }}",
+                                                    {% if formset.model.get_meta.verbose_name_plural %}
+                                                        addText: 'Adicionar {{ formset.model.get_meta.verbose_name_plural }}',
+                                                        deleteText: 'Remover {{ formset.model.get_meta.verbose_name_plural }}',
+                                                    {% else %}
+                                                        addText: 'Adicionar',
+                                                        deleteText: 'Remover',
+                                                    {% endif %}
+                                                    deleteCssClass: 'delete-row btn btn-outline-danger',
+                                                    addCssClass: 'add-row btn btn-primary ',
+                                                    formCssClass: 'dynamic-form',
+                                                });
+                                            });
+                                        </script>
+                                    </div>
+                                {% endfor %}
+
+                            {% endif %}
+                        {% endblock contentinline %}
+                    {% endblock contentform %}
+
+                    <div class="row justify-content-between">
+                        {% block buttonbar %}
+                            <div class="col-6">
+                                <a href="{% url url_list %}" class="btn btn-danger ">
+                                    <i class="fas fa-arrow-left"></i> Voltar
+                                </a>
+                            </div>
+                            <div class="col-6 text-right">
+                                <button type="submit" class="btn btn-success" name="_save">
+                                        <i class="far fa-save"></i> Atualizar
+                                </button>
+                                <button type="submit" class="btn btn-success" name="_addanother">
+                                    <i class="far fa-save"></i> Atualizar e adicionar outro(a)
+                                </button>
+                                <button type="submit" class="btn btn-success" name="_continue">
+                                    <i class="far fa-save"></i> Atualizar e continuar editando
+                                </button>
+                            </div>
+                        {% endblock buttonbar %}
+                    </div>
+                </form>
+
+                {% block contentmodal %}
+                    <!-- MODAL  -->
+                    <div class="modal fade" id="formModal" tabindex="-1" role="dialog"
+                         aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="myLargeModalLabel">Adicionar </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    {% block modalform %}
+                                    <form id="form">
+                                        {% csrf_token %}
+
+                                    </form>
+                                    {% endblock %}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" id="btnGravar">Gravar</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endblock contentmodal %}
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading"> Voce não tem permisão para acessar essa pagina!</h4>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_static admin_modify %}
+{% load admin_urls %}
+
+{% block object-tools-items %}
+         {% if original.is_active %}
+           <input type="submit" style="margin-left: 8px !important;" value="{% trans 'Inativar Usuario' %}"
+                   id="id_btn_status_user_inativo" class="pull-right btn btn-primary" title="Inativar usuário" name="user_inativar" {{ onclick_attrib }}/>
+
+        {% else %}
+            <input type="submit" style="margin-left: 8px !important;" value="{% trans 'Ativar usuário' %}"
+                   id="id_btn_status_user_ativo" class="pull-right btn btn-success" title="Ativar usuário" name="user_ativar" {{ onclick_attrib }}/>
+
+        {% endif %}
+        {% if perms.user.can_reset_password or user.is_superuser %}
+            <input type="submit" style="margin-left: 8px !important;" value="{% trans 'Resetar Senha' %}"
+                   id="id_btn_status_user_ativo" class="pull-right btn btn-warning" title="Resetar Senha" name="resetar_senha" {{ onclick_attrib }}/>
+
+        {% endif %}
+    {{ block.super }}
+{% endblock %}
+

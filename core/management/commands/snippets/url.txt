@@ -1,0 +1,13 @@
+
+app_name = '$app_name$'
+
+# URLs do Models $ModelClass$
+urlpatterns = [
+    path('api/', include(router.urls)),
+    path('', IndexTemplateView.as_view(extra_context={'app_name':app_name}), name='index-app'),
+    path('$model_name$/', $ModelClass$ListView.as_view(), name='$model_name$-list'),
+    path('$model_name$/create/', $ModelClass$CreateView.as_view(), name='$model_name$-create'),
+    path('$model_name$/<int:pk>/', $ModelClass$DetailView.as_view(), name='$model_name$-detail'),
+    path('$model_name$/update/<int:pk>/', $ModelClass$UpdateView.as_view(), name='$model_name$-update'),
+    path('$model_name$/delete/<int:pk>/', $ModelClass$DeleteView.as_view(), name='$model_name$-delete'),
+]

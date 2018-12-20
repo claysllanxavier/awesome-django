@@ -1,0 +1,87 @@
+{% extends "outside_template/base.html" %}
+{% load staticfiles %}
+{% load boilerplate_base i18n %}
+{% block content %}
+    {% if has_delete_permission %}
+        <div class="container-fluid container-margin">
+            {% if perms_lacking %}
+                <p>{% blocktrans with escaped_object=object %}A remoção de '{{ model_name }}' {{ escaped_object }} pode resultar na remoção de objetos relacionados, mas sua conta não tem a permissão para remoção dos seguintes tipos de objetos:{% endblocktrans %}</p>
+                <div class="alert alert-warning" role="alert">
+                    <ul style="margin-bottom: 0 !important;">
+                        {% for obj in perms_lacking %}
+                            <li>{{ obj }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% if protected %}
+                <p>{% blocktrans with escaped_object=object %}Excluir o <b> '{{model_name}}' {{escaped_object}} </b> exigiria a exclusão dos seguintes relacionamentos protegidos: {% endblocktrans%} </p>
+                <div class="alert alert-warning" role="alert">
+                    <ul style="margin-bottom: 0 !important;">
+                        {% for obj in protected %}
+                            <li>{{ obj }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            {% endif %}
+           
+            {% if not protected and not perms_lacking %}
+                <h3>{% block tituloapp %} Apagar: {{ object }} ? {% endblock tituloapp %}</h3>
+                <p>{% blocktrans with escaped_object=object %}Tem certeza de que deseja excluir o objeto <b>{{ model_name }} "{{ escaped_object }}"</b>? Todos os seguintes objetos relacionados serão excluídos:{% endblocktrans %}</p>
+
+                {% block related_fields %}
+                    <!-- Bloco para exibir os campos que possuem relacionamento
+                    com o registro que está sendo excluído -->
+                    <div class="container-fluid container-margin">
+                        {% for field in many_fields %}
+                            {% if field.1.all %}
+                                {% if forloop.first %}
+                                    <h4>Todos os itens abaixo também serão apagados.</h4>
+                                {% endif %}
+                                <div class="alert alert-warning" role="alert">
+                                    <h4 class="alert-heading">{{ field.0|capfirst }}</h4>
+                                    <ul>
+                                        {% for item in field.1.all %}
+                                            <li>{{ item }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endblock related_fields %}
+                {% block contentform %}
+                    <form class="needs-validation was-validated" method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="row justify-content-between">
+                        {% block buttonbar %}
+                            <div class="col-6">
+                                <a href="{% url url_list %}" class="btn btn-primary"> <i class="fas fa-arrow-left"></i> Cancelar exclusão.</a>
+                            </div>
+                            <div class="col-5 text-right">
+                                 {% if has_delete_permission %}
+                                    <button type="submit" class="btn btn-danger "><i class="fas fa-trash"></i> Confirma exclusão?</button>
+                                {% endif %}
+                            </div>
+                            {% endblock buttonbar %}
+                        </div>
+                    </form>
+                {% endblock contentform %}
+                {% else %}
+                    {% if has_delete_permission or protected %}
+                    <div class="col-6">
+                        <a href="{% url url_list %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </a>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+          <h4 class="alert-heading"> Voce não tem permisão para acessar essa pagina!</h4>
+        </div>
+    {% endif %}
+
+ {% endblock content %}

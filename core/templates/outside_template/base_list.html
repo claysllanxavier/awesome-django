@@ -1,0 +1,161 @@
+{% extends "outside_template/base.html" %}
+{% load boilerplate_base %}
+
+{% block content %}
+    {% if has_add_permission or  has_change_permission or  has_delete_permission %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <h2>{% block titulo_template %}List {{ model_name }}{% endblock %}</h2>
+                </div>
+        </div>
+
+        <!-- Filter and Search Area -->
+        <form id="id_search_and_filter">
+            {% block containersearchandfilter %}
+                <div class="row my-0 py-0 search">
+                    <div class="col-12">
+                        {% block search %}
+                            {% include 'includes/search.html' %}
+                        {% endblock search %}
+                    </div>
+                    <div class="col-12 mt-3 filters ">
+                        {% block filter %}
+                            {% include 'includes/filters.html' %}
+                        {% endblock filter %}
+                    </div>
+                    {% block buttonfilter %}
+                        <div class="col-12 text-right mt-3" >
+                            <button id="id_clean_filter"  class="btn btn-danger"> Limpar Filtros</button>
+                        </div>
+                    {% endblock buttonfilter %}
+                </div>
+            {% endblock containersearchandfilter %}
+        </form>
+        <!-- End Filter and Search Area -->
+
+            <!-- Table Area -->
+            <div class="row mt-3 mb-0 pb-0">
+                <div class="col">
+                    <div class="row">
+                        <div id="div-table" class="col-md-12">
+                        {% block tableblock %}
+                            {% if object_list|length > 0 and display|length > 0 %}
+                                <table id="table-item" class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <!-- Percorrendo os list_display q serão exibidos para criar os títulos das colunas -->
+                                        {% for header in display %}
+                                            {% if header == 'pk' or header == 'id' %}
+                                                <th>Opções</th>
+                                            {% else %}
+                                                <th>{{ header|capfirst }}</th>
+                                            {% endif %}
+                                        {% empty %}
+
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for value in object_list %}
+                                        <tr>
+                                            {% for item_key, item_value in value.items %}
+                                                    {% if item_key == 'pk'   %}
+                                                         <td align="middle" style="width: 160px !important;">
+                                                            <a href="{% url url_detail value.pk %}" class="btn btn-info btn-sm"
+                                                               data-toggle="tooltip" data-placement="right" title="Visualizar Registro"><i class="fa fa-eye" ></i></a>
+                                                            {% if has_change_permission %}
+                                                                <a href="{% url url_update value.pk %}" class="btn btn-warning btn-sm"
+                                                                data-toggle="tooltip" data-placement="right" title="Editar Registro" ><i class="far fa-edit"></i></a>
+                                                            {% endif %}
+                                                            {% if has_delete_permission %}
+                                                                <a href="{% url url_delete value.pk %}" class="btn btn-danger btn-sm"
+                                                                data-toggle="tooltip" data-placement="right" title="Apagar Registro" ><i class="fas fa-trash"></i></a>
+                                                            {% endif %}
+                                                         </td>
+                                                    {% elif item_key == 'id'  %}
+                                                        <td align="middle" style="width: 160px !important;">
+                                                            <a href="{% url url_detail value.id %}" class="btn btn-info btn-sm"
+                                                               data-toggle="tooltip" data-placement="right" title="Visualizar Registro" ><i class="fa fa-eye" ></i></a>
+                                                            {% if has_change_permission %}
+                                                                <a href="{% url url_update value.id %}"  class="btn btn-warning btn-sm"
+                                                                data-toggle="tooltip" data-placement="right" title="Editar Registro" ><i class="far fa-edit"></i></a>
+                                                            {% endif %}
+                                                            {% if has_delete_permission %}
+                                                                <a href="{% url url_delete value.id %}" class="btn btn-danger btn-sm"
+                                                                data-toggle="tooltip" data-placement="right" title="Apagar Registro" ><i class="fas fa-trash"></i></a>
+                                                            {% endif %}
+                                                        </td>
+                                                    {% else %}
+                                                        <td>
+                                                            {{ item_value }}
+                                                        </td>
+                                                    {% endif %}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+
+                                    {% if is_paginated %}
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="{{ display|length }}">
+                                                    <ul class="pagination justify-content-center">
+                                                        {% if page_obj.has_previous %}
+                                                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ url_pagination }}">Anterior</a></li>
+                                                        {% endif %}
+                                                        {% for i  in paginator.page_range %}
+                                                            {% if page_obj.number != i and i < page_obj.number and i == 4 and page_obj.number|add:-2 > 4 or  page_obj.number != i and i > page_obj.number and i == page_obj.paginator.num_pages|add:-3  and page_obj.number|add:2 < page_obj.paginator.num_pages|add:-3 %}
+                                                                <li class="page-item disabled" ><a class="page-link">...</a></li>
+                                                            {% else %}
+                                                                {% if i >= page_obj.number|add:-2 and i <= page_obj.number|add:2 or i <= 3 or i >= page_obj.paginator.num_pages|add:-2%}
+                                                                    <li class="page-item {% if page_obj.number == i %} active {% endif %}">
+                                                                        <a class="page-link" href="?page={{ i }}&{{ url_pagination }}">{{ i }}</a>
+                                                                    </li>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if page_obj.has_next %}
+                                                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ url_pagination }}">Próximo</a></li>
+                                                        {% endif %}
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    {% endif %}
+                                </table>
+                            {% else %}
+                                <div class="alert alert-info" role="alert">
+                                    {% block mensagem_info %}
+                                        Nenhum item encontrado.
+                                    {% endblock %}
+                                </div>
+                            {% endif %}
+                             {% block buttonbar %}
+                                    <div class="col-md-12 text-right" >
+                                         {% if has_add_permission %}
+                                            <a href="{% url url_create %}" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Adicionar</a>
+                                         {% endif %}
+                                    </div>
+                             {% endblock %}
+                        {% endblock tableblock %}
+                    </div>
+                </div>
+                </div>
+            </div>
+            <!-- End Table Area -->
+            <!-- Pagination and actions buttons -->
+            <div class="row pt-0 mt-0">
+                <div class="col-12 text-right mr-0 pr-0">
+                    {% block actionbuttons %}
+                    {% endblock actionbuttons %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+         <div class="alert alert-danger" role="alert">
+          <h4 class="alert-heading"> Voce não tem permisão para acessar essa pagina!</h4>
+        </div>
+    {% endif %}
+{% endblock content %}

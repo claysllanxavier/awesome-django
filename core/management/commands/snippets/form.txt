@@ -1,0 +1,7 @@
+
+class $ModelClass$Form(BaseForm):
+    #TODO LEMBRE DE COMENTAR O SEU CODIGO $ModelClass$
+    """ """
+    class Meta:
+        exclude = ['deleted', 'enabled']
+        model = $ModelClass$
