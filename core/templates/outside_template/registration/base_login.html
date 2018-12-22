@@ -110,7 +110,7 @@
                         </div>
                         <div class="auth-box card">
                             <div class="card-block">
-                                    {% block containerright %}
+                                    {% block container %}
                                 <div class="row mt-3 pl-3 pr-3 d-block">
                                     {% if messages %}
                                     {% for message in messages %}
@@ -125,7 +125,7 @@
                                     {% endif %}
                                 </div>
                                 {% if form.errors %}
-                                <p>Seu nome de usuário e senha não coincidem. Por favor, tente novamente.</p>
+                                <p>Seu login e senha não coincidem. Por favor, tente novamente.</p>
                                 {% endif %}
 
                                 {% if next %}
@@ -199,7 +199,7 @@
                                         <p class="text-inverse text-left"><a href="/"><b>Voltar para o website</b></a></p>
                                     </div>
                                 </div>
-                                {% endblock containerright %}
+                                {% endblock container %}
                             </div>
                         </div>
                     </form>
