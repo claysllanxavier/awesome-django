@@ -1,224 +1,125 @@
-{% load static %}
+{% load i18n static staticfiles %}
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 
 <head>
-    <title>{% block title %}{{ parameter.tituloProjeto|default:'Login' }}{% endblock title %}</title>
-    <!-- Meta -->
+    <!-- Basic Page Info -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description" content="Mega Able Bootstrap admin template made using Bootstrap 4 and it has huge amount of ready made feature, UI components, pages which completely fulfills any dashboard needs." />
-    <meta name="keywords" content="bootstrap, bootstrap admin template, admin theme, admin dashboard, dashboard template, admin template, responsive" />
-    <meta name="author" content="codedthemes" />
-    <!-- Favicon icon
-      <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
-       -->
-    <!-- Google font-->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet">
-    <!-- Required Fremwork -->
+    <title>{% block title %}{{ parameter.tituloProjeto|default:'Nome do Sistema' }}{% endblock title %}</title>
+
+    <!-- Site favicon -->
+    <!-- <link rel="shortcut icon" href="images/favicon.ico"> -->
+
+    <!-- Mobile Specific Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <!-- CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
         crossorigin="anonymous">
-    <!-- waves.css -->
-    <link rel="stylesheet" href="{% static 'assets/pages/waves/css/waves.min.css' %}" type="text/css" media="all">
-    <!-- themify-icons line icon -->
-    <link rel="stylesheet" type="text/css" href="{% static 'assets/icon/themify-icons/themify-icons.css' %}">
-    <!-- ico font -->
-    <link rel="stylesheet" type="text/css" href="{% static 'assets/icon/icofont/css/icofont.css' %}">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/solid.css" integrity="sha384-+0VIRx+yz1WBcCTXBkVQYIBVNEFH1eP6Zknm16roZCyeNg2maWEpk/l/KsyFKs7G"
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/jquery.mcustomscrollbar/3.0.6/jquery.mCustomScrollbar.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/"
         crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/regular.css" integrity="sha384-aubIA90W7NxJ+Ly4QHAqo1JBSwQ0jejV75iHhj59KRwVjLVHjuhS3LkDAoa/ltO4"
-        crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" integrity="sha384-jLuaxTTBR42U2qJ/pm4JRouHkEDHkVqH0T1nyQXn1mZ7Snycpf6Rl25VBNthU4z0"
-        crossorigin="anonymous">
-    <!-- Style.css -->
-    <link rel="stylesheet" type="text/css" href="{% static 'assets/css/style.css' %}">
+    <link href="https://unpkg.com/ionicons@4.2.2/dist/css/ionicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'vendors/styles/style.css' %}">
 </head>
 
-<body themebg-pattern="theme1">
-    <!-- Pre-loader start -->
-    <div class="theme-loader">
-        <div class="loader-track">
-            <div class="preloader-wrapper">
-                <div class="spinner-layer spinner-blue">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
+<body>
+    <div class="login-wrap customscroll d-flex align-items-center flex-wrap justify-content-center pd-20">
+        <div class="login-box bg-white box-shadow pd-30 border-radius-5">
+            <img src="https://deskapp-dashboard.herokuapp.com/vendors/images/login-img.png" alt="login" class="login-img">
+            {% block container %}
+            <h5 class="text-center mb-30">Entre para iniciar uma nova sessão</h5>
+            <div class="row mt-3 pl-3 pr-3 d-block">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
+                    role="alert">
+                    {{ message|safe }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="spinner-layer spinner-red">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-
-                <div class="spinner-layer spinner-yellow">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-
-                <div class="spinner-layer spinner-green">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
+                {% endfor %}
+                {% endif %}
             </div>
+            {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                Essas credenciais não correspondem aos nossos registros.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endif %}
+
+            {% if next and user.is_authenticated %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <p> Sua conta não tem acesso a esta página. Para prosseguir, por favor faça o login com uma
+                    conta que tenha acesso.</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="input-group custom input-group-lg">
+                    <input name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" value="{% if form.username.value is not None %}{{ form.username.value }}{% endif %}"
+                        type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" placeholder="Username"
+                        required>
+                    <div class="input-group-append custom">
+                        <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
+                    </div>
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.username.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.username.help_text %}
+                    <small class="form-text text-muted">{{ form.username.help_text|safe }}</small>
+                    {% endif %}
+                </div>
+                <div class="input-group custom input-group-lg">
+                    <input name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" required type="password"
+                        class="form-control {% if form.password.errors %}is-invalid{% endif %}" placeholder="**********">
+                    <div class="input-group-append custom">
+                        <span class="input-group-text"><i class="fa fa-lock" aria-hidden="true"></i></span>
+                    </div>
+                    {% if form.password.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.password.errors }}
+                    </div>
+                    {% endif %}
+
+                    {% if form.password.help_text %}
+                    <small class="form-text text-muted">{{ form.password.help_text|safe }}</small>
+                    {% endif %}
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <input class="btn btn-outline-primary btn-lg btn-block" type="submit" value="Entrar">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="forgot-password padding-top-10"><a href="{% url 'core:password_reset' %}">Esqueci
+                                minha senha</a></div>
+                    </div>
+                </div>
+            </form>
+            {% endblock container %}
         </div>
     </div>
-    <!-- Pre-loader end -->
-
-    <section class="login-block">
-        <!-- Container-fluid starts -->
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12">
-                    <!-- Authentication card start -->
-
-                    <form class="md-float-material form-material" method="post">
-                    {% csrf_token %}
-                        <div class="text-center">
-                            <div class="text-white">
-                                {% block descricaosistema %}
-                                <h1>{{ parameter.descricaoProjeto|default:'Nome Sistema'|safe }}</h1>
-                                {% endblock descricaosistema %}
-                            </div>
-                        </div>
-                        <div class="auth-box card">
-                            <div class="card-block">
-                                    {% block container %}
-                                <div class="row mt-3 pl-3 pr-3 d-block">
-                                    {% if messages %}
-                                    {% for message in messages %}
-                                    <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
-                                        role="alert">
-                                        {{ message|safe }}
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    {% endfor %}
-                                    {% endif %}
-                                </div>
-                                {% if form.errors %}
-                                <p>Seu login e senha não coincidem. Por favor, tente novamente.</p>
-                                {% endif %}
-
-                                {% if next %}
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    {% if user.is_authenticated %}
-                                    <p> Sua conta não tem acesso a esta página. Para prosseguir, por favor faça o login
-                                        com uma
-                                        conta que tenha acesso.</p>
-                                    {% else %}
-                                    <p>Por favor, faça o login para ver esta página.</p>
-                                    {% endif %}
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                {% endif %}
-                                <div class="row m-b-20">
-                                    <div class="col-md-12">
-                                        <h3 class="text-center">Login</h3>
-                                    </div>
-                                </div>
-                                <div class="form-group form-primary">
-                                    <input name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
-                                        value="{% if form.username.value is not None %}{{ form.username.value }}{% endif %}"
-                                        required type="text" class="form-control">
-                                    <span class="form-bar"></span>
-                                    <label class="float-label">Seu Login</label>
-                                    {% if form.username.errors %}
-                                    {{ form.username.errors }}
-                                    {% endif %}
-                                    {% if form.username.help_text %}
-                                    <small class="form-text text-muted">{{ form.username.help_text|safe }}</small>
-                                    {% endif %}
-                                </div>
-                                <div class="form-group form-primary">
-                                    <input name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
-                                        required type="password" class="form-control">
-                                    <span class="form-bar"></span>
-                                    <label class="float-label">Sua Senha</label>
-                                    {% if form.password.errors %}
-                                    {{ form.password.errors }}
-                                    {% endif %}
-
-                                    {% if form.password.help_text %}
-                                    <small class="form-text text-muted">{{ form.password.help_text|safe }}</small>
-                                    {% endif %}
-                                </div>
-                                <div class="row m-t-25 text-left">
-                                    <div class="col-12">
-                                        <div class="checkbox-fade fade-in-primary d-">
-                                            <label>
-                                                <input type="checkbox" value="">
-                                                <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
-                                                <span class="text-inverse">Lembrar-me</span>
-                                            </label>
-                                        </div>
-                                        <div class="forgot-phone text-right f-right">
-                                            <a href="{% url 'core:password_reset' %}" class="text-right f-w-600"> Esqueci minha senha?</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row m-t-30">
-                                    <div class="col-md-12">
-                                        <button type="submit" class="btn btn-primary btn-md btn-block waves-effect waves-light text-center m-b-20">Entrar</button>
-                                    </div>
-                                </div>
-                                <hr />
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <p class="text-inverse text-left m-b-0">Obrigado.</p>
-                                        <p class="text-inverse text-left"><a href="/"><b>Voltar para o website</b></a></p>
-                                    </div>
-                                </div>
-                                {% endblock container %}
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Required Jquery -->
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
+    <!-- js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
-        crossorigin="anonymous"></script><!-- waves js -->
-    <script src="{% static 'assets/pages/waves/js/waves.min.js' %}"></script>
-    <!-- jquery slimscroll js -->
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js'></script>
-    <!-- modernizr js -->
-    <script type="text/javascript" src="{% static 'assets/js/common-pages.js' %}"></script>
+        crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/jquery.mcustomscrollbar/3.0.6/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="{% static 'vendors/js/script.js' %}"></script>
 </body>
 
 </html>
