@@ -76,13 +76,15 @@
                     </div>
                 {% endif %}
             {% endblock messages %}
-                <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+                        {% block content_index %}
+                        <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
                         {% block content %}
                         {% block related_fields %}
                         <!-- Bloco para mostrar os campos com relacionamento na tela de Delete -->
                         {% endblock related_fields %}
                     {% endblock content %}
-                </div>
+                    </div>
+                    {% endblock content_index %}
             </div>
         </div>
     </div>

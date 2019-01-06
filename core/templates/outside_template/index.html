@@ -1,33 +1,31 @@
 {% extends "outside_template/base.html" %}
 {% load boilerplate_base %}
 
-{% block content %}
-       <div class="card">
-            {% for app in apps %}
-               {% if not app_name or app_name and app_name is app.name_app  %}
-                   {% if not forloop.first and forloop.counter0|divisibleby:2 %}
-                        </div>
-                        <div class="card">
-                   {% endif %}
-                        <div class="card-header">
-                            {{ app.verbose_name_app }}
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                {% for model in app.models_app %}
-                                <div class="col-6 mb-2">
-                                    <a class="btn btn-outline-primary btn-block"
-                                       style="white-space:normal !important;"
-                                       href="{% url model.url_list_model %}">
-                                        {{ model.name_model }}
-                                    </a>
-                                </div>
-                                {% endfor %}
+{% block content_index %}
+ <div class="row clearfix">
+    {% for app in apps %}
+    {% if not app_name or app_name and app_name is app.name_app  %}
+        {% if not forloop.first and forloop.counter0|divisibleby:2 %}
+            <div class="w-100"></div>
+        {% endif %}
+        <div class="col mb-30">
+            <div class="pd-20 bg-white border-radius-4 box-shadow height-100-p">
+                <h4 class="mb-15 text-blue">{{ app.verbose_name_app }}</h4>
+                <div class="card-body">
+                        <div class="row">
+                            {% for model in app.models_app %}
+                            <div class="col-6 mb-3 d-flex align-items-stretch">
+                                <a class="btn btn-outline-primary btn-block d-flex flex-sm-column align-items-center justify-content-left justify-content-sm-center"
+                                   href="{% url model.url_list_model %}">
+                                    {{ model.name_model }}
+                                </a>
                             </div>
+                            {% endfor %}
                         </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
+                </div>
+            </div>
         </div>
-
-{% endblock content %}
+        {% endif %}
+    {% endfor %}
+ </div>   
+{% endblock content_index %}

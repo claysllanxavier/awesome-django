@@ -1,6 +1,7 @@
 {% extends "outside_template/base.html" %}
 {% load staticfiles %}
 {% load boilerplate_base i18n %}
+{% block titulo_template %}Deleta {{ model_name }}{% endblock titulo_template %}
 {% block content %}
     {% if has_delete_permission %}
         <div class="container-fluid container-margin">
@@ -27,9 +28,11 @@
             {% endif %}
            
             {% if not protected and not perms_lacking %}
-                <h3>{% block tituloapp %} Apagar: {{ object }} ? {% endblock tituloapp %}</h3>
+                <h3 >{% block tituloapp %} Apagar: {{ object }} ? {% endblock tituloapp %}</h3>
+                
+                {% if related_fields %}
                 <p>{% blocktrans with escaped_object=object %}Tem certeza de que deseja excluir o objeto <b>{{ model_name }} "{{ escaped_object }}"</b>? Todos os seguintes objetos relacionados serão excluídos:{% endblocktrans %}</p>
-
+                {% endif %}
                 {% block related_fields %}
                     <!-- Bloco para exibir os campos que possuem relacionamento
                     com o registro que está sendo excluído -->
@@ -54,14 +57,14 @@
                 {% block contentform %}
                     <form class="needs-validation was-validated" method="post" novalidate>
                         {% csrf_token %}
-                        <div class="row justify-content-between">
+                        <div class="row justify-content-between mt-3">
                         {% block buttonbar %}
                             <div class="col-6">
-                                <a href="{% url url_list %}" class="btn btn-primary"> <i class="fas fa-arrow-left"></i> Cancelar exclusão.</a>
+                                <a href="{% url url_list %}" class="btn btn-primary"> <i class="fa fa-arrow-left"></i> Cancelar exclusão.</a>
                             </div>
-                            <div class="col-5 text-right">
+                            <div class="col-6 text-right">
                                  {% if has_delete_permission %}
-                                    <button type="submit" class="btn btn-danger "><i class="fas fa-trash"></i> Confirma exclusão?</button>
+                                    <button type="submit" class="btn btn-danger "><i class="fa fa-trash"></i> Confirma exclusão?</button>
                                 {% endif %}
                             </div>
                             {% endblock buttonbar %}
