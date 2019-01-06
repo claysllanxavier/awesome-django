@@ -24,6 +24,11 @@
      <link href="https://unpkg.com/ionicons@4.2.2/dist/css/ionicons.min.css" rel="stylesheet">
      <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
      <link rel="stylesheet" href="{% static 'vendors/styles/style.css' %}">
+     
+    {% block extra_css %}{% endblock extra_css %}
+
+     {# pega os css e js dos plugins add #}
+    {{ form.media }}
 </head>
 
 <body>
@@ -36,7 +41,7 @@
                     <div class="row">
                         <div class="col-md-6 col-sm-12">
                             <div class="title">
-                                <h4>blank</h4>
+                                <h4>{% block tituloapp %}Home{% endblock tituloapp %}</h4>
                             </div>
                             <nav aria-label="breadcrumb" role="navigation">
                             {% block breadcrumb %}
@@ -54,27 +59,36 @@
                             {% endblock breadcrumb %}
                             </nav>
                         </div>
-                        <div class="col-md-6 col-sm-12 text-right">
-                            <div class="dropdown">
-                                <a class="btn btn-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown">
-                                    January 2018
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#">Export List</a>
-                                    <a class="dropdown-item" href="#">Policies</a>
-                                    <a class="dropdown-item" href="#">View Assets</a>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
+                {% block messages %}
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert {% if message.extra_tags %}alert-{{ message.extra_tags }}{% elif message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
+                                 role="alert">
+                              {{ message|safe }}
+                              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endblock messages %}
                 <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+                        {% block content %}
+                        {% block related_fields %}
+                        <!-- Bloco para mostrar os campos com relacionamento na tela de Delete -->
+                        {% endblock related_fields %}
+                    {% endblock content %}
                 </div>
             </div>
         </div>
     </div>
      <!-- js -->
     <script src="{% static 'vendors/js/script.min.js' %}"></script>
+    {% block extra_js %}{% endblock extra_js %}
 </body>
 
 </html>
