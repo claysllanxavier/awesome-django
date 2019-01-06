@@ -215,4 +215,6 @@ Temporary Items
 # Ignore all local history of files
 .history
 
+### APPs de Teste
+demo/
 # End of https://www.gitignore.io/api/macos,python,django,visualstudiocode
