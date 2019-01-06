@@ -1,15 +1,10 @@
 {% extends "outside_template/base.html" %}
 {% load boilerplate_base %}
 
+{% block titulo_template %}Lista de  {{ model_name }}{% endblock %}
+
 {% block content %}
     {% if has_add_permission or  has_change_permission or  has_delete_permission %}
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col">
-                    <h2>{% block titulo_template %}List {{ model_name }}{% endblock %}</h2>
-                </div>
-        </div>
-
         <!-- Filter and Search Area -->
         <form id="id_search_and_filter">
             {% block containersearchandfilter %}
@@ -24,11 +19,6 @@
                             {% include 'includes/filters.html' %}
                         {% endblock filter %}
                     </div>
-                    {% block buttonfilter %}
-                        <div class="col-12 text-right mt-3" >
-                            <button id="id_clean_filter"  class="btn btn-danger"> Limpar Filtros</button>
-                        </div>
-                    {% endblock buttonfilter %}
                 </div>
             {% endblock containersearchandfilter %}
         </form>
