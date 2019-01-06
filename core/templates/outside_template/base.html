@@ -28,9 +28,7 @@
 
 <body>
     {% include 'includes/header.html' %}
-    {% block navbar %}
     {% include 'includes/sidebar.html' %}
-    {% endblock %}  
     <div class="main-container">
         <div class="pd-ltr-20 customscroll customscroll-10-p height-100-p xs-pd-20-10">
             <div class="min-height-200px">
@@ -41,10 +39,19 @@
                                 <h4>blank</h4>
                             </div>
                             <nav aria-label="breadcrumb" role="navigation">
+                            {% block breadcrumb %}
+                             {% if breadcrumbs %}
                                 <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">blank</li>
+                                 {% for breadcrumb in breadcrumbs %}
+                                  {% if breadcrumb.url %}
+                                    <li class="breadcrumb-item"><a href="{{ breadcrumb.url }}">{{ breadcrumb.slug }}</a></li>
+                                     {% else %}
+                                        <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb.slug }}</li>
+                                    {% endif %}
+                                {% endfor %}
                                 </ol>
+                            {% endif %}
+                            {% endblock breadcrumb %}
                             </nav>
                         </div>
                         <div class="col-md-6 col-sm-12 text-right">
