@@ -2,11 +2,12 @@
 {% load staticfiles %}
 {% load boilerplate_base %}
 
+{% block titulo_template %}Atualizar {{ model_name }}{% endblock titulo_template %}
+
 {% block content %}
     {% if has_change_permission %}
         <div class="container-fluid">
             <div class="container-margin">
-                <h3>{% block tituloapp %}Update {{ model_name }}{% endblock tituloapp %}</h3>
                 <form class="needs-validation was-validated" method="post" enctype="multipart/form-data" novalidate>
                     {% block contentform %}
                         {% csrf_token %}
@@ -25,7 +26,6 @@
                             {% for field in form.visible_fields %}
                                 <div class="form-group col-md-6">
                                     {#  TRATANDO OS CAMPOS DO TIPO RADIO  #}
-                                    {#  Obs: tem validação, porem não tem a mensagem, pois a validação do bootstrap é bugada #}
                                     {% if  field.field.widget.input_type == 'radio'%}
                                         <div class="form-check form-check-inline">
                                             <div>{{ field.label_tag  }}</div>
@@ -41,17 +41,12 @@
                                                         {% if field.field.required %} required="required" {% endif %} />
                                                 <label class="custom-control-label"
                                                        for="{{radio.id_for_label }}">{{ radio.choice_label }}</label>
-{#                                                     tirado pois os campos radios ou checkebox é bugado para validações #}
-{#                                                        {% if field.field.required %}#}
-{#                                                            <div class="invalid-feedback ">{{ field.field.error_messages.required }}</div>#}
-{#                                                        {% endif %}#}
                                             </div>
                                         {% endfor %}
                                         {% if field.help_text %}
                                             <small class="form-text text-muted">{{ field.help_text }}</small>
                                         {% endif %}
                                     {#  TRATANDO OS CAMPOS DO TIPO CHECKBOX.#}
-                                    {#  Obs: não tem validação, pois a validação do checkbox do bootstrap é bugada #}
                                     {% elif field.field.widget.input_type == 'checkbox' %}
                                         <div class="form-check form-check-inline">
                                             <div>{{ field.label_tag }}</div>
@@ -69,8 +64,6 @@
                                         {{ field.label_tag }}
                                         <div class="custom-file">
                                             {{ field }}
-{#                                        retirado pois voltou a versão antiga   #}
-{#                                            <label class="custom-file-label" for="{{ field.id_for_label }}">Escolha o arquivo...</label>#}
                                             {% if field.help_text %}
                                                 <small class="form-text text-muted">{{ field.help_text }}</small>
                                             {% endif %}
@@ -242,20 +235,20 @@
 
                     <div class="row justify-content-between">
                         {% block buttonbar %}
-                            <div class="col-6">
+                            <div class="col-2">
                                 <a href="{% url url_list %}" class="btn btn-danger ">
-                                    <i class="fas fa-arrow-left"></i> Voltar
+                                    <i class="fa fa-arrow-left"></i> Voltar
                                 </a>
                             </div>
-                            <div class="col-6 text-right">
+                            <div class="col-10 text-right">
                                 <button type="submit" class="btn btn-success" name="_save">
-                                        <i class="far fa-save"></i> Atualizar
+                                        <i class="fa fa-save"></i> Atualizar
                                 </button>
                                 <button type="submit" class="btn btn-success" name="_addanother">
-                                    <i class="far fa-save"></i> Atualizar e adicionar outro(a)
+                                    <i class="fa fa-save"></i> Atualizar e adicionar outro(a)
                                 </button>
                                 <button type="submit" class="btn btn-success" name="_continue">
-                                    <i class="far fa-save"></i> Atualizar e continuar editando
+                                    <i class="fa fa-save"></i> Atualizar e continuar editando
                                 </button>
                             </div>
                         {% endblock buttonbar %}
@@ -263,32 +256,6 @@
                 </form>
 
                 {% block contentmodal %}
-                    <!-- MODAL  -->
-                    <div class="modal fade" id="formModal" tabindex="-1" role="dialog"
-                         aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="myLargeModalLabel">Adicionar </h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    {% block modalform %}
-                                    <form id="form">
-                                        {% csrf_token %}
-
-                                    </form>
-                                    {% endblock %}
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" id="btnGravar">Gravar</button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 {% endblock contentmodal %}
             </div>
         </div>
