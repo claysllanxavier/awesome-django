@@ -26,7 +26,7 @@ urlpatterns = [
         template_name='outside_template/registration/password_reset_form.html',
         success_url=reverse_lazy('core:password_reset_done'),
         form_class=BasePasswordResetForm,
-        extra_context={'parameter': ParameterForBase.objects.first},
+        extra_email_context={'parameter': ParameterForBase.objects.first},
         email_template_name='outside_template/registration/password_reset_email.html'), name="password_reset"),
 
     path('password_reset/done/', PasswordResetDoneView.as_view(
