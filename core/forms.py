@@ -78,19 +78,6 @@ class BasePasswordResetForm(PasswordResetForm):
         if cleaned_data and not user:
             raise forms.ValidationError("O email informado, não foi encontrado! Talvez você não tenha cadastrado"
                                         " seu email no perfil. Por favor, entre em contado com o administrador do sistema." )
-
-        if user and user.last_login:
-            dias_sem_logar = (datetime.now() - user.last_login.replace(tzinfo=None)).days
-        elif user:
-            dias_sem_logar = (datetime.now() - user.date_joined.replace(tzinfo=None)).days
-        else:
-            dias_sem_logar = None
-
-        if dias_sem_logar >= get_parametros().bloquear_usuario and not user.is_active \
-                and not user.is_superuser and get_parametros().bloquear_usuario > 0:
-            raise forms.ValidationError(
-                "A conta relacionada a este e-mail está inativa, pois esse usuario não acessa o sistema a mais de %s dias. "
-                "Por favor, entre em contato com o administrador do sistema" % get_parametros().bloquear_usuario)
         if not user.is_active:
             raise forms.ValidationError(
                 "A conta relacionada a este e-mail está inativa. "

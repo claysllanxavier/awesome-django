@@ -127,3 +127,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+#Configurações de Email
+EMAIL_PORT = 1025
