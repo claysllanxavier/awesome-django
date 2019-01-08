@@ -4,55 +4,8 @@ from django.forms import CharField, PasswordInput
 from django.core.validators import EMPTY_VALUES
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from core.validators import validate_length, common_sequences, dictionary_words, complexity, password_used
 import re
 from django import forms
-
-
-class PasswordField(CharField):
-    default_validators = [validate_length, common_sequences, dictionary_words, complexity, password_used]
-
-    def __init__(self, *args, **kwargs):
-
-        if 'user' in kwargs:
-            self.default_validators[4].user = kwargs['user']
-            del(kwargs['user'])
-
-        if not "widget" in kwargs.keys():
-            kwargs["widget"] = PasswordInput(render_value=False)
-        super(PasswordField, self).__init__(*args, **kwargs)
-
-
-#field para validar senha na hora de logar no sistema
-class PasswordFieldLogin(CharField):
-    default_validators = [validate_length, common_sequences, complexity]
-
-    def __init__(self, *args, **kwargs):
-        if 'user' in kwargs:
-            self.default_validators[4].user = kwargs['user']
-            del(kwargs['user'])
-
-        if not "widget" in kwargs.keys():
-            kwargs["widget"] = PasswordInput(render_value=False)
-        super(PasswordFieldLogin, self).__init__(*args, **kwargs)
-
-    def clean(self, value):
-        value = self.to_python(value)
-        try:
-            self.validate(value)
-            self.run_validators(value)
-        except Exception as e:
-            #erros: 1:validate_length, 2:common_sequences, 3:dictionary_words, 4:complexity, 5:password_used
-            # 0 : Sem erro;  1: Com Erro
-            e.error_list.append(forms.ValidationError('-11010'))
-            raise e
-        return value
-
-
-def DV_maker(v):
-    if v >= 2:
-        return 11 - v
-    return 0
 
 
 class CpfCnpjField(CharField):
@@ -150,19 +103,3 @@ class CpfCnpjField(CharField):
 
             return re.sub("[-/\.]", "", orig_value)
         return value
-
-
-class MatriculaField(CharField):
-    """
-    This field validate Matricula number.
-    """
-    def __init__(self, max_length=None, min_length=None, required=True, isnumber=True, **kwargs):
-        self.isnumber = isnumber
-        super().__init__(max_length=max_length, min_length=min_length, required=required, **kwargs)
-
-    def clean(self, value):
-        value = super(MatriculaField, self).clean(value)
-        if self.isnumber and not value.isdigit():
-            raise ValidationError("É permitido apenas números!")
-        return value
-
