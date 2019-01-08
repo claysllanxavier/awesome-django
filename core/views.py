@@ -25,6 +25,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import camel_case_to_spaces
 from django.views.generic import ListView, TemplateView, DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
+from django.apps import apps
 
 from core.models import ParameterForBase, BaseMetod
 from .forms import BaseForm
@@ -51,7 +52,7 @@ def get_breadcrumbs(url_str):
     """
 
     breadcrumbs = []
-    breadcrumbs.append({'slug': "Inicio", 'url': "/", })
+    breadcrumbs.append({'slug': "Inicio", 'url': "/core/", })
     url = '/'
     array_url = url_str.strip('/').split('/')
     cont = 1
@@ -73,8 +74,6 @@ def get_apps(context_self):
     Returns:
         List -- Lista com as apps que o usuário tem acesso
     """
-
-    from django.apps import apps
     _apps = []
     # pega e percorre as apps registradas no setings
     for app in apps.get_app_configs():
@@ -139,13 +138,6 @@ class IndexTemplateView(LoginRequiredMixin, PermissionRequiredMixin, BaseTemplat
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # não está definido ainda, mas aqui vai verificar se tem permissão ainda para continuar logado
-        # parametro = ParameterForBase.objects.first()
-        # self.request.user
-        # requests.get(url='/apirest/?format=json',
-        #              params={'matricula': 0000000})
-
         url_str = '/'
         try:
             url_str = reverse('core:index')
@@ -654,7 +646,7 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         context['url_list'] = '{app}:{model}-list'.format(app=self.model._meta.app_label,
                                                           model=self.model._meta.model_name)
 
-        url_str = reverse(context['url_list']) + ' Detalhe {}'.format(context['object'].pk)
+        url_str = reverse(context['url_list']) + ' Detalhe {}'.format(context['object'])
 
         context['breadcrumbs'] = get_breadcrumbs(url_str)
 
@@ -734,7 +726,7 @@ class BaseUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         context['url_list'] = '{app}:{model}-list'.format(app=self.model._meta.app_label,
                                                           model=self.model._meta.model_name)
 
-        url_str = reverse(context['url_list']) + ' Atualizar {}'.format(context['object'].pk)
+        url_str = reverse(context['url_list']) + ' Atualizar {}'.format(context['object'])
 
         context['breadcrumbs'] = get_breadcrumbs(url_str)
 
@@ -1076,7 +1068,7 @@ class BaseDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         context['url_list'] = '{app}:{model}-list'.format(app=self.model._meta.app_label,
                                                           model=self.model._meta.model_name)
 
-        url_str = reverse(context['url_list'])+ ' Apagar {}'.format(context['object'].pk)
+        url_str = reverse(context['url_list'])+ ' Apagar {}'.format(context['object'])
 
         context['breadcrumbs'] = get_breadcrumbs(url_str)
 
@@ -1098,18 +1090,16 @@ class BaseLoginView(LoginView):
     
     def get_success_url(self):
         url = self.get_redirect_url()
-        parametro = ParameterForBase.objects.first()
-        return url or resolve_url(parametro.login_redirect_url or settings.LOGIN_REDIRECT_URL)
+        return url or resolve_url(settings.LOGIN_REDIRECT_URL)
 
 
 class BaseLogoutView(LogoutView):
 
     def get_next_page(self):
-        parametro = ParameterForBase.objects.first()
         if self.next_page is not None:
             next_page = resolve_url(self.next_page)
-        elif (parametro and parametro.logout_redirect_url) or settings.LOGOUT_REDIRECT_URL:
-            next_page = resolve_url(parametro.logout_redirect_url or settings.LOGOUT_REDIRECT_URL)
+        elif settings.LOGOUT_REDIRECT_URL:
+            next_page = resolve_url(settings.LOGOUT_REDIRECT_URL)
         else:
             next_page = self.next_page
 
@@ -1138,5 +1128,5 @@ class BasePasswordResetCompleteView(PasswordResetCompleteView):
         context = super().get_context_data(**kwargs)
         parametro = ParameterForBase.objects.first()
         context['parameter'] = parametro
-        context['login_url'] = resolve_url(parametro.login_url or settings.LOGIN_URL)
+        context['login_url'] = resolve_url(settings.LOGIN_URL)
         return context
