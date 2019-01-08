@@ -1,5 +1,5 @@
 {% extends "outside_template/base.html" %}
-{% load staticfiles %}
+{% load staticfiles crispy_forms_tags %}
 {% load boilerplate_base %}
 
 {% block titulo_template %}Atualizar {{ model_name }}{% endblock titulo_template %}
@@ -20,73 +20,9 @@
                         {% endif %}
 
                         <div class="form-row">
-                            {% for hidden in form.hidden_fields %}
-                                {{ hidden }}
-                            {% endfor %}
-                            {% for field in form.visible_fields %}
-                                <div class="form-group col-md-6">
-                                    {#  TRATANDO OS CAMPOS DO TIPO RADIO  #}
-                                    {% if  field.field.widget.input_type == 'radio'%}
-                                        <div class="form-check form-check-inline">
-                                            <div>{{ field.label_tag  }}</div>
-                                        </div>
-                                        {% for radio in field.subwidgets %}
-                                             <div class="custom-control custom-{{ field.field.widget.input_type }} custom-control-inline " >
-                                                 <input type="radio"
-                                                       class="{{ field.field.widget.attrs.class }}"
-                                                       value="{{ radio.data.value }}"
-                                                        {% if radio.data.selected %} checked {% endif %}
-                                                       name="{{ field.html_name }}"
-                                                       id="{{ radio.id_for_label }}"
-                                                        {% if field.field.required %} required="required" {% endif %} />
-                                                <label class="custom-control-label"
-                                                       for="{{radio.id_for_label }}">{{ radio.choice_label }}</label>
-                                            </div>
-                                        {% endfor %}
-                                        {% if field.help_text %}
-                                            <small class="form-text text-muted">{{ field.help_text }}</small>
-                                        {% endif %}
-                                    {#  TRATANDO OS CAMPOS DO TIPO CHECKBOX.#}
-                                    {% elif field.field.widget.input_type == 'checkbox' %}
-                                        <div class="form-check form-check-inline">
-                                            <div>{{ field.label_tag }}</div>
-                                        </div>
-                                        {% for radio in field.subwidgets %}
-                                            <div class="form-check form-check-inline">
-                                                {{ radio }}
-                                            </div>
-                                        {% endfor %}
-                                        {% if field.help_text %}
-                                            <small class="form-text text-muted">{{ field.help_text }}</small>
-                                        {% endif %}
-                                    {# TRATANDO OS CAMPOS FILES E IMAGENS#}
-                                    {% elif field.field.widget.input_type == 'file' %}
-                                        {{ field.label_tag }}
-                                        <div class="custom-file">
-                                            {{ field }}
-                                            {% if field.help_text %}
-                                                <small class="form-text text-muted">{{ field.help_text }}</small>
-                                            {% endif %}
-                                            {% if field.field.required %}
-                                                <div class="invalid-feedback">Campo obrigatório</div>
-                                            {% endif %}
-                                        </div>
-                                    {# TRATANDO OS DEMAIS CAMPOS #}
-                                    {% else %}
-                                        {{ field.label_tag }}
-                                        {{ field }}
-                                        {% if field.help_text %}
-                                        <small class="form-text text-muted">{{ field.help_text }}</small>
-                                        {% endif %}
-                                        {% if field.field.required %}
-                                            <div class="invalid-feedback">
-                                                Campo Obrigatorio.
-                                            </div>
-                                        {% endif %}
-                                    {% endif %}
-                                    {% if field.errors  %}
-                                            {{ field.errors  }}
-                                    {% endif %}
+                            {% for field in form %}
+                               <div class="form-group col-md-6 mb-0">
+                                    {{ field |as_crispy_field }}
                                 </div>
                             {% endfor %}
                         </div>
