@@ -242,3 +242,6 @@
 {% block contentmodal %}
     <!--REPLACE_MODAL_HTML-->
 {% endblock contentmodal %}
+{% block extra_js %}
+    <!--REPLACE_SCRITP_MODAL_HTML-->
+{% endblock extra_js %}

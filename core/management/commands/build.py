@@ -707,6 +707,23 @@ class Command(BaseCommand):
                 os.path.join(self.path_core, "management/commands/snippets/modal_form.txt"))
             # Interpolando o conteúdo
             content = content.replace("$ModelName$", model)
+            content = content.replace("$model_name$", model_lower)
+            content = content.replace("$field_name$", field_name)
+            return content
+        except Exception as error:
+            self._message(error)
+    
+    def _render_script_foreign_key(self, model, app, model_lower, field_name):
+        """
+        Método para renderizar o script responsável por inserir os dados do modal
+        no banco de dados, através da API
+        """
+
+        try:
+            content = self._get_snippet(
+                os.path.join(self.path_core, "management/commands/snippets/script_modal_form.txt"))
+            # Interpolando o conteúdo
+            content = content.replace("$ModelName$", model)
             content = content.replace("$app_name$", app)
             content = content.replace("$model_name$", model_lower)
             content = content.replace("$field_name$", field_name)
@@ -758,6 +775,8 @@ class Command(BaseCommand):
                     tag_result += '</div>'
                     #Cria o modal da foreign
                     self.html_modals += self._render_modal_foreign_key(field.related_model._meta.object_name, iten['app'], field.related_model._meta.model_name, iten['name'])
+                    #Cria o script para o modal da foreign
+                    self.html_scripts += self._render_script_foreign_key(field.related_model._meta.object_name, iten['app'], field.related_model._meta.model_name, iten['name'])
                 else:
                     tag_result += "{{{{ form.{}|as_crispy_field }}}}".format(iten['name'])
                 """
@@ -790,6 +809,7 @@ class Command(BaseCommand):
                 return
             html_tag = ""
             self.html_modals = ""
+            self.html_scripts =  ''
             # Percorrendo os campos/atributos do models
             for field in iter(model._meta.fields):
                 if str(field).split('.')[2] not in ('updated_on', 'created_on', 'deleted', 'enabled', 'id'):
@@ -812,6 +832,12 @@ class Command(BaseCommand):
                             print(line.replace(
                                 "<!--REPLACE_MODAL_HTML-->", 
                                 self.html_modals), end='')
+                    #Adiciona os scripts das foreign keys
+                    with fileinput.FileInput(list_template, inplace=True) as arquivo:
+                        for line in arquivo:
+                            print(line.replace(
+                                "<!--REPLACE_SCRITP_MODAL_HTML-->", 
+                                self.html_scripts), end='')
         except:
             self._message("Favor colocar a url da app no urls principal.")
     '''
