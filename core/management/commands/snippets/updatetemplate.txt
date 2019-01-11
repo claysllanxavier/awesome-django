@@ -1,5 +1,5 @@
 {% extends "outside_template/base_update.html" %}
-{% load boilerplate_base %}
+{% load boilerplate_base crispy_forms_tags %}
 {% block tituloapp %}Atualizando $title$ {% endblock tituloapp %}
 {% block contentform %}
     {% if form.non_field_errors %}

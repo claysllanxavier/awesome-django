@@ -74,12 +74,6 @@ class Command(BaseCommand):
             dest = 'views',
             help = 'Criar apenas as Views (CRUD)'
         )
-        parser.add_argument(
-            '--parserhtml',
-            action = 'store_true',
-            dest = 'renderhtml',
-            help = 'Renderirzar os fields do models para HTML'
-        )
 
     """
     #################################################################
@@ -743,26 +737,8 @@ class Command(BaseCommand):
                 .replace("[\"", "").replace("\'>\"]", ""))
             # Verificando se o tipo de campos está nos tipos conhecidos
             if iten["tipo"] in types:
-                # Criando a DIV para os campos de Checkbox
-                if iten["tipo"] == 'BooleanField':
-                    tag_result = "<div class='form-check col-md-6'>"
                 # Criando a DIV form-group
-                else:
-                    tag_result = "<div class='form-group col-md-6'>"
-                required = 'required'
-                # Verificando se o campo aceita branco ou nulo para
-                # retirar o parâmetro required da tag HTML
-                if ((getattr(field, 'blank', None) is True) or
-                    (getattr(field, 'null', None) is True) ):
-                    #TODO Verificar como tratar os casos onde
-                    # o campo é blank=False
-                    required = ''
-                # Verificando se ele foi setado para readonly
-                readonly = getattr(field, 'readonly', '')
-                # Criando o Label do campo
-                label = "{{{{ form.{}.label_tag }}}}".format(iten['name'])
-                # Criando o HELP Text caso exista
-                helptext = getattr(field, 'help_text', '')
+                tag_result = '<div class="form-group col-md-6 mb-0">'
                 """ 
                 #####################################################
                 Tratando os tipos de campos
@@ -772,34 +748,23 @@ class Command(BaseCommand):
                 # Adiciona o botão de adicionar um novo
                 # Abre o modal para adicionar
                 if  (iten.get("tipo") in ('ForeignKey', 'OneToOneField')):
+                    # Criando o Label do campo
+                    label = "{{{{ form.{}.label_tag }}}}".format(iten['name'])
                     tag_result += label
                     tag_result += '\n<div class="input-group">'
                     tag_result += "{{{{ form.{} }}}}\n".format(iten['name'])
-                    tag_result += '{{% if form.{}.field.queryset.model|has_add_permission:request %}}<button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#form{}Modal">+</button>{{% endif %}}'\
+                    tag_result += '{{% if form.{}.field.queryset.model|has_add_permission:request %}}<div class="input-group-append"><button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#form{}Modal">+</button></div>{{% endif %}}'\
                                     .format(iten['name'], field.related_model._meta.object_name)
                     tag_result += '</div>'
                     #Cria o modal da foreign
                     self.html_modals += self._render_modal_foreign_key(field.related_model._meta.object_name, iten['app'], field.related_model._meta.model_name, iten['name'])
-                elif iten["tipo"] == 'BooleanField':
-                     tag_result += "{{{{ form.{} }}}}\n{}".format(iten['name'], label)
                 else:
-                    tag_result += "{}\n{{{{ form.{} }}}}".format(label, iten['name'])
+                    tag_result += "{{{{ form.{}|as_crispy_field }}}}".format(iten['name'])
                 """
                 #####################################################
                 Configurando os atributos do campo
                 #####################################################
                 """
-                # Configurando para os campos do tipo readonly serem plain text
-                if readonly is not '':
-                    tag_result = tag_result.replace(
-                        "class='", "class='form-control-plaintext ")
-                # Adicionando a classe obrigatorio aos campos required
-                if required is not '':
-                    tag_result += '\n<div class="invalid-feedback">Campo Obrigatorio.</div>'
-                # Adicionando o HelpText no campo
-                if helptext is not '':
-                    tag_result += "\n<small class='form-text text-muted'>{}</small>\n".format(helptext)
-                tag_result += "{{% if form.{0}.errors  %}}{{{{ form.{0}.errors  }}}}{{% endif %}}".format(iten['name'])
                 tag_result += "</div>"
                 return tag_result
             else:
@@ -823,7 +788,6 @@ class Command(BaseCommand):
             if model == None:
                 self._message("Favor declarar a app no settings.")
                 return
-            self._manage_templates()
             html_tag = ""
             self.html_modals = ""
             # Percorrendo os campos/atributos do models
@@ -861,6 +825,7 @@ class Command(BaseCommand):
         if options['templates']:
             self._message("Trabalhando apenas os templates.")
             self._manage_templates()
+            self._manage_render_html()
             return
         elif options['api']:
             self._message("Trabalhando apenas a api.")
@@ -887,9 +852,6 @@ class Command(BaseCommand):
             self._message("Trabalhando apenas as views.")
             # Chamando o método para tratar as views
             self._manage_views()
-        elif options['renderhtml']:
-            self._manage_render_html()
-            return
         else:
             # Chamando o método para tratar os form
             self._manage_form()

@@ -1,5 +1,5 @@
 {% extends "outside_template/base_create.html" %}
-{% load boilerplate_base %}
+{% load boilerplate_base crispy_forms_tags %}
 {% block tituloapp %}Cadastrando $title$ {% endblock tituloapp %} 
 {% block contentform %}
     {% if form.non_field_errors %}
@@ -55,7 +55,6 @@
         <div id="error-{{ formset.prefix }}"></div>
         <div {% if '__prefix__' in formset.empty_form.prefix %} class="p-3 mb-3 inline formset-custom-template {{ formset.prefix }}"
             {% else %}class="p-3 mb-3 inline {{ formset.prefix }}" {% endif %}>
-            {% if forloop.first %}
             <table class="table" id="table-{{ formset.prefix }}">
                 <thead>
                     <th>Opções</th>
@@ -74,7 +73,6 @@
                 <tbody>
                 </tbody>
             </table>
-            {% endif %}
         </div>
         <!-- INLINES -->
         <div class="modal fade" id="form-{{ formset.prefix }}-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"

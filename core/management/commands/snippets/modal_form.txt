@@ -11,19 +11,14 @@
             </div>
             <div class="modal-body">
                 <form method="POST" id="form-$model_name$">
-                     {% csrf_token %} 
-                    {% for hidden in form_$model_name$.hidden_fields %} {{ hidden }} {% endfor %}
-                    {% for field in form_$model_name$.visible_fields%}
-                    <div class="form-group">
-                        {{ field.label_tag }} {{ field }} {% if field.help_text %}
-                        <small class="form-text text-muted">{{ field.help_text }}</small>
-                        {% endif %} {% if field.field.required %}
-                        <div class="invalid-feedback">
-                            Campo Obrigatorio.
+                     {% csrf_token %}
+                     <div class="form-row">
+                        {% for field in form_$model_name$ %}
+                        <div class="form-group col-md-6 mb-0">
+                                {{ field |as_crispy_field }}
+                            </div>
+                        {% endfor %}
                         </div>
-                        {% endif %} {% if field.errors %} {{ field.errors }} {% endif %}
-                    </div>
-                    {% endfor %}
                 </form>
             </div>
             <div class="modal-footer">
