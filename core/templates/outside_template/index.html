@@ -14,7 +14,10 @@
                 <div class="card-body">
                         <div class="row">
                             {% for model in app.models_app %}
-                            <div class="col-6 mb-3 d-flex align-items-stretch">
+                                {% if not forloop.first and forloop.counter0|divisibleby:2 %}
+                                    <div class="w-100"></div>
+                                {% endif %}
+                            <div class="col mb-3 d-flex align-items-stretch">
                                 <a class="btn btn-outline-primary btn-block d-flex flex-sm-column align-items-center justify-content-left justify-content-sm-center"
                                    href="{% url model.url_list_model %}">
                                     {{ model.name_model }}
