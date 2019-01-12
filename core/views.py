@@ -107,7 +107,12 @@ def get_apps(context_self):
                 _models.append({'name_model': name_model, 'url_list_model': url_name_list_model})
             # só adiciona a app caso o models tenha conteudo
             if len(_models) > 0:
-                _apps.append({'name_app': '%s' % app.name,'verbose_name_app': '%s' % app.verbose_name, 'models_app': _models})
+                #Caso tenha o icone da app
+                if hasattr(app, 'icon'):
+                    icon = app.icon
+                else:
+                    icon = None
+                _apps.append({'name_app': '%s' % app.name,'verbose_name_app': '%s' % app.verbose_name, 'icon_app': icon, 'models_app': _models})
     return _apps
 
 class BaseTemplateView(TemplateView):
