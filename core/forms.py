@@ -22,7 +22,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, ReadOnlyPasswordHashField, UserChangeForm, PasswordChangeForm, \
     PasswordResetForm
 from django.contrib.auth.models import User
-from django.forms.fields import DateField, DateTimeField
+from django.forms.fields import DateField, DateTimeField, ChoiceField
 from django.utils.translation import gettext, gettext_lazy as _
 
 from core.models import ParameterForBase
@@ -49,6 +49,9 @@ class BaseForm(forms.ModelForm):
             # Verificando se o campo é do do Date
             elif isinstance(self.fields[field], DateField) is True:
                 class_attrs = "{} {}".format(class_attrs, 'datefield')
+            # Verificando se o campo é do tipo ChoiceField
+            elif isinstance(self.fields[field], ChoiceField) is True:
+                class_attrs = "{} {}".format(class_attrs, 'select')
 
             # Atualizando os atributos do campo para adicionar as classes
             # conforme as regras anteriores
