@@ -46,7 +46,7 @@ jQuery(document).ready(function(){
 		}
 	}
 	// custom select 2 init
-	$('.select').select2();
+	$(".select").not(".inline.dynamic-form .select").select2();
 
 	// tooltip init
 	$('[data-toggle="tooltip"]').tooltip()
@@ -216,3 +216,31 @@ function CopyToClipboard(value, showNotification, notificationText) {
 		});
 	}
 }
+
+    // funcionalidade utilizada no listview para limpar os filtros
+    $('#id_clean_filter').on('click',function(){
+        $('form#id_search_and_filter select').val("None").change();
+        $('form#id_search_and_filter input' ).val("");
+    });
+
+     // funcionalidade utilizada nos filtro em caso de datas
+    $('form#id_search_and_filter .dropdown-item').on('click',function(){
+        id_input = $(this).attr("data-id-input");
+        prefix = $(this).attr("data-prefix-filter");
+        var input = $('#'+id_input);
+        name_input = $(input).attr('name');
+       if (name_input.includes('__')) {
+           name_input = name_input.split("__")[0];
+       }
+       $(input).attr('name', name_input + prefix);
+       $(this).siblings('div.active').removeClass('active');
+       $(this).addClass('active');
+    });
+
+    // funcionalidade utilizada nos filtro em caso de datas
+    $("form#id_search_and_filter .date-filter input[type='text']").each(function(){
+        var prefix = "__"+$(this).attr('name').split("__")[1];
+        var item = $(this).siblings("div .dropdown-menu").children('.dropdown-item[data-prefix-filter='+prefix+']');
+        $(item).siblings('div.active').removeClass('active');
+        $(item).addClass('active');
+	});

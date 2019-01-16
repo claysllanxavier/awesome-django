@@ -10,13 +10,13 @@
                 <div class="alert alert-warning" role="alert">
                     <ul style="margin-bottom: 0 !important;">
                         {% for obj in perms_lacking %}
-                            <li>{{ obj }}</li>
+                               <li>{{ obj }}</li>
                         {% endfor %}
                     </ul>
                 </div>
             {% endif %}
             {% if protected %}
-                <p>{% blocktrans with escaped_object=object %}Excluir o <b> '{{model_name}}' {{escaped_object}} </b> exigiria a exclusão dos seguintes relacionamentos protegidos: {% endblocktrans%} </p>
+                <p>{% blocktrans with escaped_object=object %}Excluir o <b> '{{model_name}}' {{escaped_object}} </b> exige a exclusão dos seguintes relacionamentos protegidos: {% endblocktrans%} </p>
                 <div class="alert alert-warning" role="alert">
                     <ul style="margin-bottom: 0 !important;">
                         {% for obj in protected %}
@@ -30,9 +30,7 @@
             {% if not protected and not perms_lacking %}
                 <h3 >{% block tituloapp %} Apagar: {{ object }} ? {% endblock tituloapp %}</h3>
                 
-                {% if related_fields %}
                 <p>{% blocktrans with escaped_object=object %}Tem certeza de que deseja excluir o objeto <b>{{ model_name }} "{{ escaped_object }}"</b>? Todos os seguintes objetos relacionados serão excluídos:{% endblocktrans %}</p>
-                {% endif %}
                 {% block related_fields %}
                     <!-- Bloco para exibir os campos que possuem relacionamento
                     com o registro que está sendo excluído -->
@@ -73,9 +71,9 @@
                 {% endblock contentform %}
                 {% else %}
                     {% if has_delete_permission or protected %}
-                    <div class="col-6">
+                    <div class="col-12">
                         <a href="{% url url_list %}" class="btn btn-primary">
-                            <i class="fas fa-arrow-left"></i> Voltar
+                            <i class="fa fa-arrow-left"></i> Voltar
                         </a>
                     </div>
                 {% endif %}
