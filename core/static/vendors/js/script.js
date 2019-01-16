@@ -48,6 +48,10 @@ jQuery(document).ready(function(){
 	// custom select 2 init
 	$(".select").not(".inline.dynamic-form .select").select2();
 
+	//custom dates
+	$('.datefield').mask('00/00/0000');
+	$('.datetimefield').mask('00/00/0000 00:00:00');
+
 	// tooltip init
 	$('[data-toggle="tooltip"]').tooltip()
 
