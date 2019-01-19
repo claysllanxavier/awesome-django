@@ -8,13 +8,13 @@
         <!-- Filter and Search Area -->
         <form id="id_search_and_filter">
             {% block containersearchandfilter %}
-                <div class="row my-0 py-0 search">
+                <div class="row">
                     <div class="col-12">
                         {% block search %}
                             {% include 'includes/search.html' %}
                         {% endblock search %}
                     </div>
-                    <div class="col-12 mt-3 filters ">
+                    <div class="col-12 mt-3 filters">
                         {% block filter %}
                             {% include 'includes/filters.html' %}
                         {% endblock filter %}

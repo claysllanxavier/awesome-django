@@ -1,10 +1,10 @@
 {% load static boilerplate_base %}
- <div class="row mr-2">
-    <div class="col-10">
+ <div class="row">
+    <div class="col-9">
         <input type="text" class="form-control" id="pesquisa" value="{{ query_params_q }}" name="q" placeholder="Digite o termo para pesquisar" aria-label="Digite o termo para pesquisar">
 
     </div>
-    <div class="col-2">
-        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Pesquisar </button>
+    <div class="col-3">
+        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> <span class="d-none d-sm-inline">Pesquisar</span></button>
     </div>
 </div>
