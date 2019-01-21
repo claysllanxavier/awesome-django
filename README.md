@@ -8,12 +8,6 @@ Conta com o build e a dashboard completa.
 
 ### Installation
 
-To install boilerplate-manager:
-
-```shell
-    $ pip install boilerplate-manager
-```
-
 Add `core` to your `INSTALLED_APPS` setting:
 
 ```python
