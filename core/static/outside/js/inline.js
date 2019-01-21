@@ -53,7 +53,7 @@
         '" data-id="' +
         i +
         '" \
-                class="btn btn-outline-primary btn-sm data-toggle="tooltip" data-placement="right" title="Editar Registro."" >';
+                class="btn btn-outline-primary btn-sm mr-1" data-toggle="tooltip" data-placement="right" title="Editar Registro."" >';
       html += '<i class="far fa-edit"></i> </button>';
       html +=
         '<button type="button" id="btn-delete-' +

@@ -23,18 +23,20 @@
 {% block contentinline %}
 {% if list_inlines %}
 {% for formset in list_inlines %}
-<div class="card mb-4">
-    <div class="card-header">
-        <strong>
-            {% if formset.model.get_meta.verbose_name_plural %}
+<div class="pd-20 bg-white border-radius-4 box-shadow mb-30 shadow-lg">   
+<div class="clearfix mb-20">
+    <div class="pull-left">
+        <h4 class="text-blue">
+         {% if formset.model.get_meta.verbose_name_plural %}
             {{ formset.model.get_meta.verbose_name_plural.title }}
             {% elif formset.model.get_meta.verbose_name.title %}
             {{ formset.model.get_meta.verbose_name.title }}
             {% elif formset.prefix %}
             {{ formset.prefix.title }}
             {% endif %}
-        </strong>
+        </h4>
     </div>
+</div> 
     <div class="card-body p-0">
         {{ formset.management_form }}
         {% if formset.non_form_errors %}
@@ -55,7 +57,7 @@
         <div id="error-{{ formset.prefix }}"></div>
         <div {% if '__prefix__' in formset.empty_form.prefix %} class="p-3 mb-3 inline formset-custom-template {{ formset.prefix }}"
             {% else %}class="p-3 mb-3 inline {{ formset.prefix }}" {% endif %}>
-            <table class="table" id="table-{{ formset.prefix }}">
+            <table class="table table-striped" id="table-{{ formset.prefix }}">
                 <thead>
                     <th>Opções</th>
                     {% for field_formset in formset.empty_form.visible_fields %}
@@ -66,8 +68,7 @@
                 </thead>
                 <tfoot>
                     <tr>
-                        <td colspan="{{formset.empty_form.visible_fields|length}}" id='total-{{ formset.prefix }}'>
-                        </td>
+                        <td colspan="{{formset.empty_form.visible_fields|length}}" id='total-{{ formset.prefix }}'></td>
                     </tr>
                 </tfoot>
                 <tbody>
@@ -93,8 +94,17 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="needs-validation was-validated" enctype="multipart/form-data" novalidate id="form-{{ formset.prefix }}">
-                            {{ formset.empty_form }}
+                        <div class="needs-validation" enctype="multipart/form-data" id="form-{{ formset.prefix }}">
+                            {% for hidden in formset.empty_form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            <div class="form-row">
+                            {% for field_formset in formset.empty_form.visible_fields %}
+                               <div class="form-group col-md-6 mb-0">
+                                    {{ field_formset |as_crispy_field }}
+                                </div>
+                            {% endfor %}
+                        </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -124,7 +134,20 @@
                 </div>
             </div>
         </div>
-        <script>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock contentinline %}  
+{% endblock contentform %}
+{% block contentmodal %}
+    <!--REPLACE_MODAL_HTML-->
+{% endblock contentmodal %}
+{% block extra_js %}
+    <!--REPLACE_SCRITP_MODAL_HTML-->
+{% if list_inlines %}
+{% for formset in list_inlines %}
+     <script>
             $(function () {
                 // Gera os campos que serão mostrados na tabela
                 var fields = []
@@ -233,15 +256,6 @@
                 });
             });
         </script>
-    </div>
-</div>
-{% endfor %}
-{% endif %}
-{% endblock contentinline %} 
-{% endblock contentform %}
-{% block contentmodal %}
-    <!--REPLACE_MODAL_HTML-->
-{% endblock contentmodal %}
-{% block extra_js %}
-    <!--REPLACE_SCRITP_MODAL_HTML-->
+        {% endfor %}
+        {% endif %}
 {% endblock extra_js %}
