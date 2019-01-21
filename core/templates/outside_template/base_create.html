@@ -31,11 +31,8 @@
                      {# ------------------------------------  inlines form  -------------------------------------------#}
                         {% block contentinline %}
                             {% if list_inlines %}
-                            </div>
-                        </div>
-                    </div>
                                 {% for formset in list_inlines %}
-                                    <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+                                    <div class="pd-20 bg-white border-radius-4 box-shadow mb-30 shadow-lg">
                                     <div class="clearfix">
                                     <div class="pull-left">
                                         <h4 class="text-blue">
@@ -77,6 +74,7 @@
                                                     </div>
                                                 </div>
                                             {% endfor %}
+                                            </div>
                                 {% endfor %}
 
                             {% endif %}
@@ -109,6 +107,7 @@
                 {% endblock contentmodal %}
             </div>
         </div>
+    </div>
     {% else %}
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading"> Voce não tem permisão para acessar essa pagina!</h4>
