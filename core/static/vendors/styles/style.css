@@ -330,7 +330,8 @@ p {
 .dropdown-toggle::after {
   content: "\f107";
   border: 0;
-  font-family: "FontAwesome";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
   vertical-align: unset;
   width: auto;
   height: auto;
@@ -494,7 +495,8 @@ textarea.form-control {
   font-weight: 500; }
 
 .breadcrumb-item + .breadcrumb-item::before {
-  font-family: "FontAwesome";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
   content: "\f105"; }
 
 .customscroll-10-p > .mCustomScrollBox > .mCSB_container {
@@ -605,7 +607,8 @@ textarea.form-control {
 .dropup .dropdown-toggle::after {
   content: "\f107";
   border: 0;
-  font-family: "FontAwesome";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
   vertical-align: unset;
   width: auto;
   height: auto;
@@ -1731,7 +1734,8 @@ textarea.form-control {
 
 .blog-detail ul li:before {
   content: "\f101";
-  font-family: "FontAwesome";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
   position: absolute;
   color: #405158;
   left: 0;
@@ -1856,7 +1860,8 @@ textarea.form-control {
   color: #ffffff; }
 
 .slider-arrow .slick-arrow:before {
-  font-family: "FontAwesome";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
   font-size: 16px;
   color: #ffffff;
   line-height: 38px;
@@ -1918,7 +1923,8 @@ textarea.form-control {
 
 .faq-wrap .card-header .btn:after {
   content: "\f068";
-  font-family: "FontAwesome";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
   position: absolute;
   right: 10px;
   color: #2976aa;
@@ -2098,7 +2104,8 @@ textarea.form-control {
 
 .profile-task-list ul li .due-date:before {
   content: "\f111";
-  font-family: "FontAwesome";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
   display: inline-block;
   font-size: 8px;
   vertical-align: middle;

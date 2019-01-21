@@ -53,14 +53,14 @@
                                                     {% if item_key == 'pk'   %}
                                                          <td align="middle" style="width: 160px !important;">
                                                             <a href="{% url url_detail value.pk %}" class="btn btn-info btn-sm"
-                                                               data-toggle="tooltip" data-placement="right" title="Visualizar Registro"><i class="fa fa-eye" ></i></a>
+                                                               data-toggle="tooltip" data-placement="right" title="Visualizar Registro"><i class="fas fa-eye" ></i></a>
                                                             {% if has_change_permission %}
                                                                 <a href="{% url url_update value.pk %}" class="btn btn-warning btn-sm"
-                                                                data-toggle="tooltip" data-placement="right" title="Editar Registro" ><i class="fa fa-edit"></i></a>
+                                                                data-toggle="tooltip" data-placement="right" title="Editar Registro" ><i class="fas fa-edit"></i></a>
                                                             {% endif %}
                                                             {% if has_delete_permission %}
                                                                 <a href="{% url url_delete value.pk %}" class="btn btn-danger btn-sm"
-                                                                data-toggle="tooltip" data-placement="right" title="Apagar Registro" ><i class="fa fa-trash"></i></a>
+                                                                data-toggle="tooltip" data-placement="right" title="Apagar Registro" ><i class="fas fa-trash"></i></a>
                                                             {% endif %}
                                                          </td>
                                                     {% elif item_key == 'id'  %}
