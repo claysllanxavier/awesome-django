@@ -1,105 +1,89 @@
 # -*-coding:utf-8 -*-
-from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import ManyToManyRel
 from django.forms import CharField, PasswordInput
 from django.core.validators import EMPTY_VALUES
 from django.forms import ValidationError
+from django.forms.utils import flatatt
+from django.template.defaultfilters import linebreaksbr
+from django.utils import six
+from django.utils.encoding import force_text, smart_text
+from django.utils.html import format_html, conditional_escape
+from django.utils.safestring import mark_safe
+from django.utils.text import capfirst
+
 from django.utils.translation import ugettext_lazy as _
 import re
 from django import forms
 
 
-class CpfCnpjField(CharField):
-    """
-    This field validate a CPF number or a CPF string. A CPF number is
-    compounded by XXX.XXX.XXX-VD. The two last digits are check digits. If it fails it tries to validate a CNPJ number or a CNPJ string. A CNPJ is compounded by XX.XXX.XXX/XXXX-XX.
+class ReadonlyField(object):
+    def __init__(self, form, field):
+        from django.contrib.admin.utils import label_for_field, help_text_for_field
+        # Make self.field look a little bit like a field. This means that
+        # {{ field.name }} must be a useful class name to identify the field.
+        # For convenience, store other field-related data here too.
+        if callable(field):
+            class_name = field.__name__ if field.__name__ != '<lambda>' else ''
+        else:
+            class_name = field
 
-    More information:
-    http://en.wikipedia.org/wiki/Cadastro_de_Pessoas_Físicas
-    """
-    default_error_messages = {
-        'invalid': _(u"CPF ou CNPJ inválido."),
-        'digits_only': _(u"Este campo requer somente números."),
-        'max_digits': _(u"Este campo requer no máximo 11 dígitos."),
-        'invalid_cpf': _(u"CPF inválido."),
-        'invalid_cnpj': _(u"CNPJ inválido."),
-    }
+        if form._meta.labels and class_name in form._meta.labels:
+            label = form._meta.labels[class_name]
+        else:
+            label = label_for_field(field, form._meta.model)
 
-    def __init__(self, max_length=None, min_length=None, cpfcnpj_required=True, *args, **kwargs):
-        self.cpfcnpj_required = cpfcnpj_required
-        self.max_length = max_length
-        self.min_length = min_length
-        super().__init__(**kwargs)
+        if form._meta.help_texts and class_name in form._meta.help_texts:
+            help_text = form._meta.help_texts[class_name]
+        else:
+            help_text = help_text_for_field(class_name, form._meta.model)
 
-    def validate_CPF(self, value):
-        """
-        Value can be either a string in the format XXX.XXX.XXX-XX or an
-        11-digit number.
-        """
-        if value in EMPTY_VALUES:
-            return u''
-        if not value.isdigit():
-            value = re.sub("[-/\.]", "", value)
-        orig_value = value[:]
+        self.field = {
+            'name': class_name,
+            'label': label,
+            'help_text': help_text,
+            'field': field,
+        }
+        self.form = form
+        self.is_checkbox = False
+        self.is_readonly = True
+        self.is_hidden = False
+
+    def label_tag(self):
+        attrs = {}
+        label = self.field['label']
+        return format_html('<label{}>{}:</label>',
+                           flatatt(attrs),
+                           capfirst(force_text(label)))
+
+    def contents(self):
+        from django.contrib.admin.templatetags.admin_list import _boolean_icon
+        from django.contrib.admin.utils import lookup_field, display_for_field
+
+        field, obj = self.field['field'], self.form.instance
         try:
-            int(value)
-        except ValueError:
-            raise ValidationError(self.error_messages['digits_only'], code='digits_only')
-        if len(value) != 11:
-            raise ValidationError(self.error_messages['max_digits'], code='max_digits')
-        orig_dv = value[-2:]
+            f, attr, value = lookup_field(field, obj)
+        except (AttributeError, ValueError, ObjectDoesNotExist):
+            result_repr = ''
+        else:
+            if f is None:
+                boolean = getattr(attr, "boolean", False)
+                if boolean:
+                    result_repr = _boolean_icon(value)
+                else:
+                    result_repr = smart_text(value)
+                    if getattr(attr, "allow_tags", False):
+                        result_repr = mark_safe(result_repr)
+                    else:
+                        result_repr = linebreaksbr(result_repr)
+            else:
+                if isinstance(getattr(f, 'rel', None), ManyToManyRel) and value is not None:
+                    result_repr = ", ".join(map(six.text_type, value.all()))
+                else:
+                    result_repr = display_for_field(value, f,'(None)')
+                result_repr = linebreaksbr(result_repr)
+        return conditional_escape(result_repr)
 
-        new_1dv = sum([i * int(value[idx]) for idx, i in enumerate(range(10, 1, -1))])
-        new_1dv = DV_maker(new_1dv % 11)
-        value = value[:-2] + str(new_1dv) + value[-1]
-        new_2dv = sum([i * int(value[idx]) for idx, i in enumerate(range(11, 1, -1))])
-        new_2dv = DV_maker(new_2dv % 11)
-        value = value[:-1] + str(new_2dv)
-
-        if value[-2:] != orig_dv:
-            raise ValidationError(self.error_messages['invalid_cpf'], code='invalid_cpf')
-        return orig_value
-
-    def validate_CNPJ(self, value, erro_cpf):
-        ## Try to Validate CNPJ
-        """
-        Value can be either a string in the format XX.XXX.XXX/XXXX-XX or a
-        group of 14 characters.
-        """
-        if erro_cpf != 'max_digits':
-            raise ValidationError(self.error_messages[erro_cpf], code=erro_cpf)
-
-        if value in EMPTY_VALUES:
-            return u''
-        if not value.isdigit():
-            value = re.sub("[-/\.]", "", value)
-        orig_value = value[:]
-        try:
-            int(value)
-        except ValueError:
-            raise ValidationError(self.error_messages['digits_only'], code='digits_only')
-        if len(value) != 14:
-            raise ValidationError(self.error_messages['max_digits'], code='max_digits')
-        orig_dv = value[-2:]
-
-        new_1dv = sum([i * int(value[idx]) for idx, i in enumerate(range(5, 1, -1) + range(9, 1, -1))])
-        new_1dv = DV_maker(new_1dv % 11)
-        value = value[:-2] + str(new_1dv) + value[-1]
-        new_2dv = sum([i * int(value[idx]) for idx, i in enumerate(range(6, 1, -1) + range(9, 1, -1))])
-        new_2dv = DV_maker(new_2dv % 11)
-        value = value[:-1] + str(new_2dv)
-        if value[-2:] != orig_dv:
-            raise ValidationError(self.error_messages['invalid_cnpj'], code='invalid_cnpj')
-
-        return orig_value
-
-    def clean(self, value):
-
-        value = super(CpfCnpjField, self).clean(value)
-        if self.cpfcnpj_required or value.isdigit():
-            try:
-                orig_value = self.validate_CPF(value)
-            except ValidationError as err:
-                orig_value = self.validate_CNPJ(value, err.code)
-
-            return re.sub("[-/\.]", "", orig_value)
-        return value
+    def __str__(self, *args, **kwargs):
+        """ Return str(self). """
+        return format_html('%s' % self.contents())

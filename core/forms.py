@@ -35,6 +35,7 @@ class BaseForm(forms.ModelForm):
     # Sobrescrevendo o Init para aplicar as regras CSS
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
+        self.readonly_fields = kwargs.pop('readonly_fields', None)
         super(BaseForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             class_attrs = ""
@@ -58,6 +59,14 @@ class BaseForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'class': class_attrs
             })
+
+    def __iter__(self):
+        from core.fields import ReadonlyField
+        for field in self.fields:
+            if field in self.readonly_fields:
+                yield ReadonlyField(self, field)
+            else:
+                yield self[field]
 
     class Meta:
         model = Base

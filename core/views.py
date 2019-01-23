@@ -681,9 +681,47 @@ class BaseUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class = BaseForm
     template_name_suffix = '_update'
     inlines = []
+    readonly_fields = []
+    exclude = []
 
     def __init__(self):
         super(BaseUpdateView, self).__init__()
+
+    def get_readonly_fields(self):
+        if not hasattr(self, 'readonly_fields'):
+            self.readonly_fields = []
+
+        if(len(self.readonly_fields) == 1 and '__all__' in self.readonly_fields and
+                hasattr(self, 'form_class') and self.form_class is not None):
+            self.readonly_fields = list(self.form_class.base_fields.keys())
+
+        return self.readonly_fields
+
+    def get_exclude(self):
+        if not hasattr(self, 'exclude') or self.exclude is None:
+            self.exclude = []
+        if self.model and hasattr(self.model(), 'get_exclude_hidden_fields') and self.model().get_exclude_hidden_fields():
+            for item in self.model().get_exclude_hidden_fields():
+                if item in list(self.form_class.base_fields.keys()) and not item in self.exclude:
+                    self.exclude.append(item)
+
+        if self.form_class and self.form_class._meta and hasattr(self.form_class._meta, 'exclude') and self.form_class._meta.exclude:
+            for item in self.form_class._meta.exclude:
+                if item in list(self.form_class.base_fields.keys()) and not item in self.exclude:
+                    self.exclude.append(item)
+        return self.exclude
+
+    def get_form(self, form_class=None):
+        """Return an instance of the form to be used in this view."""
+        form_class = super().get_form(form_class)
+
+        form_class.readonly_fields = self.get_readonly_fields() or []
+
+        for field_name in self.get_exclude():
+            if field_name in form_class.fields.keys():
+                form_class.fields.pop(field_name)
+
+        return form_class
 
     def get_template_names(self):
         if self.template_name:
@@ -789,6 +827,7 @@ class BaseUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         """
         kwargs = super(BaseUpdateView, self).get_form_kwargs()
         kwargs['request'] = self.request
+        kwargs['readonly_fields'] = self.get_readonly_fields()
         return kwargs
 
     def form_valid(self, form):
@@ -857,9 +896,48 @@ class BaseCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     template_name_suffix = '_create'
     form_class = BaseForm
     inlines = []
+    readonly_fields = []
+    exclude = []
+
 
     def __init__(self):
         super(BaseCreateView, self).__init__()
+
+    def get_readonly_fields(self):
+        if not hasattr(self, 'readonly_fields'):
+            self.readonly_fields = []
+
+        if (len(self.readonly_fields) == 1 and '__all__' in self.readonly_fields and
+                hasattr(self, 'form_class') and self.form_class is not None):
+            self.readonly_fields = list(self.form_class.base_fields.keys())
+
+        return self.readonly_fields
+
+    def get_exclude(self):
+        if not hasattr(self, 'exclude') or self.exclude is None:
+            self.exclude = []
+        if self.model and hasattr(self.model(), 'get_exclude_hidden_fields') and self.model().get_exclude_hidden_fields():
+            for item in self.model().get_exclude_hidden_fields():
+                if item in list(self.form_class.base_fields.keys()) and not item in self.exclude:
+                    self.exclude.append(item)
+
+        if self.form_class and self.form_class._meta and hasattr(self.form_class._meta, 'exclude') and self.form_class._meta.exclude:
+            for item in self.form_class._meta.exclude:
+                if item in list(self.form_class.base_fields.keys()) and not item in self.exclude:
+                    self.exclude.append(item)
+        
+        return self.exclude
+    
+    def get_form(self, form_class=None):
+        """Return an instance of the form to be used in this view."""
+        form_class = super().get_form(form_class)
+
+        form_class.readonly_fields = self.get_readonly_fields() or []
+
+        for field_name in self.get_exclude():
+            form_class.fields.pop(field_name)
+
+        return form_class
 
     def get_template_names(self):
         if self.template_name:
@@ -929,6 +1007,7 @@ class BaseCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
         kwargs = super(BaseCreateView, self).get_form_kwargs()
         kwargs['request'] = self.request
+        kwargs['readonly_fields'] = self.readonly_fields
         return kwargs
 
 
