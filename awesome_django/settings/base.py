@@ -18,8 +18,8 @@ from django.conf.global_settings import DATETIME_FORMAT
 env = environ.Env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOCAL = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+LOCAL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # reading .env file
 environ.Env.read_env(env.str(BASE_DIR, '.env'))
