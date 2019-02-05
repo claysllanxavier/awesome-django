@@ -63,10 +63,13 @@ class BaseForm(forms.ModelForm):
     def __iter__(self):
         from core.fields import ReadonlyField
         for field in self.fields:
-            if field in self.readonly_fields:
-                yield ReadonlyField(self, field)
+            if self.readonly_fields:
+                if field in self.readonly_fields:
+                    yield ReadonlyField(self, field)
+                else:
+                    yield self[field]
             else:
-                yield self[field]
+                    yield self[field]
 
     class Meta:
         model = Base
