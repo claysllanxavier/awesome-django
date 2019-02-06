@@ -1,0 +1,5 @@
+include README.md
+include .gitignore
+recursive-include core/static *
+recursive-include core/templates *
+recursive-include core/management/commands/snippets *
