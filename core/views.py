@@ -15,7 +15,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError, FieldDoesNotExist, FieldError
 from django.db.models import ForeignKey, Q, DateField, DateTimeField
 from django.db.models.fields import BooleanField as BooleanFieldModel
-from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
+from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor, ManyToManyDescriptor
 from django.db.models.query_utils import DeferredAttribute
 from django.forms.fields import DateTimeField
 from django.shortcuts import redirect, resolve_url
@@ -30,6 +30,11 @@ from django.apps import apps
 from core.models import ParameterForBase, BaseMetod
 from .forms import BaseForm
 from .models import Base
+
+# import the logging library
+import logging
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 def has_fk_attr(classe= None, attr=None):
@@ -222,9 +227,21 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             query_dict = self.request.GET
             query_params = Q()
             for field in self.search_fields:
+                try:
+                    queryset.filter(**{"%s__icontains" % field: param_filter})
+                    query_params |= Q(**{"%s__icontains" % field: param_filter})
+                    continue
+                except Exception as e:
+                    pass
+
+
+                if hasattr(self.model,field) and field is not '' and (field in ['pk', 'id'] or (field.split('__')[-1] in ['pk', 'id']) ):
+                    # se for um atributo de relacionamento então olha se é numero pois pk só aceita numero.
+                    if not param_filter or (param_filter and param_filter.isnumeric()):
+                        query_params |= Q(**{field: param_filter})
                 # olha se é um atributo normal ou se é de relacionamento
-                if (hasattr(self.model,field) and type(getattr(self.model, field)) == DeferredAttribute):
-                    query_params |= Q(**{field + '__icontains': param_filter})
+                elif (hasattr(self.model,field) and type(getattr(self.model, field)) == DeferredAttribute):
+                    query_params |= Q(**{'%s__icontains'% field: param_filter})
                 # resolve a opção de buscar pelo name do model quando usa GenericForeignKey com o atributo content_type no modelo
                 elif ('content_type' == field.split('__')[0] and hasattr(self.model, 'content_type') and
                       type(getattr(self.model, 'content_type')) == ForwardManyToOneDescriptor and
@@ -233,9 +250,10 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                     try:
                         param_filter_content_type = param_filter_content_type.replace(" ",'').lower()
                         param_filter_content_type = normalize('NFKD', param_filter_content_type).encode('ASCII', 'ignore').decode('ASCII')
-                    except Exception:
+                    except Exception as erro_tipo:
+                        logger.error('Erro: %s; No Metodo: %s'%(erro_tipo, 'BaseListView.get_queryset()'))
                         pass
-                    query_params |= Q(**{field + '__icontains': param_filter_content_type})
+                    query_params |= Q(**{'%s__icontains'% field: param_filter_content_type})
 
                 elif ('content_object' == field.split('__')[0] and hasattr(self.model, 'content_object') and
                       type(getattr(self.model, 'content_object')) == GenericForeignKey):
@@ -250,13 +268,14 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                                 list_id_object = obj.model_class().objects.filter(**{field_name: param_filter}).values_list('id', flat=True)
                                 if len(list_id_object)>0:
                                     query_params |= Q(content_type_id=obj.id, object_id__in=list_id_object)
-                            except:
+                            except Exception as erro_content:
+                                logger.error('Erro: %s; No Metodo: %s'%(erro_content, 'BaseListView.get_queryset()'))
                                 pass
                     except Exception as e:
+                        logger.error('Erro: %s; No Metodo: %s'%(e, 'BaseListView.get_queryset()'))
                         pass
                 else:
-                    # se for um atributo de relacionamento então olha se é numero pois pk só aceita numero.
-                    if not param_filter or (param_filter and param_filter.isnumeric()):
+                    if hasattr(self.model, field) and type(getattr(self.model, field)) != ManyToManyDescriptor:
                         query_params |= Q(**{field: param_filter})
 
             if param_filter:
@@ -277,6 +296,7 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                                 queryset = queryset.filter(**{chave: campo_date})
                             continue
                         except Exception as e_date:
+                            logger.error('Erro: %s; No Metodo: %s' % (e_date, 'BaseListView.get_queryset()'))
                             pass
                         queryset = queryset.filter(**{chave: valor})
             return queryset
@@ -284,9 +304,11 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             if field:
                 # COLOQUE O extra_tags='danger' PARA CASO DE ERROS, POIS O DJANGO MANDA O NOME erro E NÃO danger QUE É PADRÃO DO BOOTSTRAP
                 messages.error(self.request, "Erro com o campo '%s'!"%field,  extra_tags='danger')
+                logger.error('Erro: %s; No Metodo: %s' % (fe, 'BaseListView.get_queryset()'))
             return queryset.none()
         except Exception as e:
             messages.error(self.request, "Erro ao tentar filtrar!", extra_tags='danger')
+            logger.error('Erro: %s; No Metodo: %s' % (e, 'BaseListView.get_queryset()'))
             return queryset.none()
 
 
@@ -517,9 +539,11 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 
             object_filters = []
+            list_filter_functions = self.list_filter.copy()
             #Refatorar para não precisar pecorrer os itens duas vezes
             for field in self.model._meta.fields:
                 if field.name in self.list_filter:
+                    list_filter_functions.remove(field.name)
                     # o label do choices.
                     filter = {}
                     # variavel para ficar no label do campo
@@ -558,6 +582,11 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                             filter[field.name] = {'label':label_name,'list':self.get_queryset().
                                 values_list(field.name, flat=True).order_by(field.attname).distinct(field.attname),'type_filter':str(type(field))[:-2].split('.')[-1] }
                     object_filters.append(filter)
+            
+            for field_function in list_filter_functions:
+                if(hasattr(self.model(), field_function)):                    
+                    object_filters.append(getattr(self.model(), field_function)())
+
 
             context['filters'] = object_filters
 
