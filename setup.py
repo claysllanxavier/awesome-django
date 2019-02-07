@@ -3,7 +3,7 @@
 import os
 from setuptools import find_packages, setup
 
-VERSION = "1.0.0.dev"
+VERSION = "1.0.1.dev"
 AUTHOR = "Claysllan Xavier"
 AUTHOR_EMAIL = 'claysllan@gmail.com'
 
@@ -42,11 +42,5 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-    ],
-    install_requires=[
-        "django>=2.1",
-        "django-cors-headers>=2.4.0",
-        "djangorestframework>=3.8.2",
-        "requests>=2.19.1"
     ]
 )
