@@ -3,30 +3,32 @@
 <html>
 
 <head>
-     <!-- Basic Page Info -->
-     <meta charset="utf-8">
-     <title>{% block title %}Nome Sistema{% endblock title %}</title>
- 
-     <!-- Site favicon -->
-     <!-- <link rel="shortcut icon" href="images/favicon.ico"> -->
- 
-     <!-- Mobile Specific Metas -->
-     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
- 
-     <!-- Google Font -->
-     <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
-     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
-     <!-- CSS -->
-     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
-         crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/solid.css" integrity="sha384-+0VIRx+yz1WBcCTXBkVQYIBVNEFH1eP6Zknm16roZCyeNg2maWEpk/l/KsyFKs7G" crossorigin="anonymous">
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/regular.css" integrity="sha384-aubIA90W7NxJ+Ly4QHAqo1JBSwQ0jejV75iHhj59KRwVjLVHjuhS3LkDAoa/ltO4" crossorigin="anonymous">
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" integrity="sha384-jLuaxTTBR42U2qJ/pm4JRouHkEDHkVqH0T1nyQXn1mZ7Snycpf6Rl25VBNthU4z0" crossorigin="anonymous">
-     <link href="https://unpkg.com/ionicons@4.2.2/dist/css/ionicons.min.css" rel="stylesheet">
-     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
-     <link rel="stylesheet" href="{% static 'vendors/styles/style.css' %}">
-     <link rel="stylesheet" href="{% static 'outside/css/style.css' %}">
-     
+    <!-- Basic Page Info -->
+    <meta charset="utf-8">
+    <title>{% block title %}Nome Sistema{% endblock title %}</title>
+
+    <!-- Site favicon -->
+    <!-- <link rel="shortcut icon" href="images/favicon.ico"> -->
+
+    <!-- Mobile Specific Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Work+Sans:400,500,600,700" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/solid.css" integrity="sha384-+0VIRx+yz1WBcCTXBkVQYIBVNEFH1eP6Zknm16roZCyeNg2maWEpk/l/KsyFKs7G"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/regular.css" integrity="sha384-aubIA90W7NxJ+Ly4QHAqo1JBSwQ0jejV75iHhj59KRwVjLVHjuhS3LkDAoa/ltO4"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" integrity="sha384-jLuaxTTBR42U2qJ/pm4JRouHkEDHkVqH0T1nyQXn1mZ7Snycpf6Rl25VBNthU4z0"
+        crossorigin="anonymous">
+    <link href="https://unpkg.com/ionicons@4.2.2/dist/css/ionicons.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'vendors/styles/style.css' %}">
+    <link rel="stylesheet" href="{% static 'outside/css/style.css' %}">
+
     {% block extra_css %}{% endblock extra_css %}
 </head>
 
@@ -43,51 +45,51 @@
                                 <h3>{% block titulo_template %}Home{% endblock titulo_template %}</h3>
                             </div>
                             <nav aria-label="breadcrumb" role="navigation">
-                            {% block breadcrumb %}
-                             {% if breadcrumbs %}
+                                {% block breadcrumb %}
+                                {% if breadcrumbs %}
                                 <ol class="breadcrumb">
-                                 {% for breadcrumb in breadcrumbs %}
-                                  {% if breadcrumb.url %}
+                                    {% for breadcrumb in breadcrumbs %}
+                                    {% if breadcrumb.url %}
                                     <li class="breadcrumb-item"><a href="{{ breadcrumb.url }}">{{ breadcrumb.slug }}</a></li>
-                                     {% else %}
-                                        <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb.slug }}</li>
+                                    {% else %}
+                                    <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb.slug }}</li>
                                     {% endif %}
-                                {% endfor %}
+                                    {% endfor %}
                                 </ol>
-                            {% endif %}
-                            {% endblock breadcrumb %}
+                                {% endif %}
+                                {% endblock breadcrumb %}
                             </nav>
                         </div>
                     </div>
                 </div>
                 {% block messages %}
                 {% if messages %}
-                    <div class="messages">
-                        {% for message in messages %}
-                            <div class="alert {% if message.extra_tags %}alert-{{ message.extra_tags }}{% elif message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
-                                 role="alert">
-                              {{ message|safe }}
-                              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                            </div>
-                        {% endfor %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert {% if message.extra_tags %}alert-{{ message.extra_tags }}{% elif message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
+                        role="alert">
+                        {{ message|safe }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
-            {% endblock messages %}
-                        {% block content_index %}
-                        <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
-                        {% block content %}
-                        {% block related_fields %}
-                        <!-- Bloco para mostrar os campos com relacionamento na tela de Delete -->
-                        {% endblock related_fields %}
+                {% endblock messages %}
+                {% block content_index %}
+                <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+                    {% block content %}
+                    {% block related_fields %}
+                    <!-- Bloco para mostrar os campos com relacionamento na tela de Delete -->
+                    {% endblock related_fields %}
                     {% endblock content %}
-                    </div>
-                    {% endblock content_index %}
+                </div>
+                {% endblock content_index %}
             </div>
         </div>
     </div>
-     <!-- js -->
+    <!-- js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
         crossorigin="anonymous"></script>
