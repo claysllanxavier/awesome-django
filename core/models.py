@@ -100,8 +100,8 @@ class BaseMetod(models.Model):
                 if isinstance(field, AutoField):
                     continue
                 # Desconsiderando os campos com atributos auto_now_add ou now_add da análise
-                if hasattr(field, "auto_now_add") or hasattr(field, "now_add"):
-                    continue
+                # if hasattr(field, "auto_now_add") or hasattr(field, "now_add"):
+                #     continue
 
                 try:
                     # Verificando o tipo do relacionamento entre os campos
@@ -243,10 +243,19 @@ class BaseMetod(models.Model):
         ordering = ['pk']
 
     def get_exclude_hidden_fields(self):
-        return ['enabled', 'deleted']
+        return ['enabled', 'deleted', 'created_on', 'updated_on']
 
     def get_meta(self):
         return self._meta
+
+    def has_view_permission(self, request):
+        """
+        Returns True if the given request has permission to view an object.
+        Can be overridden by the user in subclasses.
+        """
+        opts = self._meta
+        codename = get_permission_codename('view', opts)
+        return request.user.has_perm("%s.%s" % (opts.app_label, codename))
 
     def has_add_permission(self, request):
         """

@@ -4,7 +4,6 @@
 {% block titulo_template %}Lista de  {{ model_name }}{% endblock %}
 
 {% block content %}
-    {% if has_add_permission or  has_change_permission or  has_delete_permission %}
         <!-- Filter and Search Area -->
         <form id="id_search_and_filter">
             {% block containersearchandfilter %}
@@ -143,9 +142,4 @@
                 </div>
             </div>
         </div>
-    {% else %}
-         <div class="alert alert-danger" role="alert">
-          <h4 class="alert-heading"> Voce não tem permisão para acessar essa pagina!</h4>
-        </div>
-    {% endif %}
 {% endblock content %}

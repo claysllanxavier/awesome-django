@@ -4,8 +4,6 @@
 {% block titulo_template %}Detalhes de {{ model_name }}{% endblock titulo_template %}
 
 {% block content %}
-    {% if has_add_permission or  has_change_permission or  has_delete_permission %}
-
             <div class="row">
                 <div class="col-md-12">
                     <div class="btn-group float-right" role="group">
@@ -14,7 +12,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="card-deck">
                 {% for field in object_list %}
                     {% if not forloop.first and forloop.counter0|divisibleby:2 %}
@@ -68,9 +65,4 @@
                     <a href="{% url url_list %}" class="btn btn-primary"> <i class="fa fa-arrow-left"></i> Voltar</a>
                 </div>
             </div>
-    {% else %}
-             <div class="alert alert-danger" role="alert">
-              <h4 class="alert-heading"> Voce não tem permisão para acessar essa pagina!</h4>
-            </div>
-    {% endif %}
  {% endblock content %}

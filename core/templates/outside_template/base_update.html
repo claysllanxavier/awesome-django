@@ -5,7 +5,6 @@
 {% block titulo_template %}Atualizar {{ model_name }}{% endblock titulo_template %}
 
 {% block content_index %}
-    {% if has_change_permission %}
      <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
         <div class="container-fluid">
             <div class="container-margin">
@@ -107,11 +106,6 @@
             </div>
         </div>
         </div>
-    {% else %}
-        <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading"> Voce não tem permisão para acessar essa pagina!</h4>
-        </div>
-    {% endif %}
 {% endblock %}
 {% block extra_js %}
     {% if list_inlines %}                            

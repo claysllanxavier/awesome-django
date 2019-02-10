@@ -3,7 +3,6 @@
 {% load boilerplate_base i18n %}
 {% block titulo_template %}Deleta {{ model_name }}{% endblock titulo_template %}
 {% block content %}
-    {% if has_delete_permission %}
         <div class="container-fluid container-margin">
             {% if perms_lacking %}
                 <p>{% blocktrans with escaped_object=object %}A remoção de '{{ model_name }}' {{ escaped_object }} pode resultar na remoção de objetos relacionados, mas sua conta não tem a permissão para remoção dos seguintes tipos de objetos:{% endblocktrans %}</p>
@@ -79,10 +78,4 @@
                 {% endif %}
             {% endif %}
         </div>
-    {% else %}
-        <div class="alert alert-danger" role="alert">
-          <h4 class="alert-heading"> Voce não tem permisão para acessar essa pagina!</h4>
-        </div>
-    {% endif %}
-
  {% endblock content %}

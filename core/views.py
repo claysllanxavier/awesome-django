@@ -96,9 +96,7 @@ def get_apps(context_self):
                     # pega o nome do model que vai fica no menu
                     name_model = (model._meta.verbose_name or '').title()
                     # pega a url do list do model que vai fica no menu
-                    if not any( [model().has_add_permission(context_self.request),
-                               model().has_change_permission(context_self.request),
-                               model().has_delete_permission(context_self.request)] ):
+                    if not model().has_view_permission(context_self.request):
                         continue
                     #-- foi descontinuada a forma abaixo de pegar a view name, pois era muito estatica
                     # url_name_list_model =  resolve('/{app}/{model}/'.format(app=model._meta.app_label, model=model._meta.model_name)).view_name
@@ -201,9 +199,7 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         """
             cria a lista de permissões que a view pode ter de acordo com cada model.
         """
-        return ('{app}.add_{model}'.format(app=self.model._meta.app_label, model=self.model._meta.model_name ),
-        '{app}.delete_{model}'.format(app=self.model._meta.app_label, model=self.model._meta.model_name ),
-        '{app}.change_{model}'.format(app=self.model._meta.app_label, model=self.model._meta.model_name ))
+        return ('{app}.view_{model}'.format(app=self.model._meta.app_label, model=self.model._meta.model_name ))
 
     def has_permission(self):
         """
@@ -213,7 +209,7 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         """
         perms = self.get_permission_required()
         # o retorno usa a função any para retornar True caso tenha pelo menos uma das permissões na lista perms
-        return any(self.request.user.has_perm(perm) for perm in perms)
+        return self.request.user.has_perm(perms)
 
     def get_queryset(self):
         queryset = super(BaseListView, self).get_queryset()
@@ -648,9 +644,8 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         """
             cria a lista de permissões que a view pode ter de acordo com cada model.
         """
-        return ('{app}.add_{model}'.format(app=self.model._meta.app_label, model=self.model._meta.model_name ),
-        '{app}.delete_{model}'.format(app=self.model._meta.app_label, model=self.model._meta.model_name ),
-        '{app}.change_{model}'.format(app=self.model._meta.app_label, model=self.model._meta.model_name ))
+        return ('{app}.view_{model}'.format(app=self.model._meta.app_label, model=self.model._meta.model_name ))
+
 
 
     def has_permission(self):
@@ -661,7 +656,7 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         """
         perms = self.get_permission_required()
         # o retorno usa a função any para retornar True caso tenha pelo menos uma das permissões na lista perms
-        return any(self.request.user.has_perm(perm) for perm in perms)
+        return self.request.user.has_perm(perms)
 
     def get_context_data(self, **kwargs):
         context = super(BaseDetailView, self).get_context_data(**kwargs)
