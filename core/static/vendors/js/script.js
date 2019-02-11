@@ -50,7 +50,18 @@ jQuery(document).ready(function(){
 
 	//custom dates
 	$('.datefield').mask('00/00/0000');
-	$('.datetimefield').mask('00/00/0000 00:00:00');
+	$('.datetimefield').mask('00/00/0000 00:00');
+	$('.datefield').datepicker({
+		language: 'pt-BR',
+		autoClose: true,
+		dateFormat: 'dd/mm/yyyy ',
+
+	})
+	$('.datetimefield').datepicker({
+		language: 'pt-BR',
+		autoClose: true,
+		dateFormat: 'dd/mm/yyyy hh:ii',
+	});
 
 	// tooltip init
 	$('[data-toggle="tooltip"]').tooltip()
