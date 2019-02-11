@@ -1,0 +1,23 @@
+{% extends "admin/submit_line.html" %}
+{% load i18n admin_static admin_modify %}
+{% load admin_urls %}
+
+<div class="submit-row">
+{% block submit-row %}
+    {{ block.super }}
+    {% if original.is_active %}
+           <input type="submit" style="float: left; background-color:#ffbb33" value="{% trans 'Inativar Usuario' %}"
+                       id="id_btn_status_user_inativo" class="pull-right btn btn-primary" title="Inativar usuário" name="_inativar_user"  />
+
+        {% else %}
+            <input type="submit" style="float: left; background-color:#5cb85c" value="{% trans 'Ativar usuário' %}"
+                   id="id_btn_status_user_ativo" class="pull-right btn btn-success" title="Ativar usuário" name="_ativar_user" />
+
+        {% endif %}
+        {% if perms.user.can_reset_password or user.is_superuser %}
+            <input type="submit" style="float: left; background-color: #5bc0de" value="{% trans 'Resetar Senha' %}"
+                   id="id_btn_status_user_ativo" class="pull-right btn btn-warning" title="Resetar Senha" name="_resetar_senha_user" />
+        {% endif %}
+{% endblock %}
+</div>
+

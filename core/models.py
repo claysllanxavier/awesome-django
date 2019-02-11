@@ -332,3 +332,17 @@ class ParameterForBase(Base):
 
     def __str__(self):
         return "{}".format(self.nomeProjeto or self.id)
+
+class ParametersUser(Base):
+    senha_padrao = models.CharField(verbose_name=u"Senha padrão para reset", max_length=30, default=u'password@123456',
+                                    help_text=u"Senha padrão que sera criada quando resetar senha do usuario")
+
+    def __unicode__(self):
+        return u'%s' % self.id
+
+    class Meta:
+        verbose_name = u'Parâmetro do Usuário'
+        verbose_name_plural = u"Parâmetros dos Usuários"
+        permissions = (
+            ("can_reset_password", u"Pode resetar a senha"),
+        )

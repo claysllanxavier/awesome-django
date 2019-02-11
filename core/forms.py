@@ -25,7 +25,7 @@ from django.contrib.auth.models import User
 from django.forms.fields import DateField, DateTimeField, ChoiceField
 from django.utils.translation import gettext, gettext_lazy as _
 
-from core.models import ParameterForBase
+from core.models import ParameterForBase, ParametersUser
 from core.models import Base
 import django
 
@@ -99,3 +99,11 @@ class BasePasswordResetForm(PasswordResetForm):
                 "Por favor, entre em contato com o administrador do sistema")
 
         return cleaned_data
+
+
+class ParametersUserForm(BaseForm):
+    class Meta:
+        model = ParametersUser
+        fields = '__all__'
+
+
