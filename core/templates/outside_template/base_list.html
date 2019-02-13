@@ -88,6 +88,11 @@
 
                                     {% if is_paginated %}
                                         <tfoot>
+                                        <tr>
+                                            <td colspan="{{ display|length }}">
+                                            Total de registros:{{ paginator.count }}
+                                            </td>
+                                        </tr>
                                             <tr>
                                                 <td colspan="{{ display|length }}">
                                                     <ul class="pagination justify-content-center">
