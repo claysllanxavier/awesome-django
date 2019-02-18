@@ -384,38 +384,99 @@ class Command(BaseCommand):
 
             # Verificando se já existe o router = routers.DefaultRouter()
             if self._check_content(self.path_urls, "router = routers.DefaultRouter()"):
-                content = content.replace("router = routers.DefaultRouter()", "")
+                content = content.split("\n",1)[1]
                 imports = 'router = routers.DefaultRouter()'
                 with fileinput.FileInput(self.path_urls, inplace=True) as arquivo:
                     for line in arquivo:
                         print(line.replace(
-                            imports, imports + content), end='')
-            else:
-                #Verifica se há o app_name
-                if self._check_content(self.path_urls, "app_name = \'{}\'".format(self.app)):
+                            imports, imports + '\n' + content), end='')
+
+            elif self._check_content(self.path_urls, "app_name = \'{}\'".format(self.app)):
                     # Atualizando arquivo com o novo conteúdo
                     app_name_url = "app_name = \'{}\'".format(self.app_lower)
                     with fileinput.FileInput(self.path_urls, inplace=True) as arquivo:
                         for line in arquivo:
                             print(line.replace(
                                 app_name_url, app_name_url+ '\n' + content), end='')
-        
-            # Verificando se já existe a configuração dos routers para evitar redundância.
+            
+            # Verificando se tem a importação do rest_framework
             if self._check_content(self.path_urls, "from rest_framework import routers"):
-                content_urls = content_urls.replace("from rest_framework import routers", "")
-
-            # Verificando se já existe a lib include no arquivo, para evitar importação
-            # redundante.
-            if self._check_content(self.path_urls, "from django.urls import path, include"):
-                content_urls = content_urls.replace("from django.urls import path, include", "")
+                content_urls = content_urls.split("\n")[1]
+                #Abre o arquivo do form
+                arquivo = open(self.path_urls, "r")
+                #Variável que armazenará todas as linas do arquivo
+                data = []
+                for line in arquivo:
+                    #Se for a linha que importa os models
+                    if line.startswith('from .views import'):
+                        #Pega os models já importados
+                        models = line.split('import')[-1].rstrip()
+                        #Pega o model que o usuário deja
+                        import_model = ', ' + content_urls.split()[-1]
+                        # Acrescenta o model no import dos models
+                        models += import_model
+                        #Cria linha com os importes antigos do model e com 
+                        # o novo desejado pelo usuário
+                        line = 'from .views import{}\n'.format(models)
+                    #Salva as linhas na variável auxiliar
+                    data.append(line)
+                #Fecha o arquivo
+                arquivo.close()
+                #Abre o mesmo arquivos com modo de escrita
+                arquivo =  open(self.path_urls, "w")
+                #escreve o arquivos com as linhas da variável auxiliar
+                arquivo.writelines(data)
+                #fecha o arquivo
+                arquivo.close()
+            elif self._check_content(self.path_urls, "from .views import"):
+                content_aux = content_urls.split("\n")[1]
+                #Abre o arquivo do form
+                arquivo = open(self.path_urls, "r")
+                #Variável que armazenará todas as linas do arquivo
+                data = []
+                for line in arquivo:
+                    #Se for a linha que importa os models
+                    if line.startswith('from .views import'):
+                        #Pega os models já importados
+                        models = line.split('import')[-1].rstrip()
+                        #Pega o model que o usuário deja
+                        import_model = ', ' + content_aux.split()[-1]
+                        # Acrescenta o model no import dos models
+                        models += import_model
+                        #Cria linha com os importes antigos do model e com 
+                        # o novo desejado pelo usuário
+                        line = 'from .views import{}\n'.format(models)
+                    #Salva as linhas na variável auxiliar
+                    data.append(line)
+                #Fecha o arquivo
+                arquivo.close()
+                #Abre o mesmo arquivos com modo de escrita
+                arquivo =  open(self.path_urls, "w")
+                #escreve o arquivos com as linhas da variável auxiliar
+                arquivo.writelines(data)
+                #fecha o arquivo
+                arquivo.close()
+                if self._check_content(self.path_urls, "from django.urls import"):
+                    imports = 'from django.urls import path, include'
+                    with fileinput.FileInput(self.path_urls, inplace=True) as arquivo:
+                        for line in arquivo:
+                            print(line.replace(
+                                imports, imports + '\n' + content_urls.split("\n")[0]), end='')
+                else:
+                   with open(self.path_urls, 'a') as views:
+                    views.write("\n")
+                    views.write(content_urls)
+            elif self._check_content(self.path_urls, "from django.urls import"):
                 imports = 'from django.urls import path, include'
                 with fileinput.FileInput(self.path_urls, inplace=True) as arquivo:
                     for line in arquivo:
                         print(line.replace(
-                            imports, content_urls + '\n' + imports), end='')
+                            imports, imports + '\n' + content_urls), end='')
             else:
-                with open(self.path_urls, 'a') as arquivo:
-                    arquivo.write(content_urls)
+                with open(self.path_urls, 'a') as views:
+                    views.write("\n")
+                    views.write(content_urls)
+
         except Exception as error:
             self._message("OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO urls.py sofreu algumar alteração.")
             self._message(error)
@@ -445,30 +506,80 @@ class Command(BaseCommand):
                 return
 
             # Verificando se já foi importado o model
-            if self._check_content(self.path_views, self.model):
-                content_urls = content_urls.replace("from .models import {}".format(self.model), "")
-            
+            if not self._check_content(self.path_views, self.model):
+                content_models = content_urls.split("\n")[5]
+                #Abre o arquivo do form
+                arquivo = open(self.path_views, "r")
+                #Variável que armazenará todas as linas do arquivo
+                data = []
+                for line in arquivo:
+                    #Se for a linha que importa os models
+                    if line.startswith('from .models import'):
+                        #Pega os models já importados
+                        models = line.split('import')[-1].rstrip()
+                        #Pega o model que o usuário deja
+                        import_model = ', ' + content_models.split()[-1]
+                        # Acrescenta o model no import dos models
+                        models += import_model
+                        #Cria linha com os importes antigos do model e com 
+                        # o novo desejado pelo usuário
+                        line = 'from .models import{}\n'.format(models)
+                    #Salva as linhas na variável auxiliar
+                    data.append(line)
+                #Fecha o arquivo
+                arquivo.close()
+                #Abre o mesmo arquivos com modo de escrita
+                arquivo =  open(self.path_views, "w")
+                #escreve o arquivos com as linhas da variável auxiliar
+                arquivo.writelines(data)
+                #fecha o arquivo
+                arquivo.close()
+            else:
+                #Remove ultima linha do snippet que é a importação do model
+                content_urls = content_urls.rsplit("\n",1)[0]
+
             # Verificando se tem a importação do rest_framework
             if self._check_content(self.path_views, "from rest_framework.viewsets import ModelViewSet"):
-                content_urls = content_urls.replace("from rest_framework.viewsets import ModelViewSet", "")
-                content_urls = content_urls.replace("from rest_framework import status", "")
-                content_urls = content_urls.replace("from rest_framework.response import Response", "")
-                content_urls = content_urls.replace("from rest_framework.decorators import action", "")
-
-            # Verificando se já tem os imports do core
-            if self._check_content(self.path_views, "from core.views"):
-                content_urls = content_urls.replace(
-                    "from core.views import BaseListView, BaseDeleteView, BaseDetailView, BaseUpdateView, BaseCreateView", "")
+                content_urls = content_urls.split("\n")[4]
+                #Abre o arquivo do form
+                arquivo = open(self.path_views, "r")
+                #Variável que armazenará todas as linas do arquivo
+                data = []
+                for line in arquivo:
+                    #Se for a linha que importa os models
+                    if line.startswith('from .serializers import'):
+                        #Pega os models já importados
+                        models = line.split('import')[-1].rstrip()
+                        #Pega o model que o usuário deja
+                        import_model = ', ' + content_urls.split()[-1]
+                        # Acrescenta o model no import dos models
+                        models += import_model
+                        #Cria linha com os importes antigos do model e com 
+                        # o novo desejado pelo usuário
+                        line = 'from .serializers import{}\n'.format(models)
+                    #Salva as linhas na variável auxiliar
+                    data.append(line)
+                #Fecha o arquivo
+                arquivo.close()
+                #Abre o mesmo arquivos com modo de escrita
+                arquivo =  open(self.path_views, "w")
+                #escreve o arquivos com as linhas da variável auxiliar
+                arquivo.writelines(data)
+                #fecha o arquivo
+                arquivo.close() 
+            elif self._check_content(self.path_views, "from core.views"):
                 imports = 'from core.views import BaseListView, BaseDeleteView, BaseDetailView, BaseUpdateView, BaseCreateView'
+                imports_rest = '\n{}\n{}\n{}\n{}\n'.format(content_urls.split("\n")[0],content_urls.split("\n")[1],
+                    content_urls.split("\n")[2],content_urls.split("\n")[3])
                 with fileinput.FileInput(self.path_views, inplace=True) as arquivo:
                     for line in arquivo:
                         print(line.replace(
-                            imports, content_urls + imports), end='')
+                            imports, imports + imports_rest + content_urls.split("\n")[4]), end='')
             else:
                 with open(self.path_views, 'a') as views:
                     views.write("\n")
                     views.write(content_urls)
-          
+
             # Atualizando o conteúdo do arquivo.
             with open(self.path_views, 'a') as api_views:
                 api_views.write("\n")
@@ -502,12 +613,33 @@ class Command(BaseCommand):
             
             # Verificando se tem a importação do ModelSerializer
             if self._check_content(self.path_serializer, "from rest_framework.serializers import ModelSerializer"):
-                content_urls = content_urls.replace("from rest_framework.serializers import ModelSerializer", "")
-                imports = 'from rest_framework.serializers import ModelSerializer'
-                with fileinput.FileInput(self.path_serializer, inplace=True) as arquivo:
-                    for line in arquivo:
-                        print(line.replace(
-                            imports, content_urls + imports), end='')
+                content_urls = content_urls.split("\n")[1]
+                #Abre o arquivo
+                arquivo = open(self.path_serializer, "r")
+                #Variável que armazenará todas as linas do arquivo
+                data = []
+                for line in arquivo:
+                    #Se for a linha que importa os models
+                    if line.startswith('from .models import'):
+                        #Pega os models já importados
+                        models = line.split('import')[-1].rstrip()
+                        #Pega o model que o usuário deja
+                        import_model = ', ' + content_urls.split()[-1]
+                        # Acrescenta o model no import dos models
+                        models += import_model
+                        #Cria linha com os importes antigos do model e com 
+                        # o novo desejado pelo usuário
+                        line = 'from .models import{}\n'.format(models)
+                    #Salva as linhas na variável auxiliar
+                    data.append(line)
+                #Fecha o arquivo
+                arquivo.close()
+                #Abre o mesmo arquivos com modo de escrita
+                arquivo =  open(self.path_serializer, "w")
+                #escreve o arquivos com as linhas da variável auxiliar
+                arquivo.writelines(data)
+                #fecha o arquivo
+                arquivo.close()
             else:
                 with open(self.path_serializer, 'a') as views:
                     views.write(content_urls)
@@ -553,12 +685,34 @@ class Command(BaseCommand):
             
             # Verificando se tem a importação do BaseForm
             if self._check_content(self.path_form, "from core.forms import BaseForm"):
-                content_urls = content_urls.replace("from core.forms import BaseForm", "")
-                imports = 'from core.forms import BaseForm'
-                with fileinput.FileInput(self.path_form, inplace=True) as arquivo:
-                    for line in arquivo:
-                        print(line.replace(
-                            imports, content_urls + imports), end='')
+                #Pega somente o import dos models
+                content_urls = content_urls.split("\n")[1]
+                #Abre o arquivo do form
+                arquivo = open(self.path_form, "r")
+                #Variável que armazenará todas as linas do arquivo
+                data = []
+                for line in arquivo:
+                    #Se for a linha que importa os models
+                    if line.startswith('from .models import'):
+                        #Pega os models já importados
+                        models = line.split('import')[-1].rstrip()
+                        #Pega o model que o usuário deja
+                        import_model = ', ' + content_urls.split()[-1]
+                        # Acrescenta o model no import dos models
+                        models += import_model
+                        #Cria linha com os importes antigos do model e com 
+                        # o novo desejado pelo usuário
+                        line = 'from .models import{}\n'.format(models)
+                    #Salva as linhas na variável auxiliar
+                    data.append(line)
+                #Fecha o arquivo
+                arquivo.close()
+                #Abre o mesmo arquivos com modo de escrita
+                arquivo =  open(self.path_form, "w")
+                #escreve o arquivos com as linhas da variável auxiliar
+                arquivo.writelines(data)
+                #fecha o arquivo
+                arquivo.close() 
             else:
                 with open(self.path_form, 'a') as views:
                     views.write(content_urls)
@@ -607,13 +761,47 @@ class Command(BaseCommand):
 
             # Verificando se já tem os imports do core
             if self._check_content(self.path_views, "from core.views"):
-                content_urls = content_urls.replace(
-                    "from core.views import BaseListView, BaseDeleteView, BaseDetailView, BaseUpdateView, BaseCreateView", "")
-                imports = 'from core.views import BaseListView, BaseDeleteView, BaseDetailView, BaseUpdateView, BaseCreateView'
-                with fileinput.FileInput(self.path_views, inplace=True) as arquivo:
-                    for line in arquivo:
-                        print(line.replace(
-                            imports, content_urls + imports), end='')
+                #Pega somente o import dos models
+                content_models = content_urls.split("\n")[1]
+                #Pega somente o import dos forms
+                content_forms = content_urls.split("\n")[2]
+                #Abre o arquivo do form
+                arquivo = open(self.path_views, "r")
+                #Variável que armazenará todas as linas do arquivo
+                data = []
+                for line in arquivo:
+                    #Se for a linha que importa os models
+                    if line.startswith('from .models import'):
+                        #Pega os models já importados
+                        models = line.split('import')[-1].rstrip()
+                        #Pega o model que o usuário deja
+                        import_model = ', ' + content_models.split()[-1]
+                        # Acrescenta o model no import dos models
+                        models += import_model
+                        #Cria linha com os importes antigos do model e com 
+                        # o novo desejado pelo usuário
+                        line = 'from .models import{}\n'.format(models)
+                    elif line.startswith('from .forms import'):
+                        #Pega os forms já importados
+                        forms = line.split('import')[-1].rstrip()
+                        #Pega o form que o usuário deja
+                        import_form = ', ' + content_forms.split()[-1]
+                        # Acrescenta o form no import dos forms
+                        forms += import_form
+                        #Cria linha com os importes antigos do form e com 
+                        # o novo desejado pelo usuário
+                        line = 'from .forms import{}\n'.format(forms)
+                    #Salva as linhas na variável auxiliar
+                    data.append(line)
+                #Fecha o arquivo
+                arquivo.close()
+                #Abre o mesmo arquivos com modo de escrita
+                arquivo =  open(self.path_views, "w")
+                #escreve o arquivos com as linhas da variável auxiliar
+                arquivo.writelines(data)
+                #fecha o arquivo
+                arquivo.close() 
+                
             else:
                 with open(self.path_views, 'a') as views:
                     views.write(content_urls)
@@ -622,7 +810,6 @@ class Command(BaseCommand):
             with open(self.path_views, 'a') as views:
                 views.write("\n")
                 views.write(content)
-
         except:
             self._message("OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO views.py sofreu alguma alteração")
 
@@ -660,18 +847,42 @@ class Command(BaseCommand):
             
             # Verificando se já existe a configuração do index template para evitar redundância.
             if self._check_content(self.path_urls, "from core.views import IndexTemplateView"):
-                content_urls = content_urls.replace("from core.views import IndexTemplateView", "")
+                #Remove ultima linha do snippet
+                content_urls = content_urls.rsplit("\n",1)[0]
             
-            if self._check_content(self.path_urls, "from django.urls import path, include"):
-                content_urls = content_urls.replace("from django.urls import path, include", "")
-                imports = 'from django.urls import path, include'
-                with fileinput.FileInput(self.path_urls, inplace=True) as arquivo:
-                    for line in arquivo:
-                        print(line.replace(
-                            imports, content_urls + imports), end='')
+            # Verificando se tem a importação do BaseForm
+            if self._check_content(self.path_urls, "from .views import"):
+                #Pega somente o import dos models
+                content_urls = content_urls.split("\n")[1]
+                #Abre o arquivo do form
+                arquivo = open(self.path_urls, "r")
+                #Variável que armazenará todas as linas do arquivo
+                data = []
+                for line in arquivo:
+                    #Se for a linha que importa os models
+                    if line.startswith('from .views import'):
+                        #Pega os models já importados
+                        models = line.split('import')[-1].rstrip()
+                        #Pega o model que o usuário deja
+                        import_model = ', ' + content_urls.split('import')[-1].rstrip()
+                        # Acrescenta o model no import dos models
+                        models += import_model
+                        #Cria linha com os importes antigos do model e com 
+                        # o novo desejado pelo usuário
+                        line = 'from .views import{}\n'.format(models)
+                    #Salva as linhas na variável auxiliar
+                    data.append(line)
+                #Fecha o arquivo
+                arquivo.close()
+                #Abre o mesmo arquivos com modo de escrita
+                arquivo =  open(self.path_urls, "w")
+                #escreve o arquivos com as linhas da variável auxiliar
+                arquivo.writelines(data)
+                #fecha o arquivo
+                arquivo.close() 
             else:
-                with open(self.path_urls, 'a') as arquivo:
-                    arquivo.write(content_urls)
+                with open(self.path_urls, 'a') as views:
+                    views.write(content_urls)
             
             if self._check_content(self.path_urls, "urlpatterns = ["):
                 # Verificando se no arquivo já existe uma configuração da URL

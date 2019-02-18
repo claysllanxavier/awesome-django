@@ -1,3 +1,4 @@
+
 # API do Models $ModelName$
 
 class $ModelName$ViewAPI(ModelViewSet):
