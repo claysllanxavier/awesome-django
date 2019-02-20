@@ -1,7 +1,7 @@
 
 class $ModelName$Serializer(ModelSerializer):
-    #TODO LEMBRE DE COMENTAR O SEU CODIGO $ModelName$Serializer
-    """ """
+    # TODO LEMBRE DE COMENTAR O SEU CODIGO $ModelName$Serializer
+
     class Meta:
         model = $ModelName$
         fields = '__all__'
