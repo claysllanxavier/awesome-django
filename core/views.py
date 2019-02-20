@@ -2,20 +2,27 @@
 as customizações implementadas.
 """
 
-from datetime import datetime, date
+# import the logging library
+import logging
+from datetime import date, datetime
 from unicodedata import normalize
 
 import pytz
+from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView, PasswordResetCompleteView
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
+from django.contrib.auth.views import (LoginView, LogoutView,
+                                       PasswordResetCompleteView)
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError, FieldDoesNotExist, FieldError
-from django.db.models import ForeignKey, Q, DateField, DateTimeField
+from django.core.exceptions import (FieldDoesNotExist, FieldError,
+                                    ValidationError)
+from django.db.models import DateField, DateTimeField, ForeignKey, Q
 from django.db.models.fields import BooleanField as BooleanFieldModel
-from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor, ManyToManyDescriptor
+from django.db.models.fields.related_descriptors import (ForwardManyToOneDescriptor,
+                                                         ManyToManyDescriptor)
 from django.db.models.query_utils import DeferredAttribute
 from django.forms.fields import DateTimeField
 from django.shortcuts import redirect, resolve_url
@@ -23,16 +30,14 @@ from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.utils.text import camel_case_to_spaces
-from django.views.generic import ListView, TemplateView, DetailView
-from django.views.generic.edit import UpdateView, CreateView, DeleteView
-from django.apps import apps
+from django.views.generic import DetailView, ListView, TemplateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from core.models import ParameterForBase, BaseMetod
+from core.models import BaseMetod, ParameterForBase
+
 from .forms import BaseForm
 from .models import Base
 
-# import the logging library
-import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -54,7 +59,7 @@ def get_breadcrumbs(url_str):
 
     Returns:
         [Lista] -- [Lista com o breadcrumb]
-    """
+    """ 
 
     breadcrumbs = []
     breadcrumbs.append({'slug': "Inicio", 'url': "/core/", })

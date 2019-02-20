@@ -17,29 +17,32 @@
 
 """
 from datetime import datetime
+
+import django
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, ReadOnlyPasswordHashField, UserChangeForm, PasswordChangeForm, \
-    PasswordResetForm
+from django.contrib.auth.forms import (PasswordChangeForm, PasswordResetForm,
+                                       ReadOnlyPasswordHashField,
+                                       UserChangeForm, UserCreationForm)
 from django.contrib.auth.models import User
-from django.forms.fields import DateField, DateTimeField, ChoiceField
-from django.utils.translation import gettext, gettext_lazy as _
+from django.forms.fields import ChoiceField, DateField, DateTimeField
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
-from core.models import ParameterForBase, ParametersUser
-from core.models import Base
-import django
+from core.models import Base, ParameterForBase, ParametersUser
 
 
 class BaseForm(forms.ModelForm):
     """Form para ser usado no classe based views"""
     # Sobrescrevendo o Init para aplicar as regras CSS
+
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         self.readonly_fields = kwargs.pop('readonly_fields', None)
         super(BaseForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             class_attrs = ""
-            if hasattr(self.fields[field],'widget') and \
+            if hasattr(self.fields[field], 'widget') and \
                     hasattr(self.fields[field].widget, 'attrs') and\
                     'class' in self.fields[field].widget.attrs:
                 class_attrs = self.fields[field].widget.attrs['class']
@@ -61,15 +64,12 @@ class BaseForm(forms.ModelForm):
             })
 
     def __iter__(self):
-        from core.fields import ReadonlyField
         for field in self.fields:
-            if self.readonly_fields:
-                if field in self.readonly_fields:
-                    yield ReadonlyField(self, field)
-                else:
-                    yield self[field]
+            if self.readonly_fields and field in self.readonly_fields:
+                self[field].field.widget.attrs['readonly'] = True
+                yield self[field]
             else:
-                    yield self[field]
+                yield self[field]
 
     class Meta:
         model = Base
@@ -81,18 +81,23 @@ class ParameterForBaseForm(BaseForm):
         model = ParameterForBase
         fields = '__all__'
 
+
 class BasePasswordResetForm(PasswordResetForm):
     """
     formulario de envio de email para recuperação de senha
     """
+
     def clean_email(self):
 
         cleaned_data = self.cleaned_data.get('email')
         user = get_user_model().objects.filter(email=cleaned_data).first()
 
         if cleaned_data and not user:
-            raise forms.ValidationError("O email informado, não foi encontrado! Talvez você não tenha cadastrado"
-                                        " seu email no perfil. Por favor, entre em contado com o administrador do sistema." )
+            raise forms.ValidationError("O email informado, não foi encontrado! \
+                                        Talvez você não tenha cadastrado"
+                                        " seu email no perfil. Por favor, \
+                                        entre em contado com o administrador \
+                                        do sistema.")
         if not user.is_active:
             raise forms.ValidationError(
                 "A conta relacionada a este e-mail está inativa. "
@@ -105,5 +110,3 @@ class ParametersUserForm(BaseForm):
     class Meta:
         model = ParametersUser
         fields = '__all__'
-
-
