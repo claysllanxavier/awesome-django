@@ -31,9 +31,10 @@ from django.utils.text import capfirst
 class Command(BaseCommand):
     help = "Manager para automatizar a geração dos códigos"
 
-    #Path do diretório onde a app core está instalada
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    
+    # Path do diretório onde a app core está instalada
+    BASE_DIR = os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
     def add_arguments(self, parser):
         """Método inicial para informar quais parâmetros serão aceitos
         """
@@ -46,33 +47,33 @@ class Command(BaseCommand):
         # Parâmetro opcionais
         parser.add_argument(
             '--templates',
-            action = 'store_true',
-            dest = 'templates',
-            help = 'Criar apenas os Templates'
+            action='store_true',
+            dest='templates',
+            help='Criar apenas os Templates'
         )
         parser.add_argument(
             '--api',
-            action = 'store_true',
-            dest = 'api',
-            help = 'Criar apenas a API'
+            action='store_true',
+            dest='api',
+            help='Criar apenas a API'
         )
         parser.add_argument(
             '--urls',
-            action = 'store_true',
-            dest = 'url',
-            help = 'Criar apenas as Urls'
+            action='store_true',
+            dest='url',
+            help='Criar apenas as Urls'
         )
         parser.add_argument(
             '--forms',
-            action = 'store_true',
-            dest = 'forms',
-            help = 'Criar apenas o Form'
+            action='store_true',
+            dest='forms',
+            help='Criar apenas o Form'
         )
         parser.add_argument(
             '--views',
-            action = 'store_true',
-            dest = 'views',
-            help = 'Criar apenas as Views (CRUD)'
+            action='store_true',
+            dest='views',
+            help='Criar apenas as Views (CRUD)'
         )
 
     """
@@ -89,10 +90,10 @@ class Command(BaseCommand):
 
     def _get_size(self, path):
         """Método para verificar o tamanho de um determinado arquivo.
-        
+
         Arguments:
             path {str} -- Caminho absoluto para o arquivo
-        
+
         Returns:
             Tamanho do arquivo
         """
@@ -102,13 +103,13 @@ class Command(BaseCommand):
         except Exception as e:
             self._message(e)
             return False
-    
+
     def _check_dir(self, path):
         """Método para verificar se o diretório existe
-        
+
         Arguments:
             path {str} -- Caminho do diretório
-        
+
         Returns:
             Boolean -- Verdadeiro se existir o diretório e Falso se não.
         """
@@ -121,10 +122,10 @@ class Command(BaseCommand):
 
     def _check_file(self, path):
         """Método para verificar se o arquivo existe
-        
+
         Arguments:
             path {str} -- Caminho para o arquivo
-        
+
         Returns:
             Boolean -- Verdadeiro se existir o arquivo e False se não.
         """
@@ -134,10 +135,10 @@ class Command(BaseCommand):
         except Exception as e:
             self._message(e)
             return False
-    
+
     def _message(self, message):
         """Método para retornar mensagems ao prompt(Terminal)
-        
+
         Arguments:
             message {str} -- Mensagem a ser exibida
         """
@@ -147,11 +148,12 @@ class Command(BaseCommand):
     def _check_content(self, path, text_check):
         """Método para verificar se determinado texto existe 
         dentro de determinado arquivo
-        
+
         Arguments:
             path {str} -- Caminho absoluto para o arquivo a ser analisado
-            text_check {str} -- Texto a ser pesquisado dentro do arquivo informado
-        
+            text_check {str} -- Texto a ser pesquisado dentro do arquivo 
+            informado
+
         Returns:
             Boolean -- Verdadeiro se o conteúdo for encontrado e False se não.
         """
@@ -169,10 +171,10 @@ class Command(BaseCommand):
     def _get_snippet(self, path):
         """Método para recuperar o texto a ser utilizado na
         configuração do novo elemento
-        
+
         Arguments:
             path {str} -- Caminho absoluto para o arquivo
-        
+
         Returns:
             str -- Texto a ser utilizado para interpolar os dados do models
         """
@@ -197,7 +199,7 @@ class Command(BaseCommand):
             return apps.get_model(self.app, self.model)
         except:
             return None
-    
+
     """
     #################################################################
     Área dos templates
@@ -209,11 +211,14 @@ class Command(BaseCommand):
         """
 
         try:
-            self._message("Trabalhando na configuração do template de Detalhamento.")
-            path = os.path.join(self.path_template_dir, "{}_detail.html".format(self.model_lower))
+            self._message(
+                "Trabalhando na configuração do template de Detalhamento.")
+            path = os.path.join(self.path_template_dir,
+                                "{}_detail.html".format(self.model_lower))
             # Verificando se já existe o template
             if self._check_file(path):
-                self._message("O model informado já possui o template de Detalhamento")
+                self._message(
+                    "O model informado já possui o template de Detalhamento")
                 return
             # Pegando o conteúdo do snippet para criar o template
             content = self._get_snippet(
@@ -225,18 +230,21 @@ class Command(BaseCommand):
             with open(path, 'w') as template:
                 template.write(content)
         except Exception as error:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Detalhamento sofreu alguma alteração.")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Detalhamento sofreu alguma alteração.")
             self._message(error)
-    
+
     def _manage_list_template(self):
         """Método para criar o template de List do model.
         """
         try:
             self._message("Trabalhando na configuração do template de Edição.")
-            path = os.path.join(self.path_template_dir, "{}_list.html".format(self.model_lower))
+            path = os.path.join(self.path_template_dir,
+                                "{}_list.html".format(self.model_lower))
             # Verificando se já existe o template
             if self._check_file(path):
-                self._message("O model informado já possui o template de Listagem")
+                self._message(
+                    "O model informado já possui o template de Listagem")
                 return
             # Pegando o conteúdo do snippet para criar o template
             content = self._get_snippet(
@@ -250,19 +258,22 @@ class Command(BaseCommand):
                 template.write(content)
 
         except Exception as error:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Edição sofreu alguma alteração.")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Edição sofreu alguma alteração.")
             self._message(error)
-    
+
     def _manage_update_template(self):
         """Método para criar o template de Update do model.
         """
 
         try:
             self._message("Trabalhando na configuração do template de Edição.")
-            path = os.path.join(self.path_template_dir, "{}_update.html".format(self.model_lower))
+            path = os.path.join(self.path_template_dir,
+                                "{}_update.html".format(self.model_lower))
             # Verificando se já existe o template
             if self._check_file(path):
-                self._message("O model informado já possui o template de Edição")
+                self._message(
+                    "O model informado já possui o template de Edição")
                 return
             # Pegando o conteúdo do snippet para criar o template
             content = self._get_snippet(
@@ -276,19 +287,23 @@ class Command(BaseCommand):
                 template.write(content)
 
         except Exception as error:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Edição sofreu alguma alteração.")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Edição sofreu alguma alteração.")
             self._message(error)
-    
+
     def _manage_create_template(self):
         """Método para criar o template de Create do model.
         """
 
         try:
-            self._message("Trabalhando na configuração do template de Criação.")
-            path = os.path.join(self.path_template_dir, "{}_create.html".format(self.model_lower))
+            self._message(
+                "Trabalhando na configuração do template de Criação.")
+            path = os.path.join(self.path_template_dir,
+                                "{}_create.html".format(self.model_lower))
             # Verificando se já existe o template
             if self._check_file(path):
-                self._message("O model informado já possui o template de Criação")
+                self._message(
+                    "O model informado já possui o template de Criação")
                 return
             # Pegando o conteúdo do snippet para criar o template
             content = self._get_snippet(
@@ -299,7 +314,8 @@ class Command(BaseCommand):
                 template.write(content)
 
         except Exception as error:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Criação sofreu alguma alteração.")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Criação sofreu alguma alteração.")
             self._message(error)
 
     def _manage_delete_template(self):
@@ -307,11 +323,14 @@ class Command(BaseCommand):
         """
 
         try:
-            self._message("Trabalhando na configuração do template de Deleção.")
-            path = os.path.join(self.path_template_dir, "{}_delete.html".format(self.model_lower))
+            self._message(
+                "Trabalhando na configuração do template de Deleção.")
+            path = os.path.join(self.path_template_dir,
+                                "{}_delete.html".format(self.model_lower))
             # Verificando se já existe o template
             if self._check_file(path):
-                self._message("O model informado já possui o template de Deleção.")
+                self._message(
+                    "O model informado já possui o template de Deleção.")
                 return
             # Pegando o conteúdo do snippet para criar o template
             content = self._get_snippet(
@@ -323,9 +342,10 @@ class Command(BaseCommand):
                 template.write(content)
 
         except Exception as error:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Deleção sofreu alguma alteração.")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O TEMPLATE de Deleção sofreu alguma alteração.")
             self._message(error)
-    
+
     def _manage_templates(self):
         """Método pai para controlar a criação do templates
         """
@@ -346,7 +366,8 @@ class Command(BaseCommand):
             # Chamando método de criação do template de atualização.
             self._manage_update_template()
         except Exception as error:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O DIRETÓRIO DE TEMPLATES sofreu alguma alteração.")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O DIRETÓRIO DE TEMPLATES sofreu alguma alteração.")
             self._message(error)
 
     """
@@ -360,7 +381,8 @@ class Command(BaseCommand):
         """
 
         try:
-            self._message("Trabalhando na configuração das Urls API do model {}".format(self.model))
+            self._message(
+                "Trabalhando na configuração das Urls API do model {}".format(self.model))
             content = self._get_snippet(
                 os.path.join(self.path_core, "management/commands/snippets/api_router.txt"))
             content_urls = self._get_snippet(
@@ -376,15 +398,16 @@ class Command(BaseCommand):
                 with open(self.path_urls, 'w') as arquivo:
                     arquivo.write(content_urls + content)
                 return
-                
+
             if self._check_content(self.path_urls, " {}ViewAPI".format(self.model)):
                 # Já existe configuração de URL para a APP saindo da função
-                self._message("O model informado já possui urls da API configuradas.")
+                self._message(
+                    "O model informado já possui urls da API configuradas.")
                 return
 
             # Verificando se já existe o router = routers.DefaultRouter()
             if self._check_content(self.path_urls, "router = routers.DefaultRouter()"):
-                content = content.split("\n",1)[1]
+                content = content.split("\n", 1)[1]
                 imports = 'router = routers.DefaultRouter()'
                 with fileinput.FileInput(self.path_urls, inplace=True) as arquivo:
                     for line in arquivo:
@@ -393,68 +416,68 @@ class Command(BaseCommand):
 
             elif self._check_content(self.path_urls, "app_name = \'{}\'".format(self.app)):
                     # Atualizando arquivo com o novo conteúdo
-                    app_name_url = "app_name = \'{}\'".format(self.app_lower)
-                    with fileinput.FileInput(self.path_urls, inplace=True) as arquivo:
-                        for line in arquivo:
-                            print(line.replace(
-                                app_name_url, app_name_url+ '\n' + content), end='')
-            
+                app_name_url = "app_name = \'{}\'".format(self.app_lower)
+                with fileinput.FileInput(self.path_urls, inplace=True) as arquivo:
+                    for line in arquivo:
+                        print(line.replace(
+                            app_name_url, app_name_url + '\n' + content), end='')
+
             # Verificando se tem a importação do rest_framework
             if self._check_content(self.path_urls, "from rest_framework import routers"):
                 content_urls = content_urls.split("\n")[1]
-                #Abre o arquivo do form
+                # Abre o arquivo do form
                 arquivo = open(self.path_urls, "r")
-                #Variável que armazenará todas as linas do arquivo
+                # Variável que armazenará todas as linas do arquivo
                 data = []
                 for line in arquivo:
-                    #Se for a linha que importa os models
+                    # Se for a linha que importa os models
                     if line.startswith('from .views import'):
-                        #Pega os models já importados
+                        # Pega os models já importados
                         models = line.split('import')[-1].rstrip()
-                        #Pega o model que o usuário deja
+                        # Pega o model que o usuário deja
                         import_model = ', ' + content_urls.split()[-1]
                         # Acrescenta o model no import dos models
                         models += import_model
-                        #Cria linha com os importes antigos do model e com 
+                        # Cria linha com os importes antigos do model e com
                         # o novo desejado pelo usuário
                         line = 'from .views import{}\n'.format(models)
-                    #Salva as linhas na variável auxiliar
+                    # Salva as linhas na variável auxiliar
                     data.append(line)
-                #Fecha o arquivo
+                # Fecha o arquivo
                 arquivo.close()
-                #Abre o mesmo arquivos com modo de escrita
-                arquivo =  open(self.path_urls, "w")
-                #escreve o arquivos com as linhas da variável auxiliar
+                # Abre o mesmo arquivos com modo de escrita
+                arquivo = open(self.path_urls, "w")
+                # escreve o arquivos com as linhas da variável auxiliar
                 arquivo.writelines(data)
-                #fecha o arquivo
+                # fecha o arquivo
                 arquivo.close()
             elif self._check_content(self.path_urls, "from .views import"):
                 content_aux = content_urls.split("\n")[1]
-                #Abre o arquivo do form
+                # Abre o arquivo do form
                 arquivo = open(self.path_urls, "r")
-                #Variável que armazenará todas as linas do arquivo
+                # Variável que armazenará todas as linas do arquivo
                 data = []
                 for line in arquivo:
-                    #Se for a linha que importa os models
+                    # Se for a linha que importa os models
                     if line.startswith('from .views import'):
-                        #Pega os models já importados
+                        # Pega os models já importados
                         models = line.split('import')[-1].rstrip()
-                        #Pega o model que o usuário deja
+                        # Pega o model que o usuário deja
                         import_model = ', ' + content_aux.split()[-1]
                         # Acrescenta o model no import dos models
                         models += import_model
-                        #Cria linha com os importes antigos do model e com 
+                        # Cria linha com os importes antigos do model e com
                         # o novo desejado pelo usuário
                         line = 'from .views import{}\n'.format(models)
-                    #Salva as linhas na variável auxiliar
+                    # Salva as linhas na variável auxiliar
                     data.append(line)
-                #Fecha o arquivo
+                # Fecha o arquivo
                 arquivo.close()
-                #Abre o mesmo arquivos com modo de escrita
-                arquivo =  open(self.path_urls, "w")
-                #escreve o arquivos com as linhas da variável auxiliar
+                # Abre o mesmo arquivos com modo de escrita
+                arquivo = open(self.path_urls, "w")
+                # escreve o arquivos com as linhas da variável auxiliar
                 arquivo.writelines(data)
-                #fecha o arquivo
+                # fecha o arquivo
                 arquivo.close()
                 if self._check_content(self.path_urls, "from django.urls import"):
                     imports = 'from django.urls import path, include'
@@ -463,9 +486,9 @@ class Command(BaseCommand):
                             print(line.replace(
                                 imports, imports + '\n' + content_urls.split("\n")[0]), end='')
                 else:
-                   with open(self.path_urls, 'a') as views:
-                    views.write("\n")
-                    views.write(content_urls)
+                    with open(self.path_urls, 'a') as views:
+                        views.write("\n")
+                        views.write(content_urls)
             elif self._check_content(self.path_urls, "from django.urls import"):
                 imports = 'from django.urls import path, include'
                 with fileinput.FileInput(self.path_urls, inplace=True) as arquivo:
@@ -478,14 +501,16 @@ class Command(BaseCommand):
                     views.write(content_urls)
 
         except Exception as error:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO urls.py sofreu algumar alteração.")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO urls.py sofreu algumar alteração.")
             self._message(error)
 
     def _manage_api_view(self):
         """Método para configuração das Views da API
         """
         try:
-            self._message("Trabalhando na configuração das Views da API do model {} ".format(self.model))
+            self._message(
+                "Trabalhando na configuração das Views da API do model {} ".format(self.model))
             content = self._get_snippet(os.path.join(
                 self.path_core, "management/commands/snippets/api_view.txt"))
             content_urls = self._get_snippet(os.path.join(
@@ -502,75 +527,76 @@ class Command(BaseCommand):
 
             # Verificando se já tem a configuração do model
             if self._check_content(self.path_views, " {}ViewAPI".format(self.model)):
-                self._message("O model informado já possui views da API configurado.")
+                self._message(
+                    "O model informado já possui views da API configurado.")
                 return
 
             # Verificando se já foi importado o model
             if not self._check_content(self.path_views, self.model):
                 content_models = content_urls.split("\n")[5]
-                #Abre o arquivo do form
+                # Abre o arquivo do form
                 arquivo = open(self.path_views, "r")
-                #Variável que armazenará todas as linas do arquivo
+                # Variável que armazenará todas as linas do arquivo
                 data = []
                 for line in arquivo:
-                    #Se for a linha que importa os models
+                    # Se for a linha que importa os models
                     if line.startswith('from .models import'):
-                        #Pega os models já importados
+                        # Pega os models já importados
                         models = line.split('import')[-1].rstrip()
-                        #Pega o model que o usuário deja
+                        # Pega o model que o usuário deja
                         import_model = ', ' + content_models.split()[-1]
                         # Acrescenta o model no import dos models
                         models += import_model
-                        #Cria linha com os importes antigos do model e com 
+                        # Cria linha com os importes antigos do model e com
                         # o novo desejado pelo usuário
                         line = 'from .models import{}\n'.format(models)
-                    #Salva as linhas na variável auxiliar
+                    # Salva as linhas na variável auxiliar
                     data.append(line)
-                #Fecha o arquivo
+                # Fecha o arquivo
                 arquivo.close()
-                #Abre o mesmo arquivos com modo de escrita
-                arquivo =  open(self.path_views, "w")
-                #escreve o arquivos com as linhas da variável auxiliar
+                # Abre o mesmo arquivos com modo de escrita
+                arquivo = open(self.path_views, "w")
+                # escreve o arquivos com as linhas da variável auxiliar
                 arquivo.writelines(data)
-                #fecha o arquivo
+                # fecha o arquivo
                 arquivo.close()
             else:
-                #Remove ultima linha do snippet que é a importação do model
-                content_urls = content_urls.rsplit("\n",1)[0]
+                # Remove ultima linha do snippet que é a importação do model
+                content_urls = content_urls.rsplit("\n", 1)[0]
 
             # Verificando se tem a importação do rest_framework
             if self._check_content(self.path_views, "from rest_framework.viewsets import ModelViewSet"):
                 content_urls = content_urls.split("\n")[4]
-                #Abre o arquivo do form
+                # Abre o arquivo do form
                 arquivo = open(self.path_views, "r")
-                #Variável que armazenará todas as linas do arquivo
+                # Variável que armazenará todas as linas do arquivo
                 data = []
                 for line in arquivo:
-                    #Se for a linha que importa os models
+                    # Se for a linha que importa os models
                     if line.startswith('from .serializers import'):
-                        #Pega os models já importados
+                        # Pega os models já importados
                         models = line.split('import')[-1].rstrip()
-                        #Pega o model que o usuário deja
+                        # Pega o model que o usuário deja
                         import_model = ', ' + content_urls.split()[-1]
                         # Acrescenta o model no import dos models
                         models += import_model
-                        #Cria linha com os importes antigos do model e com 
+                        # Cria linha com os importes antigos do model e com
                         # o novo desejado pelo usuário
                         line = 'from .serializers import{}\n'.format(models)
-                    #Salva as linhas na variável auxiliar
+                    # Salva as linhas na variável auxiliar
                     data.append(line)
-                #Fecha o arquivo
+                # Fecha o arquivo
                 arquivo.close()
-                #Abre o mesmo arquivos com modo de escrita
-                arquivo =  open(self.path_views, "w")
-                #escreve o arquivos com as linhas da variável auxiliar
+                # Abre o mesmo arquivos com modo de escrita
+                arquivo = open(self.path_views, "w")
+                # escreve o arquivos com as linhas da variável auxiliar
                 arquivo.writelines(data)
-                #fecha o arquivo
-                arquivo.close() 
+                # fecha o arquivo
+                arquivo.close()
             elif self._check_content(self.path_views, "from core.views"):
                 imports = 'from core.views import BaseListView, BaseDeleteView, BaseDetailView, BaseUpdateView, BaseCreateView'
-                imports_rest = '\n{}\n{}\n{}\n{}\n'.format(content_urls.split("\n")[0],content_urls.split("\n")[1],
-                    content_urls.split("\n")[2],content_urls.split("\n")[3])
+                imports_rest = '\n{}\n{}\n{}\n{}\n'.format(content_urls.split("\n")[0], content_urls.split("\n")[1],
+                                                           content_urls.split("\n")[2], content_urls.split("\n")[3])
                 with fileinput.FileInput(self.path_views, inplace=True) as arquivo:
                     for line in arquivo:
                         print(line.replace(
@@ -585,13 +611,15 @@ class Command(BaseCommand):
                 api_views.write("\n")
                 api_views.write(content)
         except:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO models.py sofreu alguma alteração")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO models.py sofreu alguma alteração")
 
     def _manage_serializer(self):
         """Método para configurar o serializer do model informado.
         """
         try:
-            self._message("Trabalhando na configuração do Serializer do model {}".format(self.model))
+            self._message(
+                "Trabalhando na configuração do Serializer do model {}".format(self.model))
             content = self._get_snippet(os.path.join(
                 self.path_core, "management/commands/snippets/serializer.txt"))
             content_urls = self._get_snippet(os.path.join(
@@ -605,40 +633,41 @@ class Command(BaseCommand):
                 with open(self.path_serializer, 'w') as arquivo:
                     arquivo.write(content_urls + '\n\n' + content)
                 return
-            
+
             # Verificando se já existe configuração no serializers para o Models informado
             if self._check_content(self.path_serializer, "class {}Serializer".format(self.model)):
-                self._message("O model informado já possui serializer configurado.")
+                self._message(
+                    "O model informado já possui serializer configurado.")
                 return
-            
+
             # Verificando se tem a importação do ModelSerializer
             if self._check_content(self.path_serializer, "from rest_framework.serializers import ModelSerializer"):
                 content_urls = content_urls.split("\n")[1]
-                #Abre o arquivo
+                # Abre o arquivo
                 arquivo = open(self.path_serializer, "r")
-                #Variável que armazenará todas as linas do arquivo
+                # Variável que armazenará todas as linas do arquivo
                 data = []
                 for line in arquivo:
-                    #Se for a linha que importa os models
+                    # Se for a linha que importa os models
                     if line.startswith('from .models import'):
-                        #Pega os models já importados
+                        # Pega os models já importados
                         models = line.split('import')[-1].rstrip()
-                        #Pega o model que o usuário deja
+                        # Pega o model que o usuário deja
                         import_model = ', ' + content_urls.split()[-1]
                         # Acrescenta o model no import dos models
                         models += import_model
-                        #Cria linha com os importes antigos do model e com 
+                        # Cria linha com os importes antigos do model e com
                         # o novo desejado pelo usuário
                         line = 'from .models import{}\n'.format(models)
-                    #Salva as linhas na variável auxiliar
+                    # Salva as linhas na variável auxiliar
                     data.append(line)
-                #Fecha o arquivo
+                # Fecha o arquivo
                 arquivo.close()
-                #Abre o mesmo arquivos com modo de escrita
-                arquivo =  open(self.path_serializer, "w")
-                #escreve o arquivos com as linhas da variável auxiliar
+                # Abre o mesmo arquivos com modo de escrita
+                arquivo = open(self.path_serializer, "w")
+                # escreve o arquivos com as linhas da variável auxiliar
                 arquivo.writelines(data)
-                #fecha o arquivo
+                # fecha o arquivo
                 arquivo.close()
             else:
                 with open(self.path_serializer, 'a') as views:
@@ -648,7 +677,8 @@ class Command(BaseCommand):
                 urls.write("\n")
                 urls.write(content)
         except:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO serializer.py sofreu alguma alteração")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO serializer.py sofreu alguma alteração")
 
     """
     #################################################################
@@ -661,11 +691,12 @@ class Command(BaseCommand):
         """
 
         try:
-            self._message("Trabalhando na configuração do Form do model {}".format(self.model))
+            self._message(
+                "Trabalhando na configuração do Form do model {}".format(self.model))
             content = self._get_snippet(os.path.join(
                 self.path_core, "management/commands/snippets/form.txt"))
             # Recuperando o conteúdo do snippet das urls do form
-            content_urls =  self._get_snippet(os.path.join(
+            content_urls = self._get_snippet(os.path.join(
                 self.path_core, "management/commands/snippets/form_urls.txt"))
             # Interpolando os dados
             content = content.replace("$ModelClass$", self.model)
@@ -682,37 +713,37 @@ class Command(BaseCommand):
             if self._check_content(self.path_form, "class {}Form".format(self.model)):
                 self._message("O model informado já possui form configurado.")
                 return
-            
+
             # Verificando se tem a importação do BaseForm
             if self._check_content(self.path_form, "from core.forms import BaseForm"):
-                #Pega somente o import dos models
+                # Pega somente o import dos models
                 content_urls = content_urls.split("\n")[1]
-                #Abre o arquivo do form
+                # Abre o arquivo do form
                 arquivo = open(self.path_form, "r")
-                #Variável que armazenará todas as linas do arquivo
+                # Variável que armazenará todas as linas do arquivo
                 data = []
                 for line in arquivo:
-                    #Se for a linha que importa os models
+                    # Se for a linha que importa os models
                     if line.startswith('from .models import'):
-                        #Pega os models já importados
+                        # Pega os models já importados
                         models = line.split('import')[-1].rstrip()
-                        #Pega o model que o usuário deja
+                        # Pega o model que o usuário deja
                         import_model = ', ' + content_urls.split()[-1]
                         # Acrescenta o model no import dos models
                         models += import_model
-                        #Cria linha com os importes antigos do model e com 
+                        # Cria linha com os importes antigos do model e com
                         # o novo desejado pelo usuário
                         line = 'from .models import{}\n'.format(models)
-                    #Salva as linhas na variável auxiliar
+                    # Salva as linhas na variável auxiliar
                     data.append(line)
-                #Fecha o arquivo
+                # Fecha o arquivo
                 arquivo.close()
-                #Abre o mesmo arquivos com modo de escrita
-                arquivo =  open(self.path_form, "w")
-                #escreve o arquivos com as linhas da variável auxiliar
+                # Abre o mesmo arquivos com modo de escrita
+                arquivo = open(self.path_form, "w")
+                # escreve o arquivos com as linhas da variável auxiliar
                 arquivo.writelines(data)
-                #fecha o arquivo
-                arquivo.close() 
+                # fecha o arquivo
+                arquivo.close()
             else:
                 with open(self.path_form, 'a') as views:
                     views.write(content_urls)
@@ -721,8 +752,9 @@ class Command(BaseCommand):
                 form.write("\n")
                 form.write(content)
         except:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO forms.py sofreu alguma alteração")
-    
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO forms.py sofreu alguma alteração")
+
     """
     #################################################################
     Área das Views
@@ -734,12 +766,13 @@ class Command(BaseCommand):
         """
 
         try:
-            self._message("Trabalhando na configuração das Views do model {}".format(self.model))
+            self._message(
+                "Trabalhando na configuração das Views do model {}".format(self.model))
             # Recuperando o conteúdo do snippet da view
             content = self._get_snippet(os.path.join(
                 self.path_core, "management/commands/snippets/crud_views.txt"))
             # Recuperando o conteúdo do snippet das urls da view
-            content_urls =  self._get_snippet(os.path.join(
+            content_urls = self._get_snippet(os.path.join(
                 self.path_core, "management/commands/snippets/crud_urls.txt"))
             # Interpolando os dados
             content = content.replace("$ModelClass$", self.model)
@@ -756,52 +789,98 @@ class Command(BaseCommand):
 
             # Verificando se já existe configuração da views para o Models informado
             if self._check_content(self.path_views, "class {}ListView".format(self.model)):
-                self._message("O model informado já possui as views configuradas.")
+                self._message(
+                    "O model informado já possui as views configuradas.")
                 return
+
+            _import_forms_modal = ""
+            # Recuperando o objeto model para acessar os atributos
+            _model = self._get_model()
+            # Verificando se o o models possue a configuração dos fks_modal
+            try:
+                if hasattr(_model._meta, 'fk_fields_modal') is True:
+                    _forms = ""
+                    for fk_name in _model._meta.fk_fields_modal:
+                        _field = _model._meta.get_field(fk_name)
+                        _field_name = str(_field.related_model).split("'")[1]
+                        _field_split = _field_name.split(".")
+                        _app_field = _field_split[0]
+                        _model_field = _field_split[2]
+                        # Verificando se o nome da app é igual para não importar
+                        if _app_field != self.app_lower:
+                            _import_forms_modal += "\nfrom {}.forms import {}".format(
+                                _app_field, _model_field)
+                        _forms += "{s}context['form_{l}'] = {u}Form\n".format(
+                            l=_model_field.lower(), u=_model_field, s=" "*8)
+                    # Parser do form modal do update
+                    modal_update = self._get_snippet(os.path.join(
+                        self.path_core, "management/commands/snippets/crud_form_modal.txt"))
+                    modal_update = modal_update.replace(
+                        '$ModelClass$', "{}UpdateView".format(self.model))
+                    modal_update = modal_update.replace(
+                        '$FormsModal$', _forms.strip())
+                    content = content.replace(
+                        '$FormsModalUpdate$', modal_update)
+                    # Parser do form modal do create
+                    modal_create = self._get_snippet(os.path.join(
+                        self.path_core, "management/commands/snippets/crud_form_modal.txt"))
+                    modal_create = modal_create.replace(
+                        '$ModelClass$', "{}CreateView".format(self.model))
+                    modal_create = modal_create.replace(
+                        '$FormsModal$', _forms.strip())
+                    content = content.replace(
+                        '$FormsModalCreate$', modal_create)
+                else:
+                    content = content.replace('$FormsModalCreate$', "")
+                    content = content.replace('$FormsModalUpdate$', "")
+            except:
+                self._message(
+                    "OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO views.py sofreu alguma alteração")
 
             # Verificando se já tem os imports do core
             if self._check_content(self.path_views, "from core.views"):
-                #Pega somente o import dos models
+                # Pega somente o import dos models
                 content_models = content_urls.split("\n")[1]
-                #Pega somente o import dos forms
+                # Pega somente o import dos forms
                 content_forms = content_urls.split("\n")[2]
-                #Abre o arquivo do form
+                # Abre o arquivo do form
                 arquivo = open(self.path_views, "r")
-                #Variável que armazenará todas as linas do arquivo
+                # Variável que armazenará todas as linas do arquivo
                 data = []
                 for line in arquivo:
-                    #Se for a linha que importa os models
+                    # Se for a linha que importa os models
                     if line.startswith('from .models import'):
-                        #Pega os models já importados
+                        # Pega os models já importados
                         models = line.split('import')[-1].rstrip()
-                        #Pega o model que o usuário deja
+                        # Pega o model que o usuário deja
                         import_model = ', ' + content_models.split()[-1]
                         # Acrescenta o model no import dos models
                         models += import_model
-                        #Cria linha com os importes antigos do model e com 
+                        # Cria linha com os importes antigos do model e com
                         # o novo desejado pelo usuário
                         line = 'from .models import{}\n'.format(models)
                     elif line.startswith('from .forms import'):
-                        #Pega os forms já importados
+                        # Pega os forms já importados
                         forms = line.split('import')[-1].rstrip()
-                        #Pega o form que o usuário deja
+                        # Pega o form que o usuário deja
                         import_form = ', ' + content_forms.split()[-1]
                         # Acrescenta o form no import dos forms
                         forms += import_form
-                        #Cria linha com os importes antigos do form e com 
+                        # Cria linha com os importes antigos do form e com
                         # o novo desejado pelo usuário
                         line = 'from .forms import{}\n'.format(forms)
-                    #Salva as linhas na variável auxiliar
+                    # Salva as linhas na variável auxiliar
                     data.append(line)
-                #Fecha o arquivo
+                data.append(_import_forms_modal)
+                # Fecha o arquivo
                 arquivo.close()
-                #Abre o mesmo arquivos com modo de escrita
-                arquivo =  open(self.path_views, "w")
-                #escreve o arquivos com as linhas da variável auxiliar
+                # Abre o mesmo arquivos com modo de escrita
+                arquivo = open(self.path_views, "w")
+                # escreve o arquivos com as linhas da variável auxiliar
                 arquivo.writelines(data)
-                #fecha o arquivo
-                arquivo.close() 
-                
+                # fecha o arquivo
+                arquivo.close()
+
             else:
                 with open(self.path_views, 'a') as views:
                     views.write(content_urls)
@@ -811,22 +890,25 @@ class Command(BaseCommand):
                 views.write("\n")
                 views.write(content)
         except:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO views.py sofreu alguma alteração")
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO views.py sofreu alguma alteração")
 
     """
     #################################################################
     Área das URLS
     #################################################################    
     """
+
     def _manage_url(self):
         """Método para configurar as URLS do model informado.
         """
         try:
-            self._message("Trabalhando na configuração das Urls do model {}".format(self.model))
+            self._message(
+                "Trabalhando na configuração das Urls do model {}".format(self.model))
             content = self._get_snippet(
                 os.path.join(self.path_core, "management/commands/snippets/url.txt"))
             # Recuperando o conteúdo do snippet das urls da view
-            content_urls =  self._get_snippet(os.path.join(
+            content_urls = self._get_snippet(os.path.join(
                 self.path_core, "management/commands/snippets/url_imports.txt"))
             # Interpolando os dados
             content = content.replace("$app_name$", self.app_lower)
@@ -839,74 +921,81 @@ class Command(BaseCommand):
                 with open(self.path_urls, 'w') as arquivo:
                     arquivo.write(content_urls + '\n' + content)
                 return
-            
+
             if self._check_content(self.path_urls, " {}ListView".format(self.model)):
                 # Já existe configuração de URL para a APP saindo da função
                 self._message("O model informado já possui urls configuradas.")
                 return
-            
+
             # Verificando se já existe a configuração do index template para evitar redundância.
             if self._check_content(self.path_urls, "from core.views import IndexTemplateView"):
-                #Remove ultima linha do snippet
-                content_urls = content_urls.rsplit("\n",1)[0]
-            
+                # Remove ultima linha do snippet
+                content_urls = content_urls.rsplit("\n", 1)[0]
+
             # Verificando se tem a importação do BaseForm
             if self._check_content(self.path_urls, "from .views import"):
-                #Pega somente o import dos models
+                # Pega somente o import dos models
                 content_urls = content_urls.split("\n")[1]
-                #Abre o arquivo do form
+                # Abre o arquivo do form
                 arquivo = open(self.path_urls, "r")
-                #Variável que armazenará todas as linas do arquivo
+                # Variável que armazenará todas as linas do arquivo
                 data = []
                 for line in arquivo:
-                    #Se for a linha que importa os models
+                    # Se for a linha que importa os models
                     if line.startswith('from .views import'):
-                        #Pega os models já importados
+                        # Pega os models já importados
                         models = line.split('import')[-1].rstrip()
-                        #Pega o model que o usuário deja
-                        import_model = ', ' + content_urls.split('import')[-1].rstrip()
+                        # Pega o model que o usuário deja
+                        import_model = ', ' + \
+                            content_urls.split('import')[-1].rstrip()
                         # Acrescenta o model no import dos models
                         models += import_model
-                        #Cria linha com os importes antigos do model e com 
+                        # Cria linha com os importes antigos do model e com
                         # o novo desejado pelo usuário
                         line = 'from .views import{}\n'.format(models)
-                    #Salva as linhas na variável auxiliar
+                    # Salva as linhas na variável auxiliar
                     data.append(line)
-                #Fecha o arquivo
+                # Fecha o arquivo
                 arquivo.close()
-                #Abre o mesmo arquivos com modo de escrita
-                arquivo =  open(self.path_urls, "w")
-                #escreve o arquivos com as linhas da variável auxiliar
+                # Abre o mesmo arquivos com modo de escrita
+                arquivo = open(self.path_urls, "w")
+                # escreve o arquivos com as linhas da variável auxiliar
                 arquivo.writelines(data)
-                #fecha o arquivo
-                arquivo.close() 
+                # fecha o arquivo
+                arquivo.close()
             else:
                 with open(self.path_urls, 'a') as views:
                     views.write(content_urls)
-            
+
             if self._check_content(self.path_urls, "urlpatterns = ["):
                 # Verificando se no arquivo já existe uma configuração da URL
-                content = content.replace("urlpatterns = [", "urlpatterns += [")
+                content = content.replace(
+                    "urlpatterns = [", "urlpatterns += [")
                 # retira 4 espaços e o \n para não ficar com quebra de linha dentro das urls
-                content = content.replace("path('api/', include(router.urls)),\n    ",'')
-                content = content.replace("path('', IndexTemplateView.as_view(extra_context={'app_name':app_name}), name='index-app'),\n    ",'')
+                content = content.replace(
+                    "path('api/', include(router.urls)),\n    ", '')
+                content = content.replace(
+                    "path('', IndexTemplateView.as_view(extra_context={'app_name':app_name}), name='index-app'),\n    ", '')
 
             # Verificando se o arquivo já possui o app_name configurado
             if self._check_content(self.path_urls, "app_name = \'{}\'".format(self.app)):
                 # Removendo a duplicidade do app_name
-                content = content.replace("app_name = \'{}\'".format(self.app), "")
-            
+                content = content.replace(
+                    "app_name = \'{}\'".format(self.app), "")
+
             # Atualizando o conteúdo do arquivo.
             with open(self.path_urls, 'a') as urls:
                 urls.write(content)
         except:
-            self._message("OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO urls.py sofreu alguma alteração")
-    
+            self._message(
+                "OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO urls.py sofreu alguma alteração")
+
     """
     #################################################################
     Área do parser do HTML
     #################################################################    
     """
+
     def _render_modal_foreign_key(self, model, app, model_lower, field_name):
         """
         Método para renderizar o Model respectivo a foreign key do model em questão
@@ -923,7 +1012,7 @@ class Command(BaseCommand):
             return content
         except Exception as error:
             self._message(error)
-    
+
     def _render_script_foreign_key(self, model, app, model_lower, field_name):
         """
         Método para renderizar o script responsável por inserir os dados do modal
@@ -941,23 +1030,24 @@ class Command(BaseCommand):
             return content
         except Exception as error:
             self._message(error)
-            
+
     def _render_input(self, field):
         try:
             types = [
-                'AutoField', 'BLANK_CHOICE_DASH', 'BigAutoField', 
-                'BigIntegerField', 'BinaryField', 'BooleanField', 
+                'AutoField', 'BLANK_CHOICE_DASH', 'BigAutoField',
+                'BigIntegerField', 'BinaryField', 'BooleanField',
                 'CharField', 'CommaSeparatedIntegerField',
-                'DateField', 'DateTimeField', 'DecimalField', 
+                'DateField', 'DateTimeField', 'DecimalField',
                 'DurationField', 'EmailField', 'Empty', 'FileField',
                 'Field', 'FieldDoesNotExist', 'FilePathField',
-                'FloatField', 'GenericIPAddressField', 
+                'FloatField', 'GenericIPAddressField',
                 'IPAddressField', 'IntegerField', 'FieldFile',
                 'NOT_PROVIDED', 'NullBooleanField', 'ImageField',
-                'PositiveIntegerField', 'PositiveSmallIntegerField', 
-                'SlugField', 'SmallIntegerField', 'TextField', 
+                'PositiveIntegerField', 'PositiveSmallIntegerField',
+                'SlugField', 'SmallIntegerField', 'TextField',
                 'TimeField', 'URLField', 'UUIDField', 'ForeignKey', 'OneToOneField'
             ]
+            _model = self._get_model()
             iten = {}
             iten["app"], iten["model"], iten["name"] = str(field).split('.')
             iten["tipo"] = (str(
@@ -972,24 +1062,28 @@ class Command(BaseCommand):
                 Tratando os tipos de campos
                 #####################################################
                 """
-                #Tratando o campo do tipo ForeignKey
+                # Tratando o campo do tipo ForeignKey
                 # Adiciona o botão de adicionar um novo
                 # Abre o modal para adicionar
-                if  (iten.get("tipo") in ('ForeignKey', 'OneToOneField')):
-                    # Criando o Label do campo
-                    label = "{{{{ form.{}.label_tag }}}}".format(iten['name'])
-                    tag_result += label
-                    tag_result += '\n<div class="input-group">'
-                    tag_result += "{{{{ form.{} }}}}\n".format(iten['name'])
-                    tag_result += '{{% if form.{}.field.queryset.model|has_add_permission:request %}}<div class="input-group-append"><button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#form{}Modal">+</button></div>{{% endif %}}'\
-                                    .format(iten['name'], field.related_model._meta.object_name)
-                    tag_result += '</div>'
-                    #Cria o modal da foreign
-                    self.html_modals += self._render_modal_foreign_key(field.related_model._meta.object_name, iten['app'], field.related_model._meta.model_name, iten['name'])
-                    #Cria o script para o modal da foreign
-                    self.html_scripts += self._render_script_foreign_key(field.related_model._meta.object_name, iten['app'], field.related_model._meta.model_name, iten['name'])
+                if (iten.get("tipo") in ('ForeignKey', 'OneToOneField')):
+                    _foreign_key_field = "\n{{{{ form.{}|as_crispy_field }}}}".format(iten['name'])
+                    if hasattr(_model._meta, 'fk_fields_modal') is True:
+                        if iten["name"] in _model._meta.fk_fields_modal:
+                            _foreign_key_field = '\n<div class="input-group">'
+                            _foreign_key_field += "{{{{ form.{} }}}}\n".format(iten['name'])
+                            _foreign_key_field += '{{% if form.{}.field.queryset.model|has_add_permission:request %}}<button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#form{}Modal">+</button>{{% endif %}}'\
+                                            .format(iten['name'], field.related_model._meta.object_name)
+                            _foreign_key_field += '</div>'
+                            # Cria o modal da foreign
+                            self.html_modals += self._render_modal_foreign_key(
+                                field.related_model._meta.object_name, iten['app'], field.related_model._meta.model_name, iten['name'])
+                            # Cria o script para o modal da foreign
+                            self.html_scripts += self._render_script_foreign_key(
+                                field.related_model._meta.object_name, iten['app'], field.related_model._meta.model_name, iten['name'])
+                    tag_result += _foreign_key_field
                 else:
-                    tag_result += "{{{{ form.{}|as_crispy_field }}}}".format(iten['name'])
+                    tag_result += "{{{{ form.{}|as_crispy_field }}}}".format(
+                        iten['name'])
                 """
                 #####################################################
                 Configurando os atributos do campo
@@ -1007,11 +1101,13 @@ class Command(BaseCommand):
     Área dos templates HTML
     #################################################################    
     """
+
     def _manage_render_html(self):
         """Método para renderizar os campos do models 
         para tags HTML
         """
-        self._message("Trabalhando na configuração do parserhtml do model {}".format(self.model))
+        self._message(
+            "Trabalhando na configuração do parserhtml do model {}".format(self.model))
         try:
             # Rercuperando uma instancia do models informado
             model = self._get_model()
@@ -1020,14 +1116,14 @@ class Command(BaseCommand):
                 return
             html_tag = ""
             self.html_modals = ""
-            self.html_scripts =  ''
+            self.html_scripts = ''
             # Percorrendo os campos/atributos do models
             for field in iter(model._meta.fields):
                 if str(field).split('.')[2] not in ('updated_on', 'created_on', 'deleted', 'enabled', 'id'):
                     html_tag += self._render_input(field)
             if html_tag is not '':
                 # Pegando os templates do Model informado
-                for temp in  ['create', 'update']:
+                for temp in ['create', 'update']:
                     list_template = os.path.join(
                         self.path_template_dir, "{}_{}.html".format(
                             self.model_lower, temp))
@@ -1035,19 +1131,19 @@ class Command(BaseCommand):
                     with fileinput.FileInput(list_template, inplace=True) as arquivo:
                         for line in arquivo:
                             print(line.replace(
-                                "<!--REPLACE_PARSER_HTML-->", 
+                                "<!--REPLACE_PARSER_HTML-->",
                                 html_tag), end='')
-                    #Adiciona os modais das foreign keys
+                    # Adiciona os modais das foreign keys
                     with fileinput.FileInput(list_template, inplace=True) as arquivo:
                         for line in arquivo:
                             print(line.replace(
-                                "<!--REPLACE_MODAL_HTML-->", 
+                                "<!--REPLACE_MODAL_HTML-->",
                                 self.html_modals), end='')
-                    #Adiciona os scripts das foreign keys
+                    # Adiciona os scripts das foreign keys
                     with fileinput.FileInput(list_template, inplace=True) as arquivo:
                         for line in arquivo:
                             print(line.replace(
-                                "<!--REPLACE_SCRITP_MODAL_HTML-->", 
+                                "<!--REPLACE_SCRITP_MODAL_HTML-->",
                                 self.html_scripts), end='')
         except:
             self._message("Favor colocar a url da app no urls principal.")
@@ -1057,6 +1153,7 @@ class Command(BaseCommand):
 
     A Função foi criada para que não ocorrece a repetição de código
     '''
+
     def call_methods(self, options):
         # Verificando se foram passados parâmetros opcionais
         if options['templates']:
@@ -1072,14 +1169,14 @@ class Command(BaseCommand):
             self._manage_api_view()
             # Chamado o método para tratar as urls da API
             self._manage_api_url()
-            return                
+            return
         elif options['url']:
             self._message("Trabalhando apenas as urls.")
             # Chamando o método para tratar as urls
             self._manage_url()
             # Chamado o método para tratar as urls da API
             self._manage_api_url()
-            return                
+            return
         elif options['forms']:
             self._message("Trabalhando apenas os forms.")
             # Chamando o método para tratar os form
@@ -1108,7 +1205,6 @@ class Command(BaseCommand):
             self._manage_render_html()
             return
 
-    
     def handle(self, *args, **options):
         """Método invocado internamente pelo Command logo após a 
         validação da passagem de parâmetro.
@@ -1135,9 +1231,11 @@ class Command(BaseCommand):
             # Criando o path para as urls baseado na App informada.
             self.path_urls = os.path.join(self.path_app, "urls.py")
             # Criando o path para os serializers baseado na App informada.
-            self.path_serializer = os.path.join(self.path_app, "serializers.py")
+            self.path_serializer = os.path.join(
+                self.path_app, "serializers.py")
             # Criando o path para o diretório dos templates baseado na App informada.
-            self.path_template_dir = os.path.join(self.path_app, "templates", self.app)
+            self.path_template_dir = os.path.join(
+                self.path_app, "templates", self.app)
             # Criando o path para a APP informada.
             self.path_app = os.path.join(self.path_root, app)
             # Convertendo os nomes para caracteres minúsculo.
@@ -1148,14 +1246,15 @@ class Command(BaseCommand):
             if self._check_dir(self.path_app) is False:
                 self._message("Diretório não encontrado.")
                 return
-            # Verifica se app esta instalada, pois precisa dela 
+            # Verifica se app esta instalada, pois precisa dela
             # para recuperar as instancias dos models
             if apps.is_installed(self.app_lower) is False:
-                self._message("Você deve colocar sua app no INSTALLED_APPS do settings.")
-                return 
-            #Criando uma instancia da app
+                self._message(
+                    "Você deve colocar sua app no INSTALLED_APPS do settings.")
+                return
+            # Criando uma instancia da app
             self.app_instance = apps.get_app_config(self.app_lower)
-            #Verificando se o usuário passou o nome do model
+            # Verificando se o usuário passou o nome do model
             if options['Model']:
                 model = options['Model'] or None
                 if (self._contain_number(model) is False):
@@ -1169,7 +1268,8 @@ class Command(BaseCommand):
                     # Verifica se o model está na app informada
                     # Se o model for abstract ela retornará uma exceção LookupError
                     self.app_instance.get_model(self.model)
-                    self._message("Gerando arquivos para o model {}".format(self.model))
+                    self._message(
+                        "Gerando arquivos para o model {}".format(self.model))
                     # Convertendo os nomes para caracteres minúsculo.
                     # para serem usado nos locais que necessitem dos nomes
                     # em minúsculo.
@@ -1177,20 +1277,23 @@ class Command(BaseCommand):
                     self.call_methods(options)
                     self._message("Processo concluído.")
                 except LookupError:
-                    self._message("Esse model é abastrato. Não vão ser gerados os arquivos.")
+                    self._message(
+                        "Esse model é abastrato. Não vão ser gerados os arquivos.")
             else:
                 # recupera todos os models da app
                 for model in self.app_instance.get_models():
                     model = model.__name__
                     # Removendo os espaços em branco
                     self.model = model.strip()
-                    self._message("Gerando arquivos para o model {}".format(self.model))
+                    self._message(
+                        "Gerando arquivos para o model {}".format(self.model))
                     # Convertendo os nomes para caracteres minúsculo.
                     # para serem usado nos locais que necessitem dos nomes
                     # em minúsculo.
                     self.model_lower = model.lower()
-                    #Chama os métodos de geração de arquivos
+                    # Chama os métodos de geração de arquivos
                     self.call_methods(options)
-                    self._message("Processo concluído para o model {}.".format(self.model))
+                    self._message(
+                        "Processo concluído para o model {}.".format(self.model))
                 self._message("Processo concluído.")
                 return

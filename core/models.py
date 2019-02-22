@@ -1,24 +1,24 @@
 from datetime import datetime
 
+import requests
 from django.contrib.admin.utils import NestedObjects, quote
-from django.urls import reverse, NoReverseMatch
-from django.utils.html import format_html
-
 from django.contrib.auth import get_permission_codename, get_user_model
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel, GenericRelation
+from django.contrib.contenttypes.fields import (GenericForeignKey, GenericRel,
+                                                GenericRelation)
 from django.db import models, transaction
-from django.db.models import (AutoField, ManyToManyField,
-                              ManyToOneRel, ManyToManyRel,
-                              OneToOneRel, BooleanField,
-                              FileField, ImageField, OneToOneField)
+from django.db.models import (AutoField, BooleanField, FileField, ImageField,
+                              ManyToManyField, ManyToManyRel, ManyToOneRel,
+                              OneToOneField, OneToOneRel)
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import NoReverseMatch, reverse
+from django.utils.html import format_html
+from rest_framework.pagination import PageNumberPagination
 
 from .settings import use_default_manager
 
-from rest_framework.pagination import PageNumberPagination
-import requests
+models.options.DEFAULT_NAMES += ('fk_fields_modal', 'fields_display')
 
 
 class PaginacaoCustomizada(PageNumberPagination):
@@ -46,11 +46,13 @@ class BaseManager(models.Manager):
         """
         queryset = super(BaseManager, self).get_queryset()
 
-        if ((hasattr(self.model,'_meta') and hasattr(self.model._meta,'ordering') and self.model._meta.ordering ) or
-                ((hasattr(self.model,'Meta') and hasattr(self.model.Meta,'ordering') and self.model.Meta.ordering))):
-            queryset = queryset.order_by(*(self.model._meta.ordering or self.model.Meta.ordering))
+        if ((hasattr(self.model, '_meta') and hasattr(self.model._meta, 'ordering') and self.model._meta.ordering) or
+                ((hasattr(self.model, 'Meta') and hasattr(self.model.Meta, 'ordering') and self.model.Meta.ordering))):
+            queryset = queryset.order_by(
+                *(self.model._meta.ordering or self.model.Meta.ordering))
 
         return queryset.filter(deleted=False)
+
 
 class BaseMetod(models.Model):
     """Classe Base para ser herdada pelas demais
@@ -112,17 +114,19 @@ class BaseMetod(models.Model):
                                 self.__getattribute__(field.name).all() or None
                             ))
                     elif (((type(field) is ManyToOneRel or type(field) is ManyToManyRel)) or
-                           type(field) is GenericRel or type(field) is GenericForeignKey):
+                          type(field) is GenericRel or type(field) is GenericForeignKey):
                         if self.__getattribute__((field.related_name or '{}_set'.format(field.name))).exists():
                             many_fields.append((field.related_model._meta.verbose_name_plural or field.name,
                                                 self.__getattribute__(
-                                                    (field.related_name or '{}_set'.format(field.name))
+                                                    (field.related_name or '{}_set'.format(
+                                                        field.name))
                                                 )))
                     elif type(field) is GenericRelation:
                         if self.__getattribute__(field.name).exists():
                             many_fields.append((field.related_model._meta.verbose_name_plural or field.name,
-                                self.__getattribute__(field.name).all()
-                            ))
+                                                self.__getattribute__(
+                                                    field.name).all()
+                                                ))
                     elif type(field) is OneToOneRel or type(field) is OneToOneField:
                         object_list.append((field.related_model._meta.verbose_name or field.name,
                                             self.__getattribute__(field.name)))
@@ -147,9 +151,11 @@ class BaseMetod(models.Model):
                     elif hasattr(field, 'choices') and hasattr(self, 'get_{}_display'.format(field.name)):
                         object_list.append(
                             (
-                                (field.verbose_name if hasattr(field, 'verbose_name') else None) or field.name,
-                                getattr(self, 'get_{}_display'.format(field.name))()
-                             )
+                                (field.verbose_name if hasattr(
+                                    field, 'verbose_name') else None) or field.name,
+                                getattr(
+                                    self, 'get_{}_display'.format(field.name))()
+                            )
                         )
                     else:
                         object_list.append(
@@ -171,10 +177,10 @@ class BaseMetod(models.Model):
         template with the ``unordered_list`` filter.
 
         Encontre todos os objetos relacionados a ``objs`` que também devem ser deletados. ``objs``
-         deve ser um iterável homogêneo de objetos (por exemplo, um QuerySet).
+                  deve ser um iterável homogêneo de objetos (por exemplo, um QuerySet).
 
-         Retornar uma lista aninhada de sequências adequadas para exibição no
-         template com o filtro `` unordered_list``.
+                  Retornar uma lista aninhada de sequências adequadas para exibição no
+                  template com o filtro `` unordered_list``.
         """
         collector = NestedObjects(using=using)
         collector.collect(objs)
@@ -186,17 +192,17 @@ class BaseMetod(models.Model):
             no_edit_link = '%s: %s' % (str(opts.verbose_name).title(), obj)
 
             try:
-                url = reverse('%s:%s-update'% (
-                                  opts.app_label,
-                                  opts.model_name),
-                              None, (quote(obj.pk),))
-
+                url = reverse('%s:%s-update' % (
+                    opts.app_label,
+                    opts.model_name),
+                    None, (quote(obj.pk),))
 
             except NoReverseMatch:
                 # Change url doesn't exist -- don't display link to edit
                 return no_edit_link
 
-            p = '%s.%s' % (opts.app_label, get_permission_codename('delete', opts))
+            p = '%s.%s' % (
+                opts.app_label, get_permission_codename('delete', opts))
             if not user.has_perm(p):
                 perms_needed.add(opts.verbose_name.title())
             # Display a link to the admin page.
@@ -208,7 +214,8 @@ class BaseMetod(models.Model):
         to_delete = collector.nested(format_callback)
 
         protected = [format_callback(obj) for obj in collector.protected]
-        model_count = {model._meta.verbose_name_plural: len(objs) for model, objs in collector.model_objs.items()}
+        model_count = {model._meta.verbose_name_plural: len(
+            objs) for model, objs in collector.model_objs.items()}
 
         return perms_needed, protected
 
@@ -316,7 +323,7 @@ class ParameterForBase(Base):
     nomeProjeto = models.TextField(blank=True, null=True, default='')
     tituloProjeto = models.TextField(blank=True, null=True, default='')
     descricaoProjeto = models.TextField(blank=True, null=True, default='')
-    iconeProjeto = models.TextField(blank=True, null=True, default='')   
+    iconeProjeto = models.TextField(blank=True, null=True, default='')
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -332,6 +339,7 @@ class ParameterForBase(Base):
 
     def __str__(self):
         return "{}".format(self.nomeProjeto or self.id)
+
 
 class ParametersUser(Base):
     senha_padrao = models.CharField(verbose_name=u"Senha padrão para reset", max_length=30, default=u'password@123456',
