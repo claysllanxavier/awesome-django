@@ -1,7 +1,10 @@
+from core.forms import BaseForm
+from .models import $ModelClass$
+
 
 class $ModelClass$Form(BaseForm):
-    # TODO LEMBRE DE COMENTAR O SEU CODIGO $ModelClass$
-
+    #TODO LEMBRE DE COMENTAR O SEU CODIGO $ModelClass$
+    """ """
     class Meta:
         exclude = ['deleted', 'enabled']
         model = $ModelClass$

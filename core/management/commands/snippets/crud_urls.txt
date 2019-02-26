@@ -1,3 +1,0 @@
-from core.views import BaseListView, BaseDeleteView, BaseDetailView, BaseUpdateView, BaseCreateView
-from .models import $ModelClass$
-from .forms import $ModelClass$Form
