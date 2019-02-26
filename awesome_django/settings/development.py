@@ -21,7 +21,7 @@ DATABASES = {
     }
 }
 
-#Configurações de Email
+# Configurações de Email
 EMAIL_PORT = 1025
 
 INTERNAL_IPS = ('127.0.0.1', 'localhost',)

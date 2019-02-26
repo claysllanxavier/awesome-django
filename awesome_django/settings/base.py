@@ -18,7 +18,8 @@ from django.conf.global_settings import DATETIME_FORMAT
 env = environ.Env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LOCAL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # reading .env file
@@ -41,11 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
 
-    #Apps do Projeto
+    # Apps do Projeto
     'core',
-    'demo',
 
-    #Apps Externas
+    # Apps Externas
     'crispy_forms',
 ]
 
@@ -112,13 +112,9 @@ USE_L10N = True
 USE_TZ = True
 
 
-DATE_INPUT_FORMATS =[
-    '%d/%m/%Y',  # '25/10/2006'
-]
+DATE_INPUT_FORMATS = ['%d/%m/%Y', ]  # '25/10/2006'
 
-DATETIME_INPUT_FORMATS =[
-    "%d/%m/%Y %H:%M",  # '25/10/2006  14:30'
-]
+DATETIME_INPUT_FORMATS = ["%d/%m/%Y %H:%M", ]  # '25/10/2006  14:30'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
