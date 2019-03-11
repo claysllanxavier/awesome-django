@@ -18,7 +18,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from .settings import use_default_manager
 
-models.options.DEFAULT_NAMES += ('fk_fields_modal', 'fields_display')
+models.options.DEFAULT_NAMES += ('fk_fields_modal')
 
 
 class PaginacaoCustomizada(PageNumberPagination):

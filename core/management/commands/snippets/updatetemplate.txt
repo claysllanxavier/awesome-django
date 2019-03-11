@@ -19,10 +19,36 @@
     <div class="form-row">
         <!--REPLACE_PARSER_HTML-->
     </div>   
+{% block contentinline %}
+{{ block.super }}
+{% endblock contentinline %} 
 {% endblock contentform %}
 {% block contentmodal %}
     <!--REPLACE_MODAL_HTML-->
 {% endblock contentmodal %}
 {% block extra_js %}
     <!--REPLACE_SCRITP_MODAL_HTML-->
+{% if list_inlines %}
+    {% for formset in list_inlines %}
+ <script type="application/javascript" >
+    $(function () {
+        $('.formset-custom-template').hide();
+        $(".inline.{{ formset.prefix }}").formset({
+            formTemplate: ".inline.{{ formset.prefix }}.formset-custom-template",
+            prefix: "{{ formset.prefix }}",
+            {% if formset.model.get_meta.verbose_name %}
+                addText: 'Adicionar {{ formset.model.get_meta.verbose_name }}',
+                deleteText: 'Remover {{ formset.model.get_meta.verbose_name.title }}',
+            {% else %}
+                addText: 'Adicionar',
+                deleteText: 'Remover',
+            {% endif %}
+            deleteCssClass: 'delete-row btn btn-outline-danger',
+            addCssClass: 'add-row btn btn-primary my-2',
+            formCssClass: 'dynamic-form',
+        });
+    });
+</script>
+    {% endfor %}
+    {% endif %}
 {% endblock extra_js %}
