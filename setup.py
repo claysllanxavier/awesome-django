@@ -2,10 +2,7 @@
 
 import os
 from setuptools import find_packages, setup
-
-VERSION = "1.0.1.dev"
-AUTHOR = "Claysllan Xavier"
-AUTHOR_EMAIL = 'claysllan@gmail.com'
+import awesome_django
 
 LONG_DESCRIPTION = """
 Projeto padrão para os meus projetos que serão desenvolvidos com o Django.
@@ -20,15 +17,15 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-smart',
-    version=VERSION,
+    version=awesome_django.__version__,
     packages=find_packages(),
     include_package_data=True,
-    license='MIT License',
+    license=awesome_django.__license__,
     description='It is a Django app to generate forms, templates, Api Rest and views for apps of your project.',
     long_description=LONG_DESCRIPTION,
-    url='https://github.com/claysllanxavier/awesome-django.git',
-    author=AUTHOR,
-    author_email=AUTHOR_EMAIL,
+    url=awesome_django.__url__,
+    author=awesome_django.__author__,
+    author_email=awesome_django.__email__,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         'Environment :: Web Environment',
