@@ -16,6 +16,7 @@ django-crispy-forms = "*"
 djangorestframework = "*"
 requests = "*"
 django-environ = "*"
+django-filter = "*"
 
 [requires]
 python_version = "3.6"
