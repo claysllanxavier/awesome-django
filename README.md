@@ -74,7 +74,7 @@ After this procedure add your app in the main urls of your project:
 ```python
     urlpatterns = [
         # other urls
-        path('core/<your_app>', include('<your_app>.urls'), name='<your_app>'),
+        path('', include('<your_app>.urls'), name='<your_app>'),
     ]
 ```
 Run
@@ -95,5 +95,6 @@ Visit http://127.0.0.1:8000/core/ to list the apps installed in your project.
 ## Built With
 
 * [Django](https://www.djangoproject.com/) - The high-level Python Web framework that encourages rapid development and clean, pragmatic design.
-* [Bootstrap 4](https://getbootstrap.com/) - The open source toolkit for developing with HTML, CSS, and JS. 
+* [Bootstrap 4](https://getbootstrap.com/) - The open source toolkit for developing with HTML, CSS, and JS.
+* [Boilerplate Manager](https://github.com/agencia-tecnologia-palmas/boilerplate-manager) - Base project
   
