@@ -719,25 +719,23 @@ class Command(BaseCommand):
                     arquivo.write(content)
                 return
 
-            if self._check_content(
+            elif self._check_content(
                     self.path_urls, " {}ListView".format(self.model)):
                 # Já existe configuração de URL para a APP saindo da função
                 self._message("O model informado já possui urls configuradas.")
                 return
 
-            if self._check_content(self.path_urls, "urlpatterns = ["):
+            elif self._check_content(self.path_urls, "urls = ["):
                 # Verificando se no arquivo já existe uma configuração da URL
                 content = content.replace(
-                    "urlpatterns = [", "urlpatterns += [")
+                    "urls = [", "urls += [")
                 # retira 4 espaços e o \n para não ficar com quebra de linha
                 # dentro das urls
-                content = content.replace(
-                    "path('api/', include(router.urls)),\n    ", '')
                 content = content.replace(
                     "path('', IndexTemplateView.as_view("
                     "extra_context={'app_name':app_name}),"
                     " name='index-app'),\n    ", '')
-
+            
             # Verificando se o arquivo já possui o app_name configurado
             if self._check_content(
                     self.path_urls, "app_name = \'{}\'".format(self.app)):
@@ -745,15 +743,28 @@ class Command(BaseCommand):
                 content = content.replace(
                     "app_name = \'{}\'".format(self.app), "")
 
-            # Atualizando o conteúdo do arquivo.
-            with open(self.path_urls, 'a') as urls:
-                urls.write(content)
+            if self._check_content(self.path_urls, "urlpatterns = ["):
+                # Remove o urlpatters para não ficar duplicado
+                content = content.splitlines()[:-4]
+                content = str.join('\n', content)
+                with fileinput.FileInput(
+                        self.path_urls, inplace=True) as arquivo:
+                    for line in arquivo:
+                        print(line.replace(
+                            'urlpatterns = [', content +
+                            '\n' + 'urlpatterns = ['),
+                            end='')
+            else:
+                # Atualizando o conteúdo do arquivo.
+                with open(self.path_urls, 'a') as urls:
+                    urls.write(content)
             os.system(
                 'autopep8 --in-place --aggressive --aggressive {}'
                 .format(self.path_views))
             os.system('isort {}'.format(self.path_views))
 
-        except:
+        except Exception as e:
+            print(e)
             self._message(
                 "OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO urls.py sofreu"
                 "alguma alteração")
