@@ -15,6 +15,7 @@ from django.dispatch import receiver
 from django.urls import NoReverseMatch, reverse
 from django.utils.html import format_html
 from rest_framework.pagination import PageNumberPagination
+from django.utils import timezone
 
 from .settings import use_default_manager
 
@@ -36,9 +37,11 @@ class PaginacaoCustomizada(PageNumberPagination):
 class BaseManager(models.Manager):
     """Sobrescrevendo o Manager padrão. Nesse Manager 
     os registros não são apagados do banco de dados
-    apenas desativados, atribuindo ao campo deleted = True e
-    enabled = True
+    apenas desativados, atribuindo ao campo deleted a data de deleção
     """
+    def __init__(self, *args, **kwargs):
+        self.alive_only = kwargs.pop('alive_only', True)
+        super(BaseManager, self).__init__(*args, **kwargs)
 
     def get_queryset(self):
         """Sobrescrevendo a queryset para filtrar os 
@@ -50,8 +53,9 @@ class BaseManager(models.Manager):
                 ((hasattr(self.model, 'Meta') and hasattr(self.model.Meta, 'ordering') and self.model.Meta.ordering))):
             queryset = queryset.order_by(
                 *(self.model._meta.ordering or self.model.Meta.ordering))
-
-        return queryset.filter(deleted=False)
+        if self.alive_only:
+            return queryset.filter(deleted_on=None)
+        return queryset.exclide(deleted_on=None)
 
 
 class BaseMetod(models.Model):
@@ -62,15 +66,9 @@ class BaseMetod(models.Model):
                  mesmo que o use_default_manager esteja como True]
     """
 
-    # Verificação se deve ser usado o manager padrão ou o customizado
-    if use_default_manager is False:
-        objects = BaseManager()
-    else:
-        objects = models.Manager()
-
-    # Manager auxiliar para retornar todos os registro indepentende
-    # da configuraçao do use_default_manager
-    objects_all = models.Manager()
+    objects = BaseManager()
+    # Manager auxiliar para retornar os objetos deletados
+    objects_deads = BaseManager(alive_only=False)
 
     def get_all_related_fields(self, view=None, include_many_to_many=True):
         """Método para retornar todos os campos que fazem referência ao
@@ -221,28 +219,26 @@ class BaseMetod(models.Model):
 
     def delete(self, using='default', keep_parents=False):
         """Sobrescrevendo o método para marcar os campos
-        deleted como True e enabled como False. Assim o
+        deleted com a data da deleção. Assim o
         item não é excluído do banco de dados.
         """
-        # Verificando se deve ser utilizado o manager costumizado
-        if use_default_manager is False:
 
-            # Iniciando uma transação para garantir a integridade dos dados
-            with transaction.atomic():
+        # Iniciando uma transação para garantir a integridade dos dados
+        with transaction.atomic():
 
-                # Recuperando as listas com os campos do objeto
-                object_list, many_fields = self.get_all_related_fields()
+            # Recuperando as listas com os campos do objeto
+            object_list, many_fields = self.get_all_related_fields()
 
-                # Percorrendo todos os campos que possuem relacionamento com o objeto
-                for obj, values in many_fields:
-                    if values.all():
-                        values.all().update(deleted=True, enabled=False)
-                # Atualizando o registro
-                self.deleted = True
-                self.enabled = False
-                self.save(update_fields=['deleted', 'enabled'])
-        else:
-            super().delete()
+            # Percorrendo todos os campos que possuem relacionamento do objeto
+            for obj, values in many_fields:
+                if values.all():
+                    values.all().update(deleted_on=timezone.now())
+            # Atualizando o registro
+            self.deleted_at = timezone.now()
+            self.save(update_fields=['deleted_on'])
+
+    def hard_delete(self):
+        super().delete()
 
     class Meta:
         """ Configure abstract class """
@@ -250,7 +246,7 @@ class BaseMetod(models.Model):
         ordering = ['pk']
 
     def get_exclude_hidden_fields(self):
-        return ['enabled', 'deleted', 'created_on', 'updated_on']
+        return ['deleted_on', 'created_on', 'updated_on']
 
     def get_meta(self):
         return self._meta
@@ -305,8 +301,7 @@ class BaseMetod(models.Model):
 
 
 class Base(BaseMetod):
-    enabled = models.BooleanField('Ativo', default=True)
-    deleted = models.BooleanField(default=False)
+    deleted_on = models.BooleanField(default=False)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
