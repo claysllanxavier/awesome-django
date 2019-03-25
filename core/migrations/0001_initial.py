@@ -15,8 +15,7 @@ class Migration(migrations.Migration):
             name='ParameterForBase',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('enabled', models.BooleanField(default=True, verbose_name='Ativo')),
-                ('deleted', models.BooleanField(default=False)),
+                ('deleted_on', models.DateTimeField(blank=True, null=True)),
                 ('created_on', models.DateTimeField(auto_now_add=True)),
                 ('updated_on', models.DateTimeField(auto_now=True)),
                 ('nomeProjeto', models.TextField(blank=True, default='', null=True)),

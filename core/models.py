@@ -301,9 +301,9 @@ class BaseMetod(models.Model):
 
 
 class Base(BaseMetod):
-    deleted_on = models.BooleanField(default=False)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
+    deleted_on = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         """ Configure abstract class """

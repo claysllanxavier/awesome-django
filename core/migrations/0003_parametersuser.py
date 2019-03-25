@@ -14,8 +14,7 @@ class Migration(migrations.Migration):
             name='ParametersUser',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('enabled', models.BooleanField(default=True, verbose_name='Ativo')),
-                ('deleted', models.BooleanField(default=False)),
+                ('deleted_on', models.DateTimeField(blank=True, null=True)),
                 ('created_on', models.DateTimeField(auto_now_add=True)),
                 ('updated_on', models.DateTimeField(auto_now=True)),
                 ('senha_padrao', models.CharField(default='password@123456', help_text='Senha padrão que sera criada quando resetar senha do usuario', max_length=30, verbose_name='Senha padrão para reset')),

@@ -923,8 +923,7 @@ class Command(BaseCommand):
             # Percorrendo os campos/atributos do models
             for field in iter(model._meta.fields):
                 if str(field).split('.')[2] not in ('updated_on', 'created_on',
-                                                    'deleted', 'enabled',
-                                                    'id'):
+                                                    'deleted_on', 'id'):
                     html_tag += self._render_input(field)
             if html_tag is not '':
                 # Pegando os templates do Model informado
