@@ -5,9 +5,3 @@ class $ModelName$ViewAPI(ModelViewSet):
     """ """
     queryset = $ModelName$.objects.all()
     serializer_class = $ModelName$Serializer
-
-    @action(methods=['post'], detail=False)
-    def validate(self, request, format=None):
-        serializer = $ModelName$Serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            return Response(serializer.data, status=status.HTTP_200_OK)
