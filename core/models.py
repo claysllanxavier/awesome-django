@@ -9,15 +9,14 @@ from django.contrib.contenttypes.fields import (GenericForeignKey, GenericRel,
 from django.db import models, transaction
 from django.db.models import (AutoField, BooleanField, FileField, ImageField,
                               ManyToManyField, ManyToManyRel, ManyToOneRel,
-                              OneToOneField, OneToOneRel)
+                              OneToOneField, OneToOneRel, DateField)
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import NoReverseMatch, reverse
 from django.utils.html import format_html
 from rest_framework.pagination import PageNumberPagination
 from django.utils import timezone
-
-from .settings import use_default_manager
+import datetime
 
 models.options.DEFAULT_NAMES += ('fk_fields_modal',)
 
@@ -55,7 +54,7 @@ class BaseManager(models.Manager):
                 *(self.model._meta.ordering or self.model.Meta.ordering))
         if self.alive_only:
             return queryset.filter(deleted_on=None)
-        return queryset.exclide(deleted_on=None)
+        return queryset.exclude(deleted_on=None)
 
 
 class BaseMetod(models.Model):
@@ -131,7 +130,12 @@ class BaseMetod(models.Model):
                     elif type(field) is BooleanField:
                         object_list.append(
                             ((field.verbose_name if hasattr(field, 'verbose_name') else None) or field.name,
-                             "Sim" if self.__getattribute__(field.name) else "Nâo"))
+                             "Sim" if self.__getattribute__(field.name) else None))
+                    elif type(field) is DateField:
+                        object_list.append(
+                            ((field.verbose_name if hasattr(field, 'verbose_name') else None) or field.name,
+                            self.__getattribute__(field.name).strftime("%d/%m/%Y")
+                            if self.__getattribute__(field.name) else "Nâo"))
                     elif type(field) is ImageField or type(field) is FileField:
                         tag = ''
                         if self.__getattribute__(field.name).name:
@@ -234,7 +238,7 @@ class BaseMetod(models.Model):
                 if values.all():
                     values.all().update(deleted_on=timezone.now())
             # Atualizando o registro
-            self.deleted_at = timezone.now()
+            self.deleted_on = timezone.now()
             self.save(update_fields=['deleted_on'])
 
     def hard_delete(self):
