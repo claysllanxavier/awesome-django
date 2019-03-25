@@ -39,5 +39,15 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+    ],
+    install_requires=[
+        "django",
+        "django-cors-headers",
+        "django-crispy-forms",
+        "djangorestframework",
+        "requests",
+        "django-environ",
+        "django-filter",
+        "django-rest-auth",
     ]
 )
