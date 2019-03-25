@@ -636,7 +636,7 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """
 
     model = Base
-    exclude = ['deleted', 'enabled']
+    exclude = ['deleted_on']
     template_name_suffix = '_detail'
 
     def get_template_names(self):

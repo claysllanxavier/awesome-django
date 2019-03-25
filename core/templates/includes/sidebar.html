@@ -9,7 +9,10 @@
 			<div class="sidebar-menu">
 				<ul id="accordion-menu">
 					<li>
-						<a href="{% url 'core:index' %}" class="dropdown-toggle no-arrow">
+						<a href="{% url 'core:index'%}" 
+						class="dropdown-toggle no-arrow
+						{% if request.resolver_match.url_name == 'index' or request.resolver_match.url_name == 'index-app' %}
+						active{% endif %}">
 							<span class="fa fa-home"></span><span class="mtext">Início</span>
 						</a>
 					</li>
@@ -21,7 +24,10 @@
 						</a>
 						<ul class="submenu">
 						 {% for app_model in app.models_app %}
-							<li><a href="{% url app_model.url_list_model %}">{{ app_model.name_model }}</a></li>
+							<li>
+								<a class="{% if app_model.url_list_model == url_list %} active {% endif %}" 
+								href="{% url app_model.url_list_model %}">{{ app_model.name_model }}</a>
+							</li>
 						{% endfor %}
 						</ul>
 					</li>
