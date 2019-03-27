@@ -353,3 +353,53 @@ class ParametersUser(Base):
         permissions = (
             ("can_reset_password", u"Pode resetar a senha"),
         )
+
+
+class NotificationBase(models.Model):
+    """
+    Model responsavel para o sistema de notificações
+    """
+    CHOICES = (
+        ('info', 'Info'),
+        ('success', 'Success'),
+        ('warning', 'Warning'),
+        ('danger', 'Danger')
+    )
+    remetente = models.ForeignKey(User, verbose_name=u"Remetente", blank=True, null=True,
+                                  related_name='notificationbase_remetente', on_delete=models.CASCADE)
+    remetente_string = models.CharField(u"Remetente Descrição", max_length=60, null=True, blank=True)
+    destinatario = models.ForeignKey(User, verbose_name=u"Destinatário",
+                                     related_name='notificationbase_destinatario', on_delete=models.CASCADE)
+    titulo = models.CharField(u"Título", max_length=30, null=True, blank=True)
+    mensagem = models.TextField(u"Mensagem")
+    url = models.CharField(u"View name URL", max_length=60)
+    parametro = models.CharField(u"Parametro URL", max_length=20, null=True, blank=True)
+    parametro_get = models.CharField(u"Parametro GET", max_length=60, null=True, blank=True)
+    visualizado = models.BooleanField(u"Visualizado", default=False, db_index=True)
+    data_envio = models.DateTimeField(u"Data de envio", auto_now_add=True)
+    tipo = models.CharField(u"Tipo", choices=CHOICES, max_length=10, default=CHOICES[0][0])
+
+    def __str__(self):
+        return u"Notificação nº%s - %s" % (self.id, self.data_envio.strftime("%d/%m/%Y %H:%M:%S"))
+
+    def data_envio_f(self):
+        return self.data_envio.strftime("%d/%m/%Y %H:%M:%S")
+
+    def get_url(self):
+        url = self.url
+        try:
+            if url and self.parametro:
+                try:
+                    return reverse(url, args=self.parametro)
+                except Exception:
+                    return reverse(url, kwargs={'pk':self.parametro})
+            elif url:
+                return reverse(url)
+        except Exception:
+            pass
+        return '#'
+
+    class Meta:
+        verbose_name = "notificação"
+        verbose_name_plural = "notificações"
+        ordering = ['-data_envio']

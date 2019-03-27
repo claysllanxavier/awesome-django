@@ -1,0 +1,46 @@
+{% load static %}
+
+<div class="user-notification">
+    <div class="dropdown">
+        <a class="dropdown-toggle no-arrow" href="#" role="button" data-toggle="dropdown">
+            <i class="fa fa-bell" aria-hidden="true"></i>
+            {% if notifications %}
+            <span class="badge notification-active"></span>
+            {% endif %}
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+            <div class="notification-list mx-h-350 customscroll">
+                <ul>
+                    {% if notifications %}
+                    {% for notification in notifications %}
+                    {% if forloop.counter0 < 5 %}
+                        <li>
+                            <a href="{{ notification.get_url|default_if_none:'#' }}">
+                                <h3 class="clearfix">{{ notification.titulo|default_if_none:'' }} 
+                                    <span>{{ notification.data_envio_f|default_if_none:'' }}</span>
+                                </h3>
+                                <p>{{ notification.mensagem|default_if_none:'' }}</p>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% endfor %}
+                    <li class="dropdown-divider"></li>
+                    <li>
+                    <a class="small" href="{% url 'core:notificationbase-list'%}">
+                        <p class="text-muted font-weight-bold" style="font-size: 0.875rem">Ver Todas</p>
+                    </a>
+                    </li>
+                    {% else %}
+                        <li>
+                            <a class="small" href="#">
+                                <p class="text-muted m-3" style="font-size: 0.875rem">
+                                        <i class="fa fa-check"></i>
+                                        Sem Notificações</p>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

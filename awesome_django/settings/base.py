@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
     'crispy_forms',
-
+    
     # Local Apps
     'core',
 

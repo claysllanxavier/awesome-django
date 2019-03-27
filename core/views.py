@@ -5,12 +5,14 @@ as customizações implementadas.
 # import the logging library
 import logging
 from datetime import date, datetime
+from functools import wraps
 from unicodedata import normalize
 
 import pytz
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin)
 from django.contrib.auth.views import (LoginView, LogoutView,
@@ -19,13 +21,15 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import (FieldDoesNotExist, FieldError,
                                     ValidationError)
+from django.core.paginator import Paginator
 from django.db.models import DateField, DateTimeField, ForeignKey, Q
 from django.db.models.fields import BooleanField as BooleanFieldModel
 from django.db.models.fields.related_descriptors import (ForwardManyToOneDescriptor,
                                                          ManyToManyDescriptor)
 from django.db.models.query_utils import DeferredAttribute
 from django.forms.fields import DateTimeField
-from django.shortcuts import redirect, resolve_url
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, render, resolve_url
 from django.urls import reverse
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
@@ -33,7 +37,7 @@ from django.utils.text import camel_case_to_spaces
 from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from core.models import BaseMetod, ParameterForBase
+from core.models import BaseMetod, NotificationBase, ParameterForBase
 
 from .forms import BaseForm
 from .models import Base
@@ -123,6 +127,23 @@ def get_apps(context_self):
                 _apps.append({'name_app': '%s' % app.name,'verbose_name_app': '%s' % app.verbose_name, 'icon_app': icon, 'models_app': _models})
     return _apps
 
+
+def get_notifications(context_self):
+    # pega a view name que o usuario está acessando
+    url_view_name = context_self.request.resolver_match.view_name
+    url_paremeter_kwargs = context_self.request.resolver_match.kwargs
+    url_paremeter_args = context_self.request.resolver_match.args
+
+    # aqui marca como lida as notificações não visualizadas em que tiverem essa view name que o ususario está acessando
+    notificacoes = NotificationBase.objects.filter(destinatario=context_self.request.user).filter(visualizado=False).filter(url=url_view_name)
+    if url_paremeter_kwargs or url_paremeter_args:
+        notificacoes.filter(Q(Q(parametro=url_paremeter_kwargs['pk']) | Q(parametro=url_paremeter_args)))
+    notificacoes.update(visualizado=True)
+
+    # retorna a lista de Notificações não visualizadas para aparecer no icone de alerta
+    return NotificationBase.objects.filter(destinatario=context_self.request.user).filter(visualizado=False)
+
+
 class BaseTemplateView(TemplateView):
     """
     Classe base que deve ser herdada caso o desenvolvedor queira reaproveitar
@@ -142,6 +163,7 @@ class BaseTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(BaseTemplateView, self).get_context_data(**kwargs)
         context['apps'] = get_apps(self)
+        context['notifications'] = get_notifications(self)
         return context
 
 
@@ -608,6 +630,7 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
             context['model_name'] = '%s' % (self.model._meta.verbose_name_plural or self.model._meta.object_name).title()
             context['apps'] = get_apps(self)
+            context['notifications'] = get_notifications(self)
 
             context['has_add_permission'] = self.model().has_add_permission(self.request)
             context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -687,6 +710,7 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         context['model_name'] = '%s' % (
                     self.model._meta.verbose_name or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
+        context['notifications'] = get_notifications(self)
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -805,6 +829,7 @@ class BaseUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         context['model_name'] = '%s' % (
                     self.model._meta.verbose_name_plural or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
+        context['notifications'] = get_notifications(self)
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -1020,6 +1045,7 @@ class BaseCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         context['model_name'] = '%s' % (
                     self.model._meta.verbose_name_plural or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
+        context['notifications'] = get_notifications(self)
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -1188,6 +1214,7 @@ class BaseDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         context['model_name'] = '%s' % (
                 self.model._meta.verbose_name_plural or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
+        context['notifications'] = get_notifications(self)
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -1243,3 +1270,56 @@ class BasePasswordResetCompleteView(PasswordResetCompleteView):
         context['parameter'] = parametro
         context['login_url'] = resolve_url(settings.LOGIN_URL)
         return context
+
+class NotificationListView(BaseTemplateView):
+    model = NotificationBase
+    template_name = 'outside_template/notification/notification_list.html'
+    paginate_by = 10
+
+    def has_permission(self):
+        """
+        Verifica se ele tem permissão de acessar as Notificações
+        """
+        return (self.request.user and self.request.user.is_authenticated and self.request.user.is_active and self.request.user.is_staff)
+
+
+    def get_context_data(self, **kwargs):
+        context = super(NotificationListView, self).get_context_data(**kwargs)
+        context['apps'] = get_apps(self)
+        context['notifications'] = get_notifications(self)
+
+        context['id_tab'] = self.request.GET.get('id_tab')
+
+        # Paginacao para os ja vistos
+        reads_paginator = Paginator(NotificationBase.objects.filter(visualizado=True, destinatario=self.request.user), self.paginate_by)
+        page_kwarg = 'notifications_reads-page'
+        reads_page = self.kwargs.get(page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        notifications_reads = reads_paginator.get_page(reads_page)
+        context['notifications_reads'] = notifications_reads
+
+        # Paginacao para os não vistos
+        not_reads_paginator = Paginator(NotificationBase.objects.filter(visualizado=False, destinatario=self.request.user), self.paginate_by)
+        page_kwarg = 'notifications_not_reads-page'
+        not_reads_page = self.kwargs.get(page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        notifications_not_reads = not_reads_paginator.get_page(not_reads_page)
+        context['notifications_not_reads'] = notifications_not_reads
+
+
+        return context
+
+
+@login_required
+def marcar_vistos(request):
+    try:
+        if request.method == 'POST':
+            retorno = "Erro ao tentar executar a ação!"
+            chk_noti_ids = request.POST.getlist('chk_noti_ids[]')
+            if chk_noti_ids:
+                # coloquei o destinatario=self.request.user só para ter certeza que não vai alterar de outras pessoas.
+                NotificationBase.objects.filter(destinatario=request.user).filter(id__in=chk_noti_ids).update(visualizado=True)
+                retorno = "Todas as %s Notificações selecionadas foram marcadas como visualisadas" % len(chk_noti_ids)
+
+            return HttpResponse(retorno)
+    except Exception as e:
+        return HttpResponse("Erro ao tentar executar a ação!")
+    return render(request)

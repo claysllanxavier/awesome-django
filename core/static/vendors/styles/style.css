@@ -792,11 +792,16 @@ textarea.form-control {
 .notification-list ul li a {
   display: block;
   position: relative;
-  padding: 10px 15px 10px 75px;
+  padding: 10px 15px 10px 15px;
   min-height: 75px;
   color: #33484f;
   font-size: 15px;
   font-family: 'Work Sans', sans-serif; }
+  
+.notification-list ul li a.small {
+  min-height: 15px;
+  text-align: center;
+}
 
 .notification-list ul li a img {
   width: 50px;

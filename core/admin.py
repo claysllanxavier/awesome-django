@@ -5,8 +5,8 @@ from django.contrib import admin, messages
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 
-from core.forms import ParameterForBaseForm,ParametersUserForm
-from core.models import ParameterForBase, ParametersUser
+from core.forms import ParameterForBaseForm, ParametersUserForm
+from core.models import ParameterForBase, ParametersUser, NotificationBase
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
@@ -109,10 +109,12 @@ class UserCoreAdmin(BaseUserAdmin):
             pass
 
 
-
+class NotificationBaseAdmin(admin.ModelAdmin):
+    list_display = ('remetente', 'remetente_string', 'destinatario',  'titulo', 'mensagem', 'url', 'parametro',  'parametro_get', 'visualizado', 'data_envio', 'tipo')
 
 admin.site.unregister(User)
 admin.site.register(User, UserCoreAdmin)
 
 admin.site.register(ParameterForBase, ParametroAdmin)
 admin.site.register(ParametersUser, ParametersUserAdmin)
+# admin.site.register(NotificationBase,NotificationBaseAdmin)
