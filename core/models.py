@@ -322,7 +322,7 @@ class ParameterForBase(Base):
     nomeProjeto = models.TextField(blank=True, null=True, default='')
     tituloProjeto = models.TextField(blank=True, null=True, default='')
     descricaoProjeto = models.TextField(blank=True, null=True, default='')
-    iconeProjeto = models.TextField(blank=True, null=True, default='')
+    iconeProjeto = models.ImageField(upload_to='images/', blank=True, null=True)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):

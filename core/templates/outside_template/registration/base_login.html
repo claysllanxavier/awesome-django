@@ -27,7 +27,10 @@
 <body>
     <div class="login-wrap customscroll d-flex align-items-center flex-wrap justify-content-center pd-20">
         <div class="login-box bg-white box-shadow pd-30 border-radius-5">
-            <img src="https://deskapp-dashboard.herokuapp.com/vendors/images/login-img.png" alt="login" class="login-img">
+            
+            {% if parameter.iconeProjeto %}
+                <img src="{{ parameter.iconeProjeto.url }}" alt="login" class="login-img">
+            {% endif %}
             {% block container %}
             <h5 class="text-center mb-30">Entre para iniciar uma nova sessão</h5>
             <div class="row mt-3 pl-3 pr-3 d-block">

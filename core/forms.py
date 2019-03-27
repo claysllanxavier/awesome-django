@@ -79,7 +79,7 @@ class BaseForm(forms.ModelForm):
 class ParameterForBaseForm(BaseForm):
     class Meta:
         model = ParameterForBase
-        fields = '__all__'
+        exclude = ['deleted_on']
 
 
 class BasePasswordResetForm(PasswordResetForm):

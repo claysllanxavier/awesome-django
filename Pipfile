@@ -18,6 +18,7 @@ requests = "*"
 django-environ = "*"
 django-filter = "*"
 django-rest-auth = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.6"

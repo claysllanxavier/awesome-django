@@ -5,7 +5,7 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8">
-    <title>{% block title %}Nome Sistema{% endblock title %}</title>
+    <title>{% block title %}{{ parameter.tituloProjeto|default:'Nome do Sistema' }}{% endblock title %}</title>
 
     <!-- Site favicon -->
     <!-- <link rel="shortcut icon" href="images/favicon.ico"> -->
@@ -43,7 +43,7 @@
                     <div class="row">
                         <div class="col-md-6 col-sm-12">
                             <div class="title">
-                                <h3>{% block titulo_template %}Home{% endblock titulo_template %}</h3>
+                                <h3>{% block titulo_template %}Início{% endblock titulo_template %}</h3>
                             </div>
                             <nav aria-label="breadcrumb" role="navigation">
                                 {% block breadcrumb %}

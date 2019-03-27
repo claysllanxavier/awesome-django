@@ -164,6 +164,7 @@ class BaseTemplateView(TemplateView):
         context = super(BaseTemplateView, self).get_context_data(**kwargs)
         context['apps'] = get_apps(self)
         context['notifications'] = get_notifications(self)
+        context['parameter'] = ParameterForBase.objects.first
         return context
 
 
@@ -631,6 +632,7 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             context['model_name'] = '%s' % (self.model._meta.verbose_name_plural or self.model._meta.object_name).title()
             context['apps'] = get_apps(self)
             context['notifications'] = get_notifications(self)
+            context['parameter'] = ParameterForBase.objects.first
 
             context['has_add_permission'] = self.model().has_add_permission(self.request)
             context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -711,6 +713,7 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
                     self.model._meta.verbose_name or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
         context['notifications'] = get_notifications(self)
+        context['parameter'] = ParameterForBase.objects.first
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -830,6 +833,7 @@ class BaseUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
                     self.model._meta.verbose_name_plural or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
         context['notifications'] = get_notifications(self)
+        context['parameter'] = ParameterForBase.objects.first
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -1046,6 +1050,7 @@ class BaseCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
                     self.model._meta.verbose_name_plural or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
         context['notifications'] = get_notifications(self)
+        context['parameter'] = ParameterForBase.objects.first
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -1215,6 +1220,7 @@ class BaseDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
                 self.model._meta.verbose_name_plural or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
         context['notifications'] = get_notifications(self)
+        context['parameter'] = ParameterForBase.objects.first
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -1287,6 +1293,7 @@ class NotificationListView(BaseTemplateView):
         context = super(NotificationListView, self).get_context_data(**kwargs)
         context['apps'] = get_apps(self)
         context['notifications'] = get_notifications(self)
+        context['parameter'] = ParameterForBase.objects.first
 
         context['id_tab'] = self.request.GET.get('id_tab')
 

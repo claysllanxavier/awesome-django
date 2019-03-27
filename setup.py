@@ -49,5 +49,6 @@ setup(
         "django-environ",
         "django-filter",
         "django-rest-auth",
+        "pillow"
     ]
 )

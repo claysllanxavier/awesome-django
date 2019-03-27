@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('nomeProjeto', models.TextField(blank=True, default='', null=True)),
                 ('tituloProjeto', models.TextField(blank=True, default='', null=True)),
                 ('descricaoProjeto', models.TextField(blank=True, default='', null=True)),
-                ('iconeProjeto', models.TextField(blank=True, default='', null=True)),
+                ('iconeProjeto', models.ImageField(blank=True, null=True, upload_to='images/')),
             ],
             options={
                 'verbose_name': 'Parametro para o Core',
