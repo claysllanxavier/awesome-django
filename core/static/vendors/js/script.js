@@ -3,6 +3,7 @@ jQuery(window).on("load",function() {
 	jQuery(".pre-loader").fadeToggle("medium");	
 });
 jQuery(document).ready(function(){
+	$.fn.modal.Constructor.prototype.enforceFocus = function() {};
 	"use strict";
 	// Background Image
 	jQuery(".bg_img").each( function ( i, elem ) {
@@ -46,7 +47,8 @@ jQuery(document).ready(function(){
 		}
 	}
 	// custom select 2 init
-	$(".select").not(".inline.dynamic-form .select").select2();
+	$(".select").not(".inline.dynamic-form .select")
+				.select2();
 
 	//custom dates
 	$('.datefield').mask('00/00/0000');

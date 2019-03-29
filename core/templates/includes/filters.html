@@ -61,7 +61,7 @@
 
 {#                       else trata apena os tipos que NÃO são data#}
                         {% else %}
-                            <select class="form-control" name="{{ key_filter }}" id="id_{{ key_filter }}" onchange="this.form.submit();">
+                            <select class="form-control select" name="{{ key_filter }}" id="id_{{ key_filter }}" onchange="this.form.submit();">
                                 <option value="None">Selecione</option>
                                 {% for item in value_filter.list %}
                                     <!-- O Filtro é uma ForeingKey -->

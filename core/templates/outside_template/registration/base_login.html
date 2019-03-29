@@ -68,7 +68,7 @@
                 {% csrf_token %}
                 <div class="input-group custom input-group-lg">
                     <input name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" value="{% if form.username.value is not None %}{{ form.username.value }}{% endif %}"
-                        type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" placeholder="Username"
+                        type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" placeholder="Login"
                         required>
                     <div class="input-group-append custom">
                         <span class="input-group-text"><i class="fa fa-user" aria-hidden="true"></i></span>
