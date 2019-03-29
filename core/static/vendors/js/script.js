@@ -3,7 +3,7 @@ jQuery(window).on("load",function() {
 	jQuery(".pre-loader").fadeToggle("medium");	
 });
 jQuery(document).ready(function(){
-	$.fn.modal.Constructor.prototype.enforceFocus = function() {};
+	$.fn.modal.Constructor.prototype._enforceFocus = function() {};
 	"use strict";
 	// Background Image
 	jQuery(".bg_img").each( function ( i, elem ) {
@@ -47,7 +47,7 @@ jQuery(document).ready(function(){
 		}
 	}
 	// custom select 2 init
-	$(".select").not(".inline.dynamic-form .select")
+	$(".select").not(".inline .select")
 				.select2();
 
 	//custom dates
@@ -261,3 +261,8 @@ function CopyToClipboard(value, showNotification, notificationText) {
         $(item).siblings('div.active').removeClass('active');
         $(item).addClass('active');
 	});
+
+$(document).on({
+    ajaxStart: function() { jQuery(".pre-loader").fadeToggle("medium");    },
+     ajaxStop: function() { jQuery(".pre-loader").fadeToggle("medium"); }    
+});

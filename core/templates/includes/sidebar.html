@@ -16,6 +16,8 @@
 							<span class="fa fa-home"></span><span class="mtext">Início</span>
 						</a>
 					</li>
+					
+					{% block itens_menu %}
 					{% for app in apps %}
 					<li class="dropdown">
 						<a href="javascript:;" class="dropdown-toggle">
@@ -32,6 +34,7 @@
 						</ul>
 					</li>
 					{% endfor %}
+					{% endblock itens_menu %}
 				</ul>
 			</div>
 		</div>
