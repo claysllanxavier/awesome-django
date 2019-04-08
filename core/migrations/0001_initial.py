@@ -22,6 +22,9 @@ class Migration(migrations.Migration):
                 ('tituloProjeto', models.TextField(blank=True, default='', null=True)),
                 ('descricaoProjeto', models.TextField(blank=True, default='', null=True)),
                 ('iconeProjeto', models.ImageField(blank=True, null=True, upload_to='images/')),
+                ('login_redirect_url', models.CharField(max_length=250, blank=True, null=True, default='/core/')),
+                ('login_url', models.CharField(max_length=250, blank=True, null=True, default='/core/login/')),
+                ('logout_redirect_url', models.CharField(max_length=250, blank=True, null=True, default='/core/login/')),
             ],
             options={
                 'verbose_name': 'Parametro para o Core',

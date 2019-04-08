@@ -323,6 +323,12 @@ class ParameterForBase(Base):
     tituloProjeto = models.TextField(blank=True, null=True, default='')
     descricaoProjeto = models.TextField(blank=True, null=True, default='')
     iconeProjeto = models.ImageField(upload_to='images/', blank=True, null=True)
+    login_redirect_url = models.CharField(
+        max_length=250, blank=True, null=True, default='/core/')
+    login_url = models.CharField(
+        max_length=250, blank=True, null=True, default='/core/login/')
+    logout_redirect_url = models.CharField(
+        max_length=250, blank=True, null=True, default='/core/login/')
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):

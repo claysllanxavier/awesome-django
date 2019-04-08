@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'awesome_django.wsgi.application'
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
-LANGUAGE_CODE = 'pt-BR'
+LANGUAGE_CODE = 'pt-br'
 
 TIME_ZONE = 'America/Araguaina'
 

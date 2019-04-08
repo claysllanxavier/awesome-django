@@ -1236,16 +1236,19 @@ class BaseLoginView(LoginView):
     
     def get_success_url(self):
         url = self.get_redirect_url()
-        return url or resolve_url(settings.LOGIN_REDIRECT_URL)
+        parametro = ParameterForBase.objects.first()
+        return url or resolve_url(parametro.login_redirect_url or settings.LOGIN_REDIRECT_URL)
+
 
 
 class BaseLogoutView(LogoutView):
 
     def get_next_page(self):
+        parametro = ParameterForBase.objects.first()
         if self.next_page is not None:
             next_page = resolve_url(self.next_page)
-        elif settings.LOGOUT_REDIRECT_URL:
-            next_page = resolve_url(settings.LOGOUT_REDIRECT_URL)
+        elif (parametro and parametro.logout_redirect_url) or settings.LOGOUT_REDIRECT_URL:
+            next_page = resolve_url(parametro.logout_redirect_url or settings.LOGOUT_REDIRECT_URL)
         else:
             next_page = self.next_page
 
@@ -1274,7 +1277,7 @@ class BasePasswordResetCompleteView(PasswordResetCompleteView):
         context = super().get_context_data(**kwargs)
         parametro = ParameterForBase.objects.first()
         context['parameter'] = parametro
-        context['login_url'] = resolve_url(settings.LOGIN_URL)
+        context['login_url'] = resolve_url(parametro.login_url or settings.LOGIN_URL)
         return context
 
 class NotificationListView(BaseTemplateView):
@@ -1330,3 +1333,7 @@ def marcar_vistos(request):
     except Exception as e:
         return HttpResponse("Erro ao tentar executar a ação!")
     return render(request)
+
+
+class HomePageView(TemplateView):
+    template_name = 'outside_template/homepage.html'
