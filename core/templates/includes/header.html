@@ -15,9 +15,9 @@
 						<span class="user-icon"><i class="far fa-user"></i></span>
 						<span class="user-name">
 						{% if user.first_name %}
-						{{ user.first_name }} {{ user.last_name }}
-						{% elif user.username  %}
-							{{ user.username }}
+						{{ user.get_full_name }}
+						{% else  %}
+							{{ user.get_username }}
                         {% endif %}
 						</span>
 					</a>
