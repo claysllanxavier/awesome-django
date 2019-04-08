@@ -4,7 +4,6 @@ customizados, das views, da APIRest e dos Forms.
 
 import fileinput
 import os
-import time
 from optparse import make_option
 
 # Pacote responsável por pegar a instância do models baseado no nome
@@ -614,20 +613,6 @@ class Command(BaseCommand):
             content = content.replace("$ModelClass$", self.model)
             content = content.replace("$app_name$", self.app_lower)
             content = content.replace("$model_name$", self.model_lower)
-            # Verificando se o arquivo views.py já existe
-            if self._check_file(self.path_views) is False:
-                # Caso o arquivo não exista ele a já adiciona o código inicial
-                with open(self.path_views, 'w') as arquivo:
-                    arquivo.write(content)
-                return
-
-            # Verificando se já existe configuração da views para
-            # o Models informado
-            if self._check_content(
-                    self.path_views, "class {}ListView".format(self.model)):
-                self._message(
-                    "O model informado já possui as views configuradas.")
-                return
 
             _import_forms_modal = ""
             # Recuperando o objeto model para acessar os atributos
@@ -676,6 +661,21 @@ class Command(BaseCommand):
                 self._message(
                     "OCORREU UM ERRO, VERIFIQUE SE O ARQUIVO views.py sofreu"
                     "alguma alteração")
+
+            # Verificando se o arquivo views.py já existe
+            if self._check_file(self.path_views) is False:
+                # Caso o arquivo não exista ele a já adiciona o código inicial
+                with open(self.path_views, 'w') as arquivo:
+                    arquivo.write(content)
+                return
+
+            # Verificando se já existe configuração da views para
+            # o Models informado
+            if self._check_content(
+                    self.path_views, "class {}ListView".format(self.model)):
+                self._message(
+                    "O model informado já possui as views configuradas.")
+                return
 
             # Atualizadno o conteúdo do arquivo.
             with open(self.path_views, 'a') as views:
@@ -735,7 +735,7 @@ class Command(BaseCommand):
                     "path('', IndexTemplateView.as_view("
                     "extra_context={'app_name':app_name}),"
                     " name='index-app'),\n    ", '')
-            
+
             # Verificando se o arquivo já possui o app_name configurado
             if self._check_content(
                     self.path_urls, "app_name = \'{}\'".format(self.app)):
