@@ -30,6 +30,7 @@
                         <div id="div-table" class="col-md-12">
                         {% block tableblock %}
                             {% if object_list|length > 0 and display|length > 0 %}
+                            <div class="table-responsive-sm">
                                 <table id="table-item" class="table table-striped">
                                     <thead>
                                     <tr>
@@ -119,6 +120,7 @@
                                         </tfoot>
                                     {% endif %}
                                 </table>
+                            </div>
                             {% else %}
                                 <div class="alert alert-info" role="alert">
                                     {% block mensagem_info %}

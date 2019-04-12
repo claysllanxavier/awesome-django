@@ -1,9 +1,8 @@
 jQuery(window).on("load",function() {
 	"use strict";
-	jQuery(".pre-loader").fadeToggle("medium");	
+	jQuery(".pre-loader").fadeToggle("medium");
 });
 jQuery(document).ready(function(){
-	$.fn.modal.Constructor.prototype._enforceFocus = function() {};
 	"use strict";
 	// Background Image
 	jQuery(".bg_img").each( function ( i, elem ) {
@@ -48,6 +47,7 @@ jQuery(document).ready(function(){
 	}
 	// custom select 2 init
 	$(".select").not(".inline .select")
+                .not(".modal-body .select")
 				.select2();
 
 	//custom dates
@@ -56,7 +56,7 @@ jQuery(document).ready(function(){
 	$('.datefield').datepicker({
 		language: 'pt-BR',
 		autoClose: true,
-		dateFormat: 'dd/mm/yyyy ',
+		dateFormat: 'dd/mm/yyyy',
 
 	})
 	$('.datetimefield').datepicker({
@@ -264,5 +264,5 @@ function CopyToClipboard(value, showNotification, notificationText) {
 
 $(document).on({
     ajaxStart: function() { jQuery(".pre-loader").fadeToggle("medium");    },
-     ajaxStop: function() { jQuery(".pre-loader").fadeToggle("medium"); }    
+     ajaxStop: function() { jQuery(".pre-loader").fadeToggle("medium"); }
 });
