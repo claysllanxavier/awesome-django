@@ -8,7 +8,7 @@
     <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
         <div class="container-fluid">
             <div class="container-margin">
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     {% block contentform %}
                         {% csrf_token %}
                         {% if form.non_field_errors  %}
