@@ -922,8 +922,8 @@ class Command(BaseCommand):
             self.html_scripts = ''
             # Percorrendo os campos/atributos do models
             for field in iter(model._meta.fields):
-                if str(field).split('.')[2] not in ('updated_on', 'created_on',
-                                                    'deleted_on', 'id'):
+                if str(field).split('.')[2] not in ('updated_at', 'created_at',
+                                                        'id'):
                     html_tag += self._render_input(field)
             if html_tag is not '':
                 # Pegando os templates do Model informado

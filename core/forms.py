@@ -55,7 +55,7 @@ class BaseForm(forms.ModelForm):
                 class_attrs = "{} {}".format(class_attrs, 'datefield')
             # Verificando se o campo é do tipo ChoiceField
             elif isinstance(self.fields[field], ChoiceField) is True:
-                class_attrs = "{} {}".format(class_attrs, 'select')
+                class_attrs = "{} {}".format(class_attrs, 'select2')
 
             # Atualizando os atributos do campo para adicionar as classes
             # conforme as regras anteriores
@@ -73,13 +73,13 @@ class BaseForm(forms.ModelForm):
 
     class Meta:
         model = Base
-        exclude = ['deleted_on']
+        exclude = ['created_at', 'updated_at']
 
 
 class ParameterForBaseForm(BaseForm):
     class Meta:
         model = ParameterForBase
-        exclude = ['deleted_on']
+        exclude = ['created_at', 'updated_at']
 
 
 class BasePasswordResetForm(PasswordResetForm):

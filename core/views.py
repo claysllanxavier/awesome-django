@@ -37,7 +37,7 @@ from django.utils.text import camel_case_to_spaces
 from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from core.models import BaseMetod, NotificationBase, ParameterForBase
+from core.models import BaseMetod, ParameterForBase
 
 from .forms import BaseForm
 from .models import Base
@@ -127,23 +127,6 @@ def get_apps(context_self):
                 _apps.append({'name_app': '%s' % app.name,'verbose_name_app': '%s' % app.verbose_name, 'icon_app': icon, 'models_app': _models})
     return _apps
 
-
-def get_notifications(context_self):
-    # pega a view name que o usuario está acessando
-    url_view_name = context_self.request.resolver_match.view_name
-    url_paremeter_kwargs = context_self.request.resolver_match.kwargs
-    url_paremeter_args = context_self.request.resolver_match.args
-
-    # aqui marca como lida as notificações não visualizadas em que tiverem essa view name que o ususario está acessando
-    notificacoes = NotificationBase.objects.filter(destinatario=context_self.request.user).filter(visualizado=False).filter(url=url_view_name)
-    if url_paremeter_kwargs or url_paremeter_args:
-        notificacoes.filter(Q(Q(parametro=url_paremeter_kwargs['pk']) | Q(parametro=url_paremeter_args)))
-    notificacoes.update(visualizado=True)
-
-    # retorna a lista de Notificações não visualizadas para aparecer no icone de alerta
-    return NotificationBase.objects.filter(destinatario=context_self.request.user).filter(visualizado=False)
-
-
 class BaseTemplateView(TemplateView):
     """
     Classe base que deve ser herdada caso o desenvolvedor queira reaproveitar
@@ -157,14 +140,13 @@ class BaseTemplateView(TemplateView):
 
     def get_template_names(self):
         if self.template_name:
-            return [self.template_name,]
-        return ['outside_template/base.html',]
+            return [self.template_name, ]
+        return ['outside_template/base.html', ]
 
     def get_context_data(self, **kwargs):
         context = super(BaseTemplateView, self).get_context_data(**kwargs)
         context['apps'] = get_apps(self)
-        context['notifications'] = get_notifications(self)
-        context['parameter'] = ParameterForBase.objects.first
+        context['parameter'] = ParameterForBase.objects.first()
         return context
 
 
@@ -242,9 +224,22 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     def get_queryset(self):
         queryset = super(BaseListView, self).get_queryset()
 
-        if ((hasattr(self.model,'_meta') and hasattr(self.model._meta,'ordering') and self.model._meta.ordering ) or
-                ((hasattr(self.model,'Meta') and hasattr(self.model.Meta,'ordering') and self.model.Meta.ordering))):
-            queryset = queryset.order_by(*(self.model._meta.ordering or self.model.Meta.ordering))
+        if (
+            (
+                hasattr(self.model, '_meta')
+                and hasattr(self.model._meta, 'ordering')
+                and self.model._meta.ordering)
+                or(
+                    (
+                        hasattr(self.model, 'Meta')
+                        and hasattr(self.model.Meta, 'ordering')
+                        and self.model.Meta.ordering
+                    )
+            )
+        ):
+            queryset = queryset.order_by(
+                *(self.model._meta.ordering or self.model.Meta.ordering)
+            )
 
         try:
             param_filter = self.request.GET.get('q')
@@ -323,6 +318,47 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                             logger.error('Erro: %s; No Metodo: %s' % (e_date, 'BaseListView.get_queryset()'))
                             pass
                         queryset = queryset.filter(**{chave: valor})
+            fields_select = []
+            display_list = self.get_list_display()
+            if '__str__' not in display_list:
+                for name in display_list:
+                    try:
+                        if name == '__str__':
+                            continue
+                        elif (
+                            '__' in name
+                            and has_fk_attr(self.model, name)
+                        ):
+                            list_name = name.split('__')
+                            list_name.reverse()
+                            list_display_verbose_name.append(' '.join(list_name).title())
+                        elif name != 'pk' and name != 'id':
+                            if (
+                                hasattr(self, name)
+                                and hasattr(
+                                    getattr(self, name), 'short_description'
+                                )
+                            ):
+                                list_display_verbose_name.append(
+                                    getattr(self, name).short_description
+                                )
+                            elif(
+                                hasattr(self.model, name)
+                                and hasattr(
+                                    getattr(self.model, name),
+                                    'short_description'
+                                )
+                            ):
+                                list_display_verbose_name.append(
+                                    getattr(self.model, name).short_description
+                                )
+                            else:
+                                fields_select.append(name)
+                        else:
+                            fields_select.append(name)
+                    except FieldDoesNotExist as e:
+                        raise FieldDoesNotExist("%s não tem nenhum campo chamado '%s'" % (self.model._meta.model_name, name))
+                queryset = queryset.only(*fields_select)
             return queryset
         except FieldError as fe:
             if field:
@@ -331,6 +367,7 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 logger.error('Erro: %s; No Metodo: %s' % (fe, 'BaseListView.get_queryset()'))
             return queryset.none()
         except Exception as e:
+            print(e)
             messages.error(self.request, "Erro ao tentar filtrar!", extra_tags='danger')
             logger.error('Erro: %s; No Metodo: %s' % (e, 'BaseListView.get_queryset()'))
             return queryset.none()
@@ -631,8 +668,7 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
             context['model_name'] = '%s' % (self.model._meta.verbose_name_plural or self.model._meta.object_name).title()
             context['apps'] = get_apps(self)
-            context['notifications'] = get_notifications(self)
-            context['parameter'] = ParameterForBase.objects.first
+            context['parameter'] = ParameterForBase.objects.first()
 
             context['has_add_permission'] = self.model().has_add_permission(self.request)
             context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -663,6 +699,7 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Base
     exclude = ['deleted_on']
     template_name_suffix = '_detail'
+    relations = []
 
     def get_template_names(self):
         if self.template_name:
@@ -690,7 +727,9 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(BaseDetailView, self).get_context_data(**kwargs)
-        object_list, many_fields = self.object.get_all_related_fields(view=self)
+        object_list, many_fields = self.object.get_all_related_fields(
+            view=self, relations=self.relations
+        )
         context['object_list'] = object_list
         context['many_fields'] = many_fields
 
@@ -712,8 +751,7 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         context['model_name'] = '%s' % (
                     self.model._meta.verbose_name or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
-        context['notifications'] = get_notifications(self)
-        context['parameter'] = ParameterForBase.objects.first
+        context['parameter'] = ParameterForBase.objects.first()
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -832,8 +870,7 @@ class BaseUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         context['model_name'] = '%s' % (
                     self.model._meta.verbose_name_plural or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
-        context['notifications'] = get_notifications(self)
-        context['parameter'] = ParameterForBase.objects.first
+        context['parameter'] = ParameterForBase.objects.first()
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -1049,8 +1086,7 @@ class BaseCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         context['model_name'] = '%s' % (
                     self.model._meta.verbose_name_plural or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
-        context['notifications'] = get_notifications(self)
-        context['parameter'] = ParameterForBase.objects.first
+        context['parameter'] = ParameterForBase.objects.first()
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -1183,10 +1219,16 @@ class BaseDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super(BaseDeleteView, self).get_context_data(**kwargs)
 
-        object_list, many_fields = self.object.get_all_related_fields(view=self)
+        object_list, many_fields = self.object.get_all_related_fields(
+            view=self, deleted_view=True
+        )
 
         # retorna lista de objetos que o usuario não tem permissão de excluir e lista dos objetos que estão protegidos com o PROTECT
-        (perms_needed, protected) = self.object.get_deleted_objects(type(self.object).objects.filter(id=self.object.id), self.request.user)
+        (perms_needed, protected) = self.object.get_deleted_objects(
+            type(self.object).objects.filter(
+                id=self.object.id
+            ), self.request.user
+        )
 
         # inclui na lista objetos relacionados que o usuario não tem permissão
         for related in many_fields:
@@ -1219,8 +1261,7 @@ class BaseDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         context['model_name'] = '%s' % (
                 self.model._meta.verbose_name_plural or self.model._meta.object_name or '').title()
         context['apps'] = get_apps(self)
-        context['notifications'] = get_notifications(self)
-        context['parameter'] = ParameterForBase.objects.first
+        context['parameter'] = ParameterForBase.objects.first()
 
         context['has_add_permission'] = self.model().has_add_permission(self.request)
         context['has_change_permission'] = self.model().has_change_permission(self.request)
@@ -1230,8 +1271,9 @@ class BaseDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 
 
 class BaseLoginView(LoginView):
+    parametro = ParameterForBase.objects.first()
     template_name = 'outside_template/registration/base_login.html'
-    extra_context = {'parameter': ParameterForBase.objects.first}
+    extra_context = {'parameter': parametro}
     redirect_authenticated_user = True
     
     def get_success_url(self):
@@ -1279,61 +1321,5 @@ class BasePasswordResetCompleteView(PasswordResetCompleteView):
         context['parameter'] = parametro
         context['login_url'] = resolve_url(parametro.login_url or settings.LOGIN_URL)
         return context
-
-class NotificationListView(BaseTemplateView):
-    model = NotificationBase
-    template_name = 'outside_template/notification/notification_list.html'
-    paginate_by = 10
-
-    def has_permission(self):
-        """
-        Verifica se ele tem permissão de acessar as Notificações
-        """
-        return (self.request.user and self.request.user.is_authenticated and self.request.user.is_active and self.request.user.is_staff)
-
-
-    def get_context_data(self, **kwargs):
-        context = super(NotificationListView, self).get_context_data(**kwargs)
-        context['apps'] = get_apps(self)
-        context['notifications'] = get_notifications(self)
-        context['parameter'] = ParameterForBase.objects.first
-
-        context['id_tab'] = self.request.GET.get('id_tab')
-
-        # Paginacao para os ja vistos
-        reads_paginator = Paginator(NotificationBase.objects.filter(visualizado=True, destinatario=self.request.user), self.paginate_by)
-        page_kwarg = 'notifications_reads-page'
-        reads_page = self.kwargs.get(page_kwarg) or self.request.GET.get(page_kwarg) or 1
-        notifications_reads = reads_paginator.get_page(reads_page)
-        context['notifications_reads'] = notifications_reads
-
-        # Paginacao para os não vistos
-        not_reads_paginator = Paginator(NotificationBase.objects.filter(visualizado=False, destinatario=self.request.user), self.paginate_by)
-        page_kwarg = 'notifications_not_reads-page'
-        not_reads_page = self.kwargs.get(page_kwarg) or self.request.GET.get(page_kwarg) or 1
-        notifications_not_reads = not_reads_paginator.get_page(not_reads_page)
-        context['notifications_not_reads'] = notifications_not_reads
-
-
-        return context
-
-
-@login_required
-def marcar_vistos(request):
-    try:
-        if request.method == 'POST':
-            retorno = "Erro ao tentar executar a ação!"
-            chk_noti_ids = request.POST.getlist('chk_noti_ids[]')
-            if chk_noti_ids:
-                # coloquei o destinatario=self.request.user só para ter certeza que não vai alterar de outras pessoas.
-                NotificationBase.objects.filter(destinatario=request.user).filter(id__in=chk_noti_ids).update(visualizado=True)
-                retorno = "Todas as %s Notificações selecionadas foram marcadas como visualisadas" % len(chk_noti_ids)
-
-            return HttpResponse(retorno)
-    except Exception as e:
-        return HttpResponse("Erro ao tentar executar a ação!")
-    return render(request)
-
-
 class HomePageView(TemplateView):
     template_name = 'outside_template/homepage.html'

@@ -1,7 +1,6 @@
 from .base import *
 
 INSTALLED_APPS += [
-    'demo'
 ]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

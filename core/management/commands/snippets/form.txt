@@ -6,5 +6,5 @@ class $ModelClass$Form(BaseForm):
     #TODO LEMBRE DE COMENTAR O SEU CODIGO $ModelClass$
     """ """
     class Meta:
-        exclude = ['deleted_on']
+        exclude = ['created_at', 'updated_at']
         model = $ModelClass$

@@ -34,27 +34,36 @@ class PaginacaoCustomizada(PageNumberPagination):
 
 
 class BaseManager(models.Manager):
-    """Sobrescrevendo o Manager padrão. Nesse Manager 
+    """Sobrescrevendo o Manager padrão. Nesse Manager
     os registros não são apagados do banco de dados
     apenas desativados, atribuindo ao campo deleted a data de deleção
     """
     def __init__(self, *args, **kwargs):
-        self.alive_only = kwargs.pop('alive_only', True)
         super(BaseManager, self).__init__(*args, **kwargs)
 
     def get_queryset(self):
-        """Sobrescrevendo a queryset para filtrar os 
+        """Sobrescrevendo a queryset para filtrar os
         registros que foram marcados como deleted
         """
         queryset = super(BaseManager, self).get_queryset()
 
-        if ((hasattr(self.model, '_meta') and hasattr(self.model._meta, 'ordering') and self.model._meta.ordering) or
-                ((hasattr(self.model, 'Meta') and hasattr(self.model.Meta, 'ordering') and self.model.Meta.ordering))):
+        if (
+            (
+                hasattr(self.model, '_meta')
+                and hasattr(self.model._meta, 'ordering')
+                and self.model._meta.ordering
+            ) or
+            (
+                (
+                    hasattr(self.model, 'Meta')
+                    and hasattr(self.model.Meta, 'ordering')
+                    and self.model.Meta.ordering
+                )
+            )
+        ):
             queryset = queryset.order_by(
                 *(self.model._meta.ordering or self.model.Meta.ordering))
-        if self.alive_only:
-            return queryset.filter(deleted_on=None)
-        return queryset.exclude(deleted_on=None)
+        return queryset
 
 
 class BaseMetod(models.Model):
@@ -66,10 +75,12 @@ class BaseMetod(models.Model):
     """
 
     objects = BaseManager()
-    # Manager auxiliar para retornar os objetos deletados
-    objects_deads = BaseManager(alive_only=False)
 
-    def get_all_related_fields(self, view=None, include_many_to_many=True):
+    def get_all_related_fields(
+        self, view=None,
+        include_many_to_many=True, 
+        relations=[], deleted_view=False
+    ):
         """Método para retornar todos os campos que fazem referência ao
         registro que está sendo manipulado
 
@@ -78,30 +89,32 @@ class BaseMetod(models.Model):
                          os campos 'comuns' e a segunda lista os campos que
                          possuem relacionamento ManyToMany ou ForeignKey]
         """
-
         try:
             # Lista para retornar os campos que não são de relacionamento
             object_list = []
 
             # Lista para retornar os campos com relacionamento
             many_fields = []
-
+                       
             for field in self._meta.get_fields(include_parents=True):
-                # Verificando se existe o atributo exclude no atributo que está sendo analisado
-
-                if view and hasattr(view, 'exclude') and field.name in view.exclude:
+                # Verificando se existe o atributo exclude
+                # no atributo que está sendo analisado
+                if (
+                    view and hasattr(view, 'exclude')
+                    and field.name in view.exclude
+                ):
                     continue
-                if view and hasattr(view, 'form_class') and hasattr(view.form_class._meta, 'exclude') and field.name in view.form_class._meta.exclude:
+                if (
+                    view and hasattr(view, 'form_class')
+                    and hasattr(view.form_class._meta, 'exclude')
+                    and field.name in view.form_class._meta.exclude
+                ):
                     continue
                 if field.name in self.get_exclude_hidden_fields():
                     continue
                 # Desconsiderando o campo do tipo AutoField da análise
                 if isinstance(field, AutoField):
                     continue
-                # Desconsiderando os campos com atributos auto_now_add ou now_add da análise
-                # if hasattr(field, "auto_now_add") or hasattr(field, "now_add"):
-                #     continue
-
                 try:
                     # Verificando o tipo do relacionamento entre os campos
                     if type(field) is ManyToManyField and include_many_to_many:
@@ -110,59 +123,132 @@ class BaseMetod(models.Model):
                                 field.verbose_name or field.name,
                                 self.__getattribute__(field.name).all() or None
                             ))
-                    elif (((type(field) is ManyToOneRel or type(field) is ManyToManyRel)) or
-                          type(field) is GenericRel or type(field) is GenericForeignKey):
-                        if self.__getattribute__((field.related_name or '{}_set'.format(field.name))).exists():
-                            many_fields.append((field.related_model._meta.verbose_name_plural or field.name,
-                                                self.__getattribute__(
-                                                    (field.related_name or '{}_set'.format(
-                                                        field.name))
-                                                )))
+                    elif (
+                        (
+                            (
+                                type(field) is ManyToOneRel
+                                or type(field) is ManyToManyRel
+                            )
+                        ) or
+                        (
+                            type(field) is GenericRel
+                            or type(field) is GenericForeignKey
+                        )
+                    ):
+                        if field.name in relations or deleted_view:
+                            if self.__getattribute__(
+                                (
+                                    field.related_name
+                                    or '{}_set'.format(field.name)
+                                )
+                            ).exists():
+                                many_fields.append(
+                                    (
+                                        field.related_model._meta.verbose_name_plural
+                                        or field.name,
+                                        self.__getattribute__(
+                                            (field.related_name or '{}_set'.format(
+                                                            field.name))
+                                        )
+                                    )
+                                )
+                        else:
+                            continue
                     elif type(field) is GenericRelation:
-                        if self.__getattribute__(field.name).exists():
-                            many_fields.append((field.related_model._meta.verbose_name_plural or field.name,
-                                                self.__getattribute__(
-                                                    field.name).all()
-                                                ))
-                    elif type(field) is OneToOneRel or type(field) is OneToOneField:
-                        object_list.append((field.related_model._meta.verbose_name or field.name,
-                                            self.__getattribute__(field.name)))
+                        if field.name in relations or deleted_view:
+                            if self.__getattribute__(field.name).exists():
+                                many_fields.append(
+                                    (
+                                        field.related_model._meta.verbose_name_plural
+                                        or field.name,
+                                        self.__getattribute__(
+                                            field.name).all()
+                                    )
+                                )
+                        else:
+                            continue
+                    elif (
+                        type(field) is OneToOneRel
+                        or type(field) is OneToOneField
+                    ):
+                        object_list.append(
+                            (
+                                field.related_model._meta.verbose_name
+                                or field.name,
+                                self.__getattribute__(field.name)
+                            )
+                        )
                     elif type(field) is BooleanField:
                         object_list.append(
-                            ((field.verbose_name if hasattr(field, 'verbose_name') else None) or field.name,
-                             "Sim" if self.__getattribute__(field.name) else None))
+                            (
+                                (
+                                    field.verbose_name
+                                    if hasattr(field, 'verbose_name')
+                                    else None
+                                ) or field.name,
+                                "Sim" if self.__getattribute__(field.name)
+                                else None
+                            )
+                        )
                     elif type(field) is DateField:
                         object_list.append(
-                            ((field.verbose_name if hasattr(field, 'verbose_name') else None) or field.name,
-                            self.__getattribute__(field.name).strftime("%d/%m/%Y")
-                            if self.__getattribute__(field.name) else "Nâo"))
+                            (
+                                (
+                                    field.verbose_name
+                                    if hasattr(field, 'verbose_name')
+                                    else None
+                                ) or field.name,
+                                self.__getattribute__(field.name).strftime("%d/%m/%Y")
+                                if self.__getattribute__(field.name)
+                                else "Nâo"
+                            )
+                        )
                     elif type(field) is ImageField or type(field) is FileField:
                         tag = ''
                         if self.__getattribute__(field.name).name:
                             if type(field) is ImageField:
-                                tag = '<img width="100px" src="{url}" alt="{nome}" />'
+                                tag = '<img width="100px" src="{url}" \
+                                    alt="{nome}" />'
                             elif type(field) is FileField:
-                                tag = '<a  href="{url}" > <i class="fas fa-file"></i> {nome}</a>'
+                                tag = '<a  href="{url}" > \
+                                    <i class="fas fa-file"></i> {nome}</a>'
                             if tag:
-                                tag = tag.format(url=self.__getattribute__(field.name).url,
-                                                 nome=self.__getattribute__(field.name).name.split('.')[0])
-
-                        object_list.append(
-                            ((field.verbose_name if hasattr(field, 'verbose_name') else None) or field.name,
-                             tag))
-                    elif hasattr(field, 'choices') and hasattr(self, 'get_{}_display'.format(field.name)):
+                                tag = tag.format(
+                                    url=self.__getattribute__(field.name).url,
+                                    nome=self.__getattribute__(field.name).name.split('.')[0]
+                                )
                         object_list.append(
                             (
-                                (field.verbose_name if hasattr(
-                                    field, 'verbose_name') else None) or field.name,
+                                (
+                                    field.verbose_name if hasattr(field, 'verbose_name')
+                                    else None
+                                ) or field.name, tag
+                            )
+                        )
+                    elif (
+                        hasattr(field, 'choices')
+                        and hasattr(self, 'get_{}_display'.format(field.name))
+                    ):
+                        object_list.append(
+                            (
+                                (
+                                    field.verbose_name
+                                    if hasattr(field, 'verbose_name')
+                                    else None
+                                ) or field.name,
                                 getattr(
                                     self, 'get_{}_display'.format(field.name))()
                             )
                         )
                     else:
                         object_list.append(
-                            ((field.verbose_name if hasattr(field, 'verbose_name') else None) or field.name,
-                             self.__getattribute__(field.name)))
+                            (
+                                (
+                                    field.verbose_name
+                                    if hasattr(field, 'verbose_name')
+                                    else None
+                                ) or field.name,
+                            self.__getattribute__(field.name)))
                 except Exception:
                     pass
 
@@ -172,17 +258,21 @@ class BaseMetod(models.Model):
 
     def get_deleted_objects(self, objs, user, using='default'):
         """
-        Find all objects related to ``objs`` that should also be deleted. ``objs``
+        Find all objects related to ``objs`` that should also be deleted.
+        ``objs``
         must be a homogeneous iterable of objects (e.g. a QuerySet).
 
         Return a nested list of strings suitable for display in the
         template with the ``unordered_list`` filter.
 
-        Encontre todos os objetos relacionados a ``objs`` que também devem ser deletados. ``objs``
-                  deve ser um iterável homogêneo de objetos (por exemplo, um QuerySet).
+        Encontre todos os objetos relacionados a ``objs`` que também
+        devem ser deletados. ``objs``
+                  deve ser um iterável homogêneo de objetos
+                    (por exemplo, um QuerySet).
 
-                  Retornar uma lista aninhada de sequências adequadas para exibição no
-                  template com o filtro `` unordered_list``.
+                Retornar uma lista aninhada de sequências
+                adequadas para exibição no
+                template com o filtro `` unordered_list``.
         """
         collector = NestedObjects(using=using)
         collector.collect(objs)
@@ -250,7 +340,7 @@ class BaseMetod(models.Model):
         ordering = ['pk']
 
     def get_exclude_hidden_fields(self):
-        return ['deleted_on', 'created_on', 'updated_on']
+        return ['created_at', 'updated_at']
 
     def get_meta(self):
         return self._meta
@@ -305,9 +395,8 @@ class BaseMetod(models.Model):
 
 
 class Base(BaseMetod):
-    created_on = models.DateTimeField(auto_now_add=True)
-    updated_on = models.DateTimeField(auto_now=True)
-    deleted_on = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         """ Configure abstract class """
@@ -315,14 +404,16 @@ class Base(BaseMetod):
         ordering = ['pk']
 
     def __str__(self):
-        return '%s' % self.updated_on
+        return '%s' % self.updated_at
 
 
 class ParameterForBase(Base):
     nomeProjeto = models.TextField(blank=True, null=True, default='')
     tituloProjeto = models.TextField(blank=True, null=True, default='')
     descricaoProjeto = models.TextField(blank=True, null=True, default='')
-    iconeProjeto = models.ImageField(upload_to='images/', blank=True, null=True)
+    iconeProjeto = models.ImageField(
+        upload_to='images/', blank=True, null=True
+    )
     login_redirect_url = models.CharField(
         max_length=250, blank=True, null=True, default='/core/')
     login_url = models.CharField(
@@ -347,8 +438,12 @@ class ParameterForBase(Base):
 
 
 class ParametersUser(Base):
-    senha_padrao = models.CharField(verbose_name=u"Senha padrão para reset", max_length=30, default=u'password@123456',
-                                    help_text=u"Senha padrão que sera criada quando resetar senha do usuario")
+    senha_padrao = models.CharField(
+        verbose_name=u"Senha padrão para reset",
+        max_length=30,
+        default=u'password@123456',
+        help_text=u"Senha padrão que sera criada quando resetar senha do usuario"
+    )
 
     def __unicode__(self):
         return u'%s' % self.id
@@ -359,53 +454,3 @@ class ParametersUser(Base):
         permissions = (
             ("can_reset_password", u"Pode resetar a senha"),
         )
-
-
-class NotificationBase(models.Model):
-    """
-    Model responsavel para o sistema de notificações
-    """
-    CHOICES = (
-        ('info', 'Info'),
-        ('success', 'Success'),
-        ('warning', 'Warning'),
-        ('danger', 'Danger')
-    )
-    remetente = models.ForeignKey(User, verbose_name=u"Remetente", blank=True, null=True,
-                                  related_name='notificationbase_remetente', on_delete=models.CASCADE)
-    remetente_string = models.CharField(u"Remetente Descrição", max_length=60, null=True, blank=True)
-    destinatario = models.ForeignKey(User, verbose_name=u"Destinatário",
-                                     related_name='notificationbase_destinatario', on_delete=models.CASCADE)
-    titulo = models.CharField(u"Título", max_length=30, null=True, blank=True)
-    mensagem = models.TextField(u"Mensagem")
-    url = models.CharField(u"View name URL", max_length=60)
-    parametro = models.CharField(u"Parametro URL", max_length=20, null=True, blank=True)
-    parametro_get = models.CharField(u"Parametro GET", max_length=60, null=True, blank=True)
-    visualizado = models.BooleanField(u"Visualizado", default=False, db_index=True)
-    data_envio = models.DateTimeField(u"Data de envio", auto_now_add=True)
-    tipo = models.CharField(u"Tipo", choices=CHOICES, max_length=10, default=CHOICES[0][0])
-
-    def __str__(self):
-        return u"Notificação nº%s - %s" % (self.id, self.data_envio.strftime("%d/%m/%Y %H:%M:%S"))
-
-    def data_envio_f(self):
-        return self.data_envio.strftime("%d/%m/%Y %H:%M:%S")
-
-    def get_url(self):
-        url = self.url
-        try:
-            if url and self.parametro:
-                try:
-                    return reverse(url, args=self.parametro)
-                except Exception:
-                    return reverse(url, kwargs={'pk':self.parametro})
-            elif url:
-                return reverse(url)
-        except Exception:
-            pass
-        return '#'
-
-    class Meta:
-        verbose_name = "notificação"
-        verbose_name_plural = "notificações"
-        ordering = ['-data_envio']

@@ -8,8 +8,7 @@ from django.urls import path, reverse_lazy, include
 from core.forms import BasePasswordResetForm
 from core.models import ParameterForBase
 from core.views import (BaseLoginView, BaseLogoutView,
-                        BasePasswordResetCompleteView, IndexTemplateView,
-                        NotificationListView, marcar_vistos)
+                        BasePasswordResetCompleteView, IndexTemplateView)
 
 app_name = 'core'
 urlpatterns = [
@@ -43,6 +42,4 @@ urlpatterns = [
         extra_context={'parameter': ParameterForBase.objects.first} ), name="password_reset_confirm"),
 
     path('reset/done/', BasePasswordResetCompleteView.as_view(), name="password_reset_complete"),
-    path('notification/', NotificationListView.as_view(), name="notificationbase-list"),
-    path('notification/marcar_vistos/', marcar_vistos, name="marcar_vistos"),
 ]
