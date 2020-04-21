@@ -2,23 +2,21 @@
 <div class="left-side-bar">
     <div class="brand-logo">
         <a href="{% url 'core:index' %}">
-            {% if parameter.iconeProjeto %}
-                <img src="{{ parameter.iconeProjeto.url }}" alt="login" class="login-img">
-            {% endif %}
+            <img src="{% static 'vendors/images/logo.svg' %}" alt="login" class="login-img">
         </a>
     </div>
     <div class="menu-block customscroll">
         <div class="sidebar-menu">
             <ul id="accordion-menu">
                 <li>
-                    <a href="{% url 'core:index'%}" 
+                    <a href="{% url 'core:index'%}"
                     class="dropdown-toggle no-arrow
                     {% if request.resolver_match.url_name == 'index' or request.resolver_match.url_name == 'index-app' %}
                     active{% endif %}">
                         <span class="fa fa-home"></span><span class="mtext">Início</span>
                     </a>
                 </li>
-                
+
                 {% block itens_menu %}
                 {% for app in apps %}
                 <li class="dropdown">
@@ -29,7 +27,7 @@
                     <ul class="submenu">
                      {% for app_model in app.models_app %}
                         <li>
-                            <a class="{% if app_model.url_list_model == url_list %} active {% endif %}" 
+                            <a class="{% if app_model.url_list_model == url_list %} active {% endif %}"
                             href="{% url app_model.url_list_model %}">{{ app_model.name_model }}</a>
                         </li>
                     {% endfor %}

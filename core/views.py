@@ -63,7 +63,7 @@ def get_breadcrumbs(url_str):
 
     Returns:
         [Lista] -- [Lista com o breadcrumb]
-    """ 
+    """
 
     breadcrumbs = []
     breadcrumbs.append({'slug': "Inicio", 'url': "/core/", })
@@ -319,6 +319,7 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                             pass
                         queryset = queryset.filter(**{chave: valor})
             fields_select = []
+            related_select = []
             display_list = self.get_list_display()
             if '__str__' not in display_list:
                 for name in display_list:
@@ -330,35 +331,35 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                             and has_fk_attr(self.model, name)
                         ):
                             list_name = name.split('__')
-                            list_name.reverse()
-                            list_display_verbose_name.append(' '.join(list_name).title())
-                        elif name != 'pk' and name != 'id':
-                            if (
-                                hasattr(self, name)
-                                and hasattr(
-                                    getattr(self, name), 'short_description'
-                                )
-                            ):
-                                list_display_verbose_name.append(
-                                    getattr(self, name).short_description
-                                )
-                            elif(
-                                hasattr(self.model, name)
-                                and hasattr(
-                                    getattr(self.model, name),
-                                    'short_description'
-                                )
-                            ):
-                                list_display_verbose_name.append(
-                                    getattr(self.model, name).short_description
-                                )
-                            else:
-                                fields_select.append(name)
+                            list_name.pop()
+                            aux = "__".join(list_name)
+                            related_select.append(aux)
+                            fields_select.append(name)
+                        elif (
+                          hasattr(self, name)
+                          and hasattr(getattr(self, name),'short_description')
+                        ):
+                            continue
+                        elif(
+                          hasattr(self.model, name)
+                          and hasattr(getattr(self.model, name),'short_description')
+                        ):
+                            func = getattr(self.model, name)
+                            if(hasattr(func, 'fields')):
+                                for field in func.fields:
+                                    if '__' in field:
+                                        list_name = field.split('__')
+                                        list_name.pop()
+                                        aux = "__".join(list_name)
+                                        related_select.append(aux)
+                                    fields_select.append(field)
                         else:
                             fields_select.append(name)
                     except FieldDoesNotExist as e:
                         raise FieldDoesNotExist("%s não tem nenhum campo chamado '%s'" % (self.model._meta.model_name, name))
                 queryset = queryset.only(*fields_select)
+                if(len(related_select) > 0):
+                    queryset = queryset.select_related(*related_select)
             return queryset
         except FieldError as fe:
             if field:
@@ -385,14 +386,8 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                     list_name.reverse()
                     list_display_verbose_name.append(' '.join(list_name).title())
                 elif name != 'pk' and name != 'id':
-                    # verifica se existe auguma função feita na view e usada no display
-                    # verifica se é do tipo allow_tags
-                    # e verifica se tem o short_description para usa-lo no cabeçario da tabela do list
                     if (hasattr(self, name) and hasattr(getattr(self, name),'short_description')):
                         list_display_verbose_name.append(getattr(self, name).short_description)
-                    # verifica se existe auguma função feita no model e usada no display
-                    # verifica se é do tipo allow_tags
-                    # e verifica se tem o short_description para usa-lo no cabeçario da tabela do list
                     elif(hasattr(self.model, name) and hasattr(getattr(self.model, name),'short_description')):
                         list_display_verbose_name.append(getattr(self.model, name).short_description)
                     elif hasattr(self.model, name):
@@ -532,10 +527,10 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 for field_display in self.get_list_display():
                     try:
                         if '__' in field_display and field_display != '__str__' and has_fk_attr(obj.__class__, field_display):
-                            lista_fk = context['object_list'].values('id', field_display)
-                            for item_fk in lista_fk:
-                                if item_fk['id'] == obj.id:
-                                    field_dict[field_display] = "{}".format(item_fk[field_display])
+                            list_name = field_display.split('__')
+                            field_dict[field_display] = "{}".format(
+                              obj.__getattribute__(list_name[0]).__getattribute__(list_name[1])
+                            )
                         elif hasattr(obj, field_display) and not hasattr(getattr(obj, field_display),'short_description') and field_display != '__str__':
                             # verifica se o campo não é None se sim entra no if
                             if obj.__getattribute__(field_display) is not None:
@@ -616,7 +611,7 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                         filter[field.name] = {'label':label_name,'list':field.related_model.objects.distinct(), 'type_filter':'ForeignKey'}
                     # Verificando se o campo eh booleano
                     elif isinstance(field, BooleanFieldModel):
-                        filter[field.name] = {'label':label_name,'list':['True', 'False'], 'type_filter':'BooleanFieldModel'}
+                        filter[field.name] = {'label':label_name,'list':['Sim', 'Não'], 'type_filter':'BooleanFieldModel'}
                     elif isinstance(field, DateField) or isinstance(field, DateTimeField):
                         # cria um choice list com  os operadores que poderá usar
                         choice_date_list = []
@@ -643,9 +638,9 @@ class BaseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                             filter[field.name] = {'label':label_name,'list':self.get_queryset().
                                 values_list(field.name, flat=True).order_by(field.attname).distinct(field.attname),'type_filter':str(type(field))[:-2].split('.')[-1] }
                     object_filters.append(filter)
-            
+
             for field_function in list_filter_functions:
-                if(hasattr(self.model(), field_function)):                    
+                if(hasattr(self.model(), field_function)):
                     object_filters.append(getattr(self.model(), field_function)())
 
 
@@ -707,13 +702,16 @@ class BaseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         return ['outside_template/base_detail.html',]
 
 
+    def get_queryset(self):
+        queryset = super().get_queryset().select_related()
+        return queryset
+
+
     def get_permission_required(self):
         """
             cria a lista de permissões que a view pode ter de acordo com cada model.
         """
         return ('{app}.view_{model}'.format(app=self.model._meta.app_label, model=self.model._meta.model_name ))
-
-
 
     def has_permission(self):
         """
@@ -1020,9 +1018,9 @@ class BaseCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
             for item in self.form_class._meta.exclude:
                 if item in list(self.form_class.base_fields.keys()) and not item in self.exclude:
                     self.exclude.append(item)
-        
+
         return self.exclude
-    
+
     def get_form(self, form_class=None):
         """Return an instance of the form to be used in this view."""
         form_class = super().get_form(form_class)
@@ -1191,6 +1189,9 @@ class BaseDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         return ['outside_template/base_delete.html', ]
 
 
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related('cidades')
+
     def get_success_url(self):
         if self.success_url and self.success_url != '':
             parametro = ParameterForBase.objects.first()
@@ -1275,7 +1276,7 @@ class BaseLoginView(LoginView):
     template_name = 'outside_template/registration/base_login.html'
     extra_context = {'parameter': parametro}
     redirect_authenticated_user = True
-    
+
     def get_success_url(self):
         url = self.get_redirect_url()
         parametro = ParameterForBase.objects.first()

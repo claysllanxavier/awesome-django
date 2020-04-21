@@ -27,10 +27,7 @@
 <body>
     <div class="login-wrap customscroll d-flex align-items-center flex-wrap justify-content-center pd-20">
         <div class="login-box bg-white box-shadow pd-30 border-radius-5">
-            
-            {% if parameter.iconeProjeto %}
-                <img src="{{ parameter.iconeProjeto.url }}" alt="login" class="login-img">
-            {% endif %}
+            <img src="{% static 'vendors/images/logo.svg' %}" alt="login" class="login-img">
             {% block container %}
             <h5 class="text-center mb-30">Entre para iniciar uma nova sessão</h5>
             <div class="row mt-3 pl-3 pr-3 d-block">
@@ -122,7 +119,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/datepicker.min.js" integrity="sha256-0prQxFtdWQNa3vW5JDMbvbBp6ehKzf9UIWqFGZIWPPE=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.pt-BR.min.js" integrity="sha256-rv+OvxX7UNfyvziwOuXp1+AjVJbHL0V8M0AQiMTOHso=" crossorigin="anonymous"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.pt-BR.min.js" integrity="sha256-rv+OvxX7UNfyvziwOuXp1+AjVJbHL0V8M0AQiMTOHso=" crossorigin="anonymous"></script>
     <script src="{% static 'vendors/js/script.js' %}"></script>
 </body>
 

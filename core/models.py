@@ -78,7 +78,7 @@ class BaseMetod(models.Model):
 
     def get_all_related_fields(
         self, view=None,
-        include_many_to_many=True, 
+        include_many_to_many=True,
         relations=[], deleted_view=False
     ):
         """Método para retornar todos os campos que fazem referência ao
@@ -95,7 +95,7 @@ class BaseMetod(models.Model):
 
             # Lista para retornar os campos com relacionamento
             many_fields = []
-                       
+
             for field in self._meta.get_fields(include_parents=True):
                 # Verificando se existe o atributo exclude
                 # no atributo que está sendo analisado
@@ -248,7 +248,7 @@ class BaseMetod(models.Model):
                                     if hasattr(field, 'verbose_name')
                                     else None
                                 ) or field.name,
-                            self.__getattribute__(field.name)))
+                                self.__getattribute__(field.name)))
                 except Exception:
                     pass
 
